@@ -385,8 +385,7 @@ function Invoke-GHActionsScriptGroup {
 	Enter-GHActionsLogGroup -Title $Title
 	try {
 		return $ScriptBlock.Invoke()
-	}
- finally {
+	} finally {
 		Exit-GHActionsLogGroup
 	}
 }
@@ -412,8 +411,7 @@ function Write-GHActionsError {
 		[Parameter()][uint]$EndColumn,
 		[Parameter()][string]$Title
 	)
-	begin {}
-	process {
+	begin {
 		$Properties = @{}
 		if ($File.Length -gt 0) {
 			$Properties.'file' = $File
@@ -433,6 +431,8 @@ function Write-GHActionsError {
 		if ($Title.Length -gt 0) {
 			$Properties.'title' = $Title
 		}
+	}
+	process {
 		Write-GHActionsCommand -Command 'error' -Message $Message -Properties $Properties
 	}
 	end {}
@@ -456,8 +456,7 @@ function Write-GHActionsNotice {
 		[Parameter()][uint]$EndColumn,
 		[Parameter()][string]$Title
 	)
-	begin {}
-	process {
+	begin {
 		$Properties = @{}
 		if ($File.Length -gt 0) {
 			$Properties.'file' = $File
@@ -477,6 +476,8 @@ function Write-GHActionsNotice {
 		if ($Title.Length -gt 0) {
 			$Properties.'title' = $Title
 		}
+	}
+	process {
 		Write-GHActionsCommand -Command 'notice' -Message $Message -Properties $Properties
 	}
 	end {}
@@ -492,8 +493,7 @@ function Write-GHActionsWarning {
 		[Parameter()][uint]$EndColumn,
 		[Parameter()][string]$Title
 	)
-	begin {}
-	process {
+	begin {
 		$Properties = @{}
 		if ($File.Length -gt 0) {
 			$Properties.'file' = $File
@@ -513,6 +513,8 @@ function Write-GHActionsWarning {
 		if ($Title.Length -gt 0) {
 			$Properties.'title' = $Title
 		}
+	}
+	process {
 		Write-GHActionsCommand -Command 'warning' -Message $Message -Properties $Properties
 	}
 	end {}
