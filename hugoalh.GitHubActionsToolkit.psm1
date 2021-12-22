@@ -1,36 +1,26 @@
 <#
 .SYNOPSIS
-GitHub Actions - Internal - Escape Command Properties Characters
+GitHub Actions - Internal - Escape Characters
 .DESCRIPTION
-An internal function to escape command properties characters that could cause issues.
+An internal function to escape characters that could cause issues.
 .PARAMETER InputObject
+String that need to escape characters.
+.PARAMETER Command
+Also escape command properties characters.
 #>
-function Format-GHActionsEscapeCommandPropertiesCharacters {
+function Format-GHActionsEscapeCharacters {
 	[CmdletBinding()]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][string]$InputObject
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][string]$InputObject,
+		[switch]$Command
 	)
 	begin {}
 	process {
-		return $InputObject -replace '%', '%25' -replace "`n", '%0A' -replace "`r", '%0D' -replace ',', '%2C' -replace ':', '%3A'
-	}
-	end {}
-}
-<#
-.SYNOPSIS
-GitHub Actions - Internal - Escape New Line Characters
-.DESCRIPTION
-An internal function to escape new line characters that could cause issues.
-.PARAMETER InputObject
-#>
-function Format-GHActionsEscapeDataCharacters {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][string]$InputObject
-	)
-	begin {}
-	process {
-		return $InputObject -replace '%', '%25' -replace "`n", '%0A' -replace "`r", '%0D'
+		$Result = $InputObject -replace '%', '%25' -replace "`n", '%0A' -replace "`r", '%0D'
+		if ($Command) {
+			$Result = $Result -replace ',', '%2C' -replace ':', '%3A'
+		}
+		return $Result
 	}
 	end {}
 }
@@ -56,78 +46,78 @@ function Write-GHActionsCommand {
 	$Result = "::$Command"
 	if ($Properties.Count -gt 0) {
 		$Result += " $($($Properties.GetEnumerator() | ForEach-Object -Process {
-			"$($_.Name)=$(Format-GHActionsEscapeCommandPropertiesCharacters -InputObject $_.Value)"
+			"$($_.Name)=$(Format-GHActionsEscapeCharacters -InputObject $_.Value -Command)"
 		}) -join ',')"
 	}
-	$Result += "::$(Format-GHActionsEscapeDataCharacters -InputObject $Message)"
+	$Result += "::$(Format-GHActionsEscapeCharacters -InputObject $Message)"
 	Write-Host -Object $Result
+}
+function Test-GHActionsEnvironmentVariable {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$InputObject
+	)
+	if (($InputObject -match '^[\da-z_]+=.+$') -and (($InputObject -split '=').Count -eq 2)) {
+		return $true
+	}
+	Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern." -Category SyntaxError
 }
 <#
 .SYNOPSIS
 GitHub Actions - Add Environment Variable
 .DESCRIPTION
-Add an environment variable to the system environment variables and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated environment variables.
+Add environment variable to the system environment variables and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated environment variables.
+.PARAMETER InputObject
+Environment variables.
 .PARAMETER Name
 Environment variable name.
 .PARAMETER Value
 Environment variable value.
 #>
 function Add-GHActionsEnvironmentVariable {
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName = 'single')]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][string]$Name,
-		[Parameter(Mandatory = $true, Position = 1)][ValidatePattern('^.+$')][string]$Value
-	)
-	Add-Content -Encoding utf8NoBOM -Path $env:GITHUB_ENV -Value "$Name=$Value"
-}
-<#
-.SYNOPSIS
-GitHub Actions - Add Environment Variables
-.DESCRIPTION
-Add environment variables to the system environment variables and automatically makes these available to all subsequent actions in the current job; The currently running action cannot access the updated environment variables.
-.PARAMETER InputObject
-Environment variables.
-#>
-function Add-GHActionsEnvironmentVariables {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]$InputObject
+		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^[\da-z_]+$')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1)][ValidatePattern('^.+$')][string]$Value
 	)
 	begin {
 		$Result = @{}
 	}
 	process {
-		switch ($InputObject.GetType().FullName) {
-			'System.Collections.Hashtable' {
-				$InputObject.GetEnumerator() | ForEach-Object -Process {
-					if (($_.Name -match '^.+$') -and ($_.Value -match '^.+$')) {
-						$Result[$_.Name] = $_.Value
-					} else {
-						Write-Error -Message "Input `"$($_.Name)=$($_.Value)`" is not match the require environment variable pattern." -Category SyntaxError
+		switch ($PSCmdlet.ParameterSetName) {
+			'multiple' {
+				switch ($InputObject.GetType().Name) {
+					'Hashtable' {
+						$InputObject.GetEnumerator() | ForEach-Object -Process {
+							if (Test-GHActionsEnvironmentVariable -InputObject "$($_.Name)=$($_.Value)") {
+								$Result[$_.Name] = $_.Value
+							}
+						}
+					}
+					{$_ -in @('PSObject', 'PSCustomObject')} {
+						$InputObject.PSObject.Properties | ForEach-Object -Process {
+							if (Test-GHActionsEnvironmentVariable -InputObject "$($_.Name)=$($_.Value)") {
+								$Result[$_.Name] = $_.Value
+							}
+						}
+					}
+					'String' {
+						if (Test-GHActionsEnvironmentVariable -InputObject $InputObject) {
+							$InputObjectSplit = $InputObject.Split('=')
+							$Result[$InputObjectSplit[0]] = $InputObjectSplit[1]
+						}
+					}
+					default {
+						Write-Error -Message 'Parameter `InputObject` must be hashtable, object, or string!' -Category InvalidType
 					}
 				}
 			}
-			'System.Management.Automation.PSCustomObject' {
-				$InputObject.PSObject.Properties | ForEach-Object -Process {
-					if (($_.Name -match '^.+$') -and ($_.Value -match '^.+$')) {
-						$Result[$_.Name] = $_.Value
-					} else {
-						Write-Error -Message "Input `"$($_.Name)=$($_.Value)`" is not match the require environment variable pattern." -Category SyntaxError
-					}
-				}
-			}
-			'System.String' {
-				if (($InputObject -match '^.+=.+$') -and (($InputObject -split '=').Count -eq 2)) {
-					$InputObjectSplit = $InputObject.Split('=')
-					$Result[$InputObjectSplit[0]] = $InputObjectSplit[1]
-				} else {
-					Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern." -Category SyntaxError
-				}
-			}
-			default {
-				Write-Error -Message 'Parameter `InputObject` must be custom object, hashtable, or string!' -Category InvalidType
+			'single' {
+				$Result[$Name] = $Value
 			}
 		}
+		
 	}
 	end {
 		Add-Content -Encoding utf8NoBOM -Path $env:GITHUB_ENV -Value "$($($Result.GetEnumerator() | ForEach-Object -Process {
@@ -137,24 +127,28 @@ function Add-GHActionsEnvironmentVariables {
 }
 <#
 .SYNOPSIS
-GitHub Actions - Add PATHs
+GitHub Actions - Add PATH
 .DESCRIPTION
-Add directories to the system `PATH` variable and automatically makes these available to all subsequent actions in the current job; The currently running action cannot access the updated path variable.
+Add directory to the system `PATH` variable and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated path variable.
 .PARAMETER Path
 System path.
-.EXAMPLE
-Add-GHActionsPATH -Path "$($env:HOME)/.local/bin"
 #>
-function Add-GHActionsPATHs {
+function Add-GHActionsPATH {
 	[CmdletBinding()]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Path
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][string[]]$Path
 	)
 	begin {
 		$Result = @()
 	}
 	process {
-		$Result += $Path
+		$Path.GetEnumerator() | ForEach-Object -Process {
+			if (Test-Path -Path $_ -IsValid) {
+				$Result += $_
+			} else {
+				Write-Error -Message "Input `"$_`" is not match the require path pattern." -Category SyntaxError
+			}
+		}
 	}
 	end {
 		Add-Content -Encoding utf8NoBOM -Path $env:GITHUB_PATH -Value "$($Result -join "`n")"
@@ -197,7 +191,7 @@ function Get-GHActionsIsDebug {
 .SYNOPSIS
 GitHub Actions - Get Input
 .DESCRIPTION
-Get an input.
+Get input.
 .PARAMETER Name
 Name of the input.
 .PARAMETER Required
@@ -208,33 +202,42 @@ Trim the input's value.
 function Get-GHActionsInput {
 	[CmdletBinding()]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Name,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
 		[switch]$Required,
 		[switch]$Trim
 	)
-	begin {}
-	process {
-		$Result = Get-ChildItem -Path "Env:\INPUT_$($Name.ToUpper() -replace ' ','_')" -ErrorAction SilentlyContinue
-		$Value = $null
-		if ($Result -eq $null) {
-			if ($Required -eq $true) {
-				throw "Input ``$Name`` is not defined!"
-			}
-			return $Result
-		}
-		$Value = $Result.Value
-		if ($Trim -eq $true) {
-			return $Value.Trim()
-		}
-		return $Value
+	begin {
+		$Result = @{}
 	}
-	end {}
+	process {
+		$Name.GetEnumerator() | ForEach-Object -Process {
+			$InputValue = Get-ChildItem -Path "Env:\INPUT_$($_.ToUpper() -replace '[ \n\r]','_')" -ErrorAction SilentlyContinue
+			if ($InputValue -eq $null) {
+				if ($Required) {
+					throw "Input ``$_`` is not defined!"
+				}
+				$Result[$_] = $InputValue
+			} else {
+				if ($Trim) {
+					$Result[$_] = $InputValue.Value.Trim()
+				} else {
+					$Result[$_] = $InputValue.Value
+				}
+			}
+		}
+	}
+	end {
+		if ($Result.Count -eq 1) {
+			return $Result.Values[0]
+		}
+		return $Result
+	}
 }
 <#
 .SYNOPSIS
-Get a state.
+GitHub Actions - Get State
 .DESCRIPTION
-Get a state.
+Get state.
 .PARAMETER Name
 Name of the state.
 .PARAMETER Trim
@@ -243,26 +246,37 @@ Trim the state's value.
 function Get-GHActionsState {
 	[CmdletBinding()]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][ValidatePattern('^.+$')][string]$Name,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
 		[switch]$Trim
 	)
-	begin {}
-	process {
-		$Result = Get-ChildItem -Path "Env:\STATE_$($Name.ToUpper() -replace ' ','_')" -ErrorAction SilentlyContinue
-		$Value = $null
-		if ($Result -eq $null) {
-			return $Result
-		}
-		$Value = $Result.Value
-		if ($Trim -eq $true) {
-			return $Value.Trim()
-		}
-		return $Value
+	begin {
+		$Result = @{}
 	}
-	end {}
+	process {
+		$Name.GetEnumerator() | ForEach-Object -Process {
+			$StateValue = Get-ChildItem -Path "Env:\STATE_$($_.ToUpper() -replace '[ \n\r]','_')" -ErrorAction SilentlyContinue
+			if ($StateValue -eq $null) {
+				$Result[$_] = $StateValue
+			} else {
+				if ($Trim) {
+					$Result[$_] = $StateValue.Value.Trim()
+				} else {
+					$Result[$_] = $StateValue.Value
+				}
+			}
+		}
+	}
+	end {
+		if ($Result.Count -eq 1) {
+			return $Result.Values[0]
+		}
+		return $Result
+	}
 }
 <#
 .SYNOPSIS
+GitHub Actions - Set Output
+.DESCRIPTION
 Set an output.
 .PARAMETER Name
 Name of the output.
@@ -276,6 +290,27 @@ function Set-GHActionsOutput {
 		[Parameter(Mandatory = $true, Position = 1)][string]$Value
 	)
 	Write-GHActionsCommand -Command 'set-output' -Message $Value -Properties @{'name' = $Name }
+}
+<#
+.SYNOPSIS
+GitHub Actions - Set Outputs
+.DESCRIPTION
+Set outputs.
+.PARAMETER InputObject
+Outputs.
+#>
+function Set-GHActionsOutputs {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][hashtable]$InputObject
+	)
+	begin {}
+	process {
+		$InputObject.GetEnumerator() | ForEach-Object -Process {
+			Set-GHActionsOutput -Name $_.Name -Value $_.Value
+		}
+	}
+	end {}
 }
 function Save-GHActionsState {
 	[CmdletBinding()]
@@ -482,4 +517,4 @@ function Write-GHActionsWarning {
 	}
 	end {}
 }
-Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsEnvironmentVariables, Add-GHActionsPATHs, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Invoke-GHActionsScriptGroup, Set-GHActionsOutput, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning
+Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Invoke-GHActionsScriptGroup, Set-GHActionsOutput, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning
