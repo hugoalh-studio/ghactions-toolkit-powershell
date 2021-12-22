@@ -256,8 +256,8 @@ GitHub Actions - Get Input
 Get input.
 .PARAMETER Name
 Name of the input.
-.PARAMETER Required
-Whether the input is required. If required and not present, will throw an error.
+.PARAMETER Require
+Whether the input is require. If required and not present, will throw an error.
 .PARAMETER Trim
 Trim the input's value.
 #>
@@ -265,7 +265,7 @@ function Get-GHActionsInput {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
-		[switch]$Required,
+		[switch]$Require,
 		[switch]$Trim
 	)
 	begin {
@@ -275,7 +275,7 @@ function Get-GHActionsInput {
 		$Name.GetEnumerator() | ForEach-Object -Process {
 			$InputValue = Get-ChildItem -Path "Env:\INPUT_$($_.ToUpper() -replace '[ \n\r]','_')" -ErrorAction SilentlyContinue
 			if ($InputValue -eq $null) {
-				if ($Required) {
+				if ($Require) {
 					throw "Input ``$_`` is not defined!"
 				}
 				$Result[$_] = $InputValue
