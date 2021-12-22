@@ -75,6 +75,7 @@
 		'Get-GHActionsState',
 		'Invoke-GHActionsScriptGroup',
 		'Set-GHActionsOutput',
+		'Set-GHActionsState',
 		'Write-GHActionsDebug',
 		'Write-GHActionsError',
 		'Write-GHActionsFail',

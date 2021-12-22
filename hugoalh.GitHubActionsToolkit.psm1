@@ -175,17 +175,79 @@ function Add-GHActionsSecretMask {
 }
 <#
 .SYNOPSIS
-GitHub Actions - Get Debug Status
+GitHub Actions - Disable Command Echo
 .DESCRIPTION
-Get debug status.
+Disable echoing of workflow commands, the workflow run's log will not show the command itself; A workflow command is echoed if there are any errors processing the command; Secret `ACTIONS_STEP_DEBUG` will ignore this.
 #>
-function Get-GHActionsIsDebug {
+function Disable-GHActionsCommandEcho {
+	[CmdletBinding()]
+	param()
+	Write-GHActionsCommand -Command 'echo' -Message 'off'
+}
+<#
+.SYNOPSIS
+GitHub Actions - Disable Processing Command
+.DESCRIPTION
+Stop processing any workflow commands to allow log anything without accidentally running workflow commands.
+#>
+function Disable-GHActionsProcessingCommand {
+	[CmdletBinding()]
+	param()
+	$EndToken = (New-Guid).Guid
+	Write-GHActionsCommand -Command 'stop-commands' -Message $EndToken
+	return $EndToken
+}
+<#
+.SYNOPSIS
+GitHub Actions - Enable Command Echo
+.DESCRIPTION
+Enable echoing of workflow commands, the workflow run's log will show the command itself; The `add-mask`, `debug`, `warning`, and `error` commands do not support echoing because their outputs are already echoed to the log; Secret `ACTIONS_STEP_DEBUG` will ignore this.
+#>
+function Enable-GHActionsCommandEcho {
+	[CmdletBinding()]
+	param()
+	Write-GHActionsCommand -Command 'echo' -Message 'on'
+}
+<#
+.SYNOPSIS
+GitHub Actions - Enable Processing Command
+.DESCRIPTION
+Resume processing any workflow commands to allow running workflow commands.
+.PARAMETER EndToken
+Token from `Disable-GHActionsProcessingCommand`.
+#>
+function Enable-GHActionsProcessingCommand {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory = $true, Position = 0)][string]$EndToken
+	)
+	Write-GHActionsCommand -Command $EndToken -Message ''
+}
+<#
+.SYNOPSIS
+GitHub Actions - Enter Log Group
+.DESCRIPTION
+Create an expandable group in the log; Anything write to the log between `Enter-GHActionsLogGroup` and `Exit-GHActionsLogGroup` commands are inside an expandable group in the log.
+.PARAMETER Title
+Title of the log group.
+#>
+function Enter-GHActionsLogGroup {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory = $true, Position = 0)][string]$Title
+	)
+	Send-GHActionsCommand -Command 'group' -Message $Title
+}
+<#
+.SYNOPSIS
+GitHub Actions - Exit Log Group
+.DESCRIPTION
+End an expandable group in the log.
+#>
+function Exit-GHActionsLogGroup {
 	[CmdletBinding()]
 	param ()
-	if ($env:RUNNER_DEBUG -eq 'true') {
-		return $true
-	}
-	return $false
+	Send-GHActionsCommand -Command 'endgroup' -Message ''
 }
 <#
 .SYNOPSIS
@@ -235,6 +297,20 @@ function Get-GHActionsInput {
 }
 <#
 .SYNOPSIS
+GitHub Actions - Get Debug Status
+.DESCRIPTION
+Get debug status.
+#>
+function Get-GHActionsIsDebug {
+	[CmdletBinding()]
+	param ()
+	if ($env:RUNNER_DEBUG -eq 'true') {
+		return $true
+	}
+	return $false
+}
+<#
+.SYNOPSIS
 GitHub Actions - Get State
 .DESCRIPTION
 Get state.
@@ -275,101 +351,6 @@ function Get-GHActionsState {
 }
 <#
 .SYNOPSIS
-GitHub Actions - Set Output
-.DESCRIPTION
-Set an output.
-.PARAMETER Name
-Name of the output.
-.PARAMETER Value
-Value of the output.
-#>
-function Set-GHActionsOutput {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
-		[Parameter(Mandatory = $true, Position = 1)][string]$Value
-	)
-	Write-GHActionsCommand -Command 'set-output' -Message $Value -Properties @{'name' = $Name }
-}
-<#
-.SYNOPSIS
-GitHub Actions - Set Outputs
-.DESCRIPTION
-Set outputs.
-.PARAMETER InputObject
-Outputs.
-#>
-function Set-GHActionsOutputs {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][hashtable]$InputObject
-	)
-	begin {}
-	process {
-		$InputObject.GetEnumerator() | ForEach-Object -Process {
-			Set-GHActionsOutput -Name $_.Name -Value $_.Value
-		}
-	}
-	end {}
-}
-function Save-GHActionsState {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
-		[Parameter(Mandatory = $true, Position = 1)][string]$Value
-	)
-	Write-GHActionsCommand -Command 'save-state' -Message $Value -Properties @{'name' = $Name }
-}
-function Disable-GHActionsCommandEcho {
-	[CmdletBinding()]
-	param()
-	Write-GHActionsCommand -Command 'echo' -Message 'off'
-}
-function Disable-GHActionsProcessingCommand {
-	[CmdletBinding()]
-	param()
-	$EndToken = (New-Guid).Guid
-	Write-GHActionsCommand -Command 'stop-commands' -Message $EndToken
-	return $EndToken
-}
-function Enable-GHActionsCommandEcho {
-	[CmdletBinding()]
-	param()
-	Write-GHActionsCommand -Command 'echo' -Message 'on'
-}
-function Enable-GHActionsProcessingCommand {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0)][string]$EndToken
-	)
-	Write-GHActionsCommand -Command $EndToken -Message ''
-}
-<#
-.SYNOPSIS
-Create an expandable group in the log.
-.DESCRIPTION
-Anything write to the log between `Enter-GHActionsLogGroup` and `Exit-GHActionsLogGroup` commands are inside an expandable group in the log.
-.PARAMETER Title
-Title of the log group.
-#>
-function Enter-GHActionsLogGroup {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0)][string]$Title
-	)
-	Send-GHActionsCommand -Command 'group' -Message $Title
-}
-<#
-.SYNOPSIS
-End an output group.
-#>
-function Exit-GHActionsLogGroup {
-	[CmdletBinding()]
-	param ()
-	Send-GHActionsCommand -Command 'endgroup' -Message ''
-}
-<#
-.SYNOPSIS
 Execute script block in a log group.
 .PARAMETER Title
 Title of the log group.
@@ -388,6 +369,32 @@ function Invoke-GHActionsScriptGroup {
 	} finally {
 		Exit-GHActionsLogGroup
 	}
+}
+<#
+.SYNOPSIS
+GitHub Actions - Set Output
+.DESCRIPTION
+Set output.
+.PARAMETER Name
+Name of the output.
+.PARAMETER Value
+Value of the output.
+#>
+function Set-GHActionsOutput {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
+		[Parameter(Mandatory = $true, Position = 1)][string]$Value
+	)
+	Write-GHActionsCommand -Command 'set-output' -Message $Value -Properties @{'name' = $Name }
+}
+function Set-GHActionsState {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
+		[Parameter(Mandatory = $true, Position = 1)][string]$Value
+	)
+	Write-GHActionsCommand -Command 'save-state' -Message $Value -Properties @{'name' = $Name }
 }
 function Write-GHActionsDebug {
 	[CmdletBinding()]
@@ -519,4 +526,4 @@ function Write-GHActionsWarning {
 	}
 	end {}
 }
-Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Invoke-GHActionsScriptGroup, Set-GHActionsOutput, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning
+Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Invoke-GHActionsScriptGroup, Set-GHActionsOutput, Set-GHActionsState, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning
