@@ -107,14 +107,14 @@
 		PSData = @{
 			# Tags applied to this module. These help with module discovery in online galleries.
 			Tags = @(
-				'Action',
-				'Actions',
-				'GitHub',
-				'Toolkit'
+				'action',
+				'actions',
+				'github',
+				'toolkit'
 			)
 
 			# A URL to the license for this module.
-			# LicenseUri = ''
+			LicenseUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/blob/main/LICENSE.md'
 
 			# A URL to the main website for this project.
 			ProjectUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell'
