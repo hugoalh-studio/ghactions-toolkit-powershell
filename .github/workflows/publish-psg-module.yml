@@ -12,6 +12,10 @@ jobs:
     steps:
       - name: "Checkout Repository"
         uses: "actions/checkout@v2.4.0"
+      - name: "Change PowerShell Gallery Installation Policy"
+        run: |
+          Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+        shell: "pwsh"
       - name: "Install PowerShellGet"
         run: |
           Install-Module -AcceptLicense -Name PowerShellGet -Scope AllUsers -Verbose
