@@ -12,15 +12,19 @@ jobs:
     steps:
       - name: "Checkout Repository"
         uses: "actions/checkout@v2.4.0"
-      - run: |
-          Install-Module -Force -Name PowerShellGet -Verbose
+      - name: "Install PowerShellGet"
+        run: |
+          Install-Module -Name PowerShellGet -Verbose
         shell: "pwsh"
-      - run: |
-          Update-Module -Name PowerShellGet -Verbose
+      - name: "Update PowerShell Modules"
+        run: |
+          Update-Module -Verbose
         shell: "pwsh"
-      - run: |
+      - name: "Test Publish"
+        run: |
           Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey 'GUID' -WhatIf -Verbose
         shell: "pwsh"
-      - run: |
+      - name: "Publish"
+        run: |
           Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
         shell: "pwsh"
