@@ -13,10 +13,10 @@ jobs:
       - name: "Checkout Repository"
         uses: "actions/checkout@v2.4.0"
       - run: |
-          Install-Module -Name PowerShellGet -Force
+          Install-Module -Force -Name PowerShellGet -Verbose
         shell: "pwsh"
       - run: |
-          Update-Module -Name PowerShellGet
+          Update-Module -Name PowerShellGet -Verbose
         shell: "pwsh"
       - run: |
           Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey 'GUID' -WhatIf -Verbose
