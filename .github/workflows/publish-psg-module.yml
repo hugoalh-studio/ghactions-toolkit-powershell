@@ -12,13 +12,17 @@ jobs:
     steps:
       - name: "Checkout Repository"
         uses: "actions/checkout@v2.4.0"
-      - name: "Change PowerShell Gallery Installation Policy"
+      - name: "Modify PowerShell Gallery Installation Policy"
+        id: "psgip"
         run: |
-          Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+          Write-Host -Object "::set-output name=installationpolicy::$((Get-PSRepository -Name PSGallery).InstallationPolicy)"
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
         shell: "pwsh"
-      - name: "Install PowerShellGet"
+      - name: "Setup PowerShellGet"
         run: |
-          Install-Module -AcceptLicense -Name PowerShellGet -Scope AllUsers -Verbose
+          if (Get-InstalledModule -Name PowerShellGet -MinimumVersion 2.2.5 -ErrorAction SilentlyContinue) {} else {
+            Install-Module -AcceptLicense -Name PowerShellGet -Scope AllUsers -Verbose
+          }
         shell: "pwsh"
       - name: "Update PowerShell Modules"
         run: |
@@ -31,4 +35,9 @@ jobs:
       - name: "Publish"
         run: |
           Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
+        shell: "pwsh"
+      - name: "Revert Modify PowerShell Gallery Installation Policy"
+        if: "${{steps.psgip.outcome == 'success' && always()}}"
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy '${{steps.psgip.outputs.installationpolicy}}'
         shell: "pwsh"
