@@ -28,6 +28,26 @@ function Format-GHActionsEscapeCharacters {
 }
 <#
 .SYNOPSIS
+GitHub Actions - Internal - Test Environment Variable
+.DESCRIPTION
+An internal function to validate environment variable.
+.PARAMETER InputObject
+Environment variable that need to validate.
+.OUTPUTS
+Boolean -or Void
+#>
+function Test-GHActionsEnvironmentVariable {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$InputObject
+	)
+	if (($InputObject -match '^[\da-z_]+=.+$') -and (($InputObject -split '=').Count -eq 2)) {
+		return $true
+	}
+	Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern." -Category SyntaxError
+}
+<#
+.SYNOPSIS
 GitHub Actions - Internal - Write Workflow Command
 .DESCRIPTION
 An internal function to write workflow command.
@@ -55,26 +75,6 @@ function Write-GHActionsCommand {
 	}
 	$Result += "::$(Format-GHActionsEscapeCharacters -InputObject $Message)"
 	Write-Host -Object $Result
-}
-<#
-.SYNOPSIS
-GitHub Actions - Internal - Test Environment Variable
-.DESCRIPTION
-An internal function to validate environment variable.
-.PARAMETER InputObject
-Environment variable that need to validate.
-.OUTPUTS
-Boolean -or Void
-#>
-function Test-GHActionsEnvironmentVariable {
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$InputObject
-	)
-	if (($InputObject -match '^[\da-z_]+=.+$') -and (($InputObject -split '=').Count -eq 2)) {
-		return $true
-	}
-	Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern." -Category SyntaxError
 }
 <#
 .SYNOPSIS
