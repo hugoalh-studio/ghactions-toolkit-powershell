@@ -14,6 +14,13 @@ jobs:
         uses: "actions/checkout@v2.4.0"
       - run: |
           Install-Module -Name PowerShellGet -Force
+        shell: "pwsh"
+      - run: |
           Update-Module -Name PowerShellGet
+        shell: "pwsh"
+      - run: |
+          Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey 'GUID' -WhatIf -Verbose
+        shell: "pwsh"
+      - run: |
           Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
         shell: "pwsh"
