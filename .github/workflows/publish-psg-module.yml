@@ -1,0 +1,19 @@
+# $<Schema>$ https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
+name: "Publish - PowerShell Gallery - Module"
+on:
+  release:
+    types:
+      - "published"
+  workflow_dispatch:
+jobs:
+  publish-psg-module:
+    name: "Publish - PowerShell Gallery - Module"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout Repository"
+        uses: "actions/checkout@v2.4.0"
+      - run: |
+          Install-Module -Name PowerShellGet -Force
+          Update-Module -Name PowerShellGet
+          Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
+        shell: "pwsh"
