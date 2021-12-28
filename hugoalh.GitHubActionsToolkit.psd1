@@ -73,6 +73,7 @@
 		'Get-GHActionsInput',
 		'Get-GHActionsIsDebug',
 		'Get-GHActionsState',
+		'Get-GHActionsWebhookEventPayload',
 		'Invoke-GHActionsScriptGroup',
 		'Set-GHActionsOutput',
 		'Set-GHActionsState',

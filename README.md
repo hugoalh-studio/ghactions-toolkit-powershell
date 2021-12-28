@@ -21,4 +21,51 @@ A PowerShell module to create GitHub Actions easier.
 
 ## 📚 Documentation
 
-?
+*For the official documentation, please visit [GitHub Repository Wiki](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki).*
+
+### Getting Started
+
+#### Install
+
+PowerShell (>= v7.2.0):
+
+```ps1
+Install-Module -Name 'hugoalh.GitHubActionsToolkit'
+```
+
+#### Use
+
+```ps1
+Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
+```
+
+### Function
+
+- `Add-GHActionsEnvironmentVariable`
+- `Add-GHActionsPATH`
+- `Add-GHActionsSecretMask`
+- `Disable-GHActionsCommandEcho`
+- `Disable-GHActionsProcessingCommand`
+- `Enable-GHActionsCommandEcho`
+- `Enable-GHActionsProcessingCommand`
+- `Enter-GHActionsLogGroup`
+- `Exit-GHActionsLogGroup`
+- `Get-GHActionsInput`
+- `Get-GHActionsIsDebug`
+- `Get-GHActionsState`
+- `Get-GHActionsWebhookEventPayload`
+- `Invoke-GHActionsScriptGroup`
+- `Set-GHActionsOutput`
+- `Set-GHActionsState`
+- `Write-GHActionsDebug`
+- `Write-GHActionsError`
+- `Write-GHActionsFail`
+- `Write-GHActionsNotice`
+- `Write-GHActionsWarning`
+
+### Example
+
+```ps1
+Set-GHActionsOutput -Name 'foo' -Value 'bar'
+#=> ::set-output name=foo::bar
+```
