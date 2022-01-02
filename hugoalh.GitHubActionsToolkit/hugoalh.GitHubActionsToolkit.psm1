@@ -401,7 +401,7 @@ PSCustomObject
 function Get-GHActionsWebhookEventPayload {
 	[CmdletBinding()]
 	param ()
-	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM | ConvertFrom-Json -Depth 100)
+	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM | ConvertFrom-Json)
 }
 <#
 .SYNOPSIS
