@@ -54,7 +54,6 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 - `Get-GHActionsIsDebug`
 - `Get-GHActionsState`
 - `Get-GHActionsWebhookEventPayload`
-- `Invoke-GHActionsScriptGroup`
 - `Set-GHActionsOutput`
 - `Set-GHActionsState`
 - `Write-GHActionsDebug`

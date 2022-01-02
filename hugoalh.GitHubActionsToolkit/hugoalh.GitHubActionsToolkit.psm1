@@ -34,7 +34,7 @@ An internal function to validate environment variable.
 .PARAMETER InputObject
 Environment variable that need to validate.
 .OUTPUTS
-Boolean -or Void
+Boolean | Void
 #>
 function Test-GHActionsEnvironmentVariable {
 	[CmdletBinding()]
@@ -70,7 +70,7 @@ function Write-GHActionsCommand {
 	[string]$Result = "::$Command"
 	if ($Properties.Count -gt 0) {
 		$Result += " $($($Properties.GetEnumerator() | ForEach-Object -Process {
-			"$($_.Name)=$(Format-GHActionsEscapeCharacters -InputObject $_.Value -Command)"
+			return "$($_.Name)=$(Format-GHActionsEscapeCharacters -InputObject $_.Value -Command)"
 		}) -join ',')"
 	}
 	$Result += "::$(Format-GHActionsEscapeCharacters -InputObject $Message)"
@@ -135,9 +135,9 @@ function Add-GHActionsEnvironmentVariable {
 		}
 	}
 	end {
-		Add-Content -Encoding utf8NoBOM -Path $env:GITHUB_ENV -Value "$($($Result.GetEnumerator() | ForEach-Object -Process {
-			"$($_.Name)=$($_.Value)"
-		}) -join "`n")"
+		Add-Content -Path $env:GITHUB_ENV -Value "$($($Result.GetEnumerator() | ForEach-Object -Process {
+			return "$($_.Name)=$($_.Value)"
+		}) -join "`n")" -Encoding utf8NoBOM
 	}
 }
 <#
@@ -159,7 +159,7 @@ function Add-GHActionsPATH {
 		[string[]]$Result = @()
 	}
 	process {
-		$Path.GetEnumerator() | ForEach-Object -Process {
+		$Path | ForEach-Object -Process {
 			if (Test-Path -Path $_ -IsValid) {
 				$Result += $_
 			} else {
@@ -168,7 +168,7 @@ function Add-GHActionsPATH {
 		}
 	}
 	end {
-		Add-Content -Encoding utf8NoBOM -Path $env:GITHUB_PATH -Value "$($Result -join "`n")"
+		Add-Content -Path $env:GITHUB_PATH -Value "$($Result -join "`n")" -Encoding utf8NoBOM
 	}
 }
 <#
@@ -292,7 +292,7 @@ Whether the input is require. If required and not present, will throw an error.
 .PARAMETER Trim
 Trim the input's value.
 .OUTPUTS
-Hashtable -or String
+Hashtable | String
 #>
 function Get-GHActionsInput {
 	[CmdletBinding()]
@@ -305,7 +305,7 @@ function Get-GHActionsInput {
 		[hashtable]$Result = @{}
 	}
 	process {
-		$Name.GetEnumerator() | ForEach-Object -Process {
+		$Name | ForEach-Object -Process {
 			$InputValue = Get-ChildItem -Path "Env:\INPUT_$($_.ToUpper() -replace '[ \n\r]','_')" -ErrorAction SilentlyContinue
 			if ($InputValue -eq $null) {
 				if ($Require) {
@@ -354,7 +354,7 @@ Name of the state.
 .PARAMETER Trim
 Trim the state's value.
 .OUTPUTS
-Hashtable -or String
+Hashtable | String
 #>
 function Get-GHActionsState {
 	[CmdletBinding()]
@@ -366,7 +366,7 @@ function Get-GHActionsState {
 		[hashtable]$Result = @{}
 	}
 	process {
-		$Name.GetEnumerator() | ForEach-Object -Process {
+		$Name | ForEach-Object -Process {
 			$StateValue = Get-ChildItem -Path "Env:\STATE_$($_.ToUpper() -replace '[ \n\r]','_')" -ErrorAction SilentlyContinue
 			if ($StateValue -eq $null) {
 				$Result[$_] = $StateValue
@@ -397,30 +397,7 @@ PSCustomObject
 function Get-GHActionsWebhookEventPayload {
 	[CmdletBinding()]
 	param ()
-	return (Get-Content -Encoding utf8NoBOM -Path $env:GITHUB_EVENT_PATH -Raw | ConvertFrom-Json -Depth 100)
-}
-<#
-.SYNOPSIS
-Execute script block in a log group.
-.PARAMETER Title
-Title of the log group.
-.PARAMETER ScriptBlock
-Script block to execute in the log group.
-.OUTPUTS
-Any
-#>
-function Invoke-GHActionsScriptGroup {
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true, Position = 0)][string]$Title,
-		[Parameter(Mandatory = $true, Position = 1)][scriptblock]$ScriptBlock
-	)
-	Enter-GHActionsLogGroup -Title $Title
-	try {
-		return $ScriptBlock.Invoke()
-	} finally {
-		Exit-GHActionsLogGroup
-	}
+	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM | ConvertFrom-Json -Depth 100)
 }
 <#
 .SYNOPSIS
@@ -440,7 +417,7 @@ function Set-GHActionsOutput {
 		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Value
 	)
-	Write-GHActionsCommand -Command 'set-output' -Message $Value -Properties @{'name' = $Name }
+	Write-GHActionsCommand -Command 'set-output' -Message $Value -Properties @{ 'name' = $Name }
 }
 <#
 .SYNOPSIS
@@ -460,7 +437,7 @@ function Set-GHActionsState {
 		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Value
 	)
-	Write-GHActionsCommand -Command 'save-state' -Message $Value -Properties @{'name' = $Name }
+	Write-GHActionsCommand -Command 'save-state' -Message $Value -Properties @{ 'name' = $Name }
 }
 <#
 .SYNOPSIS
@@ -678,4 +655,4 @@ function Write-GHActionsWarning {
 	}
 	end {}
 }
-Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Get-GHActionsWebhookEventPayload, Invoke-GHActionsScriptGroup, Set-GHActionsOutput, Set-GHActionsState, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning
+Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Get-GHActionsWebhookEventPayload, Set-GHActionsOutput, Set-GHActionsState, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning

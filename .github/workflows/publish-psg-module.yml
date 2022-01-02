@@ -12,32 +12,32 @@ jobs:
     steps:
       - name: "Checkout Repository"
         uses: "actions/checkout@v2.4.0"
-      - name: "Modify PowerShell Gallery Installation Policy"
-        id: "psgip"
+      - name: "Modify PowerShell Repository"
+        id: "modify-powershell-repository"
         run: |
-          Write-Host -Object "::set-output name=installationpolicy::$((Get-PSRepository -Name PSGallery).InstallationPolicy)"
-          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Write-Host -Object "::set-output name=installation-policy::$((Get-PSRepository -Name 'PSGallery').InstallationPolicy)"
+          Set-PSRepository -Name 'PSGallery' -InstallationPolicy 'Trusted' -Verbose
         shell: "pwsh"
       - name: "Setup PowerShellGet"
         run: |
-          if (Get-InstalledModule -Name PowerShellGet -MinimumVersion 2.2.5 -ErrorAction SilentlyContinue) {} else {
-            Install-Module -AcceptLicense -Name PowerShellGet -Scope AllUsers -Verbose
+          if (Get-InstalledModule -Name 'PowerShellGet' -MinimumVersion '2.2.5' -ErrorAction SilentlyContinue) {} else {
+            Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Scope 'AllUsers' -AcceptLicense -Verbose
           }
         shell: "pwsh"
       - name: "Update PowerShell Modules"
         run: |
-          Update-Module -AcceptLicense -Scope AllUsers -Verbose
+          Update-Module -Scope 'AllUsers' -AcceptLicense -Verbose
         shell: "pwsh"
       - name: "Test Publish"
         run: |
-          Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey 'GUID' -WhatIf -Verbose
+          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey 'GUID' -WhatIf -Verbose
         shell: "pwsh"
       - name: "Publish"
         run: |
-          Publish-Module -Path .\hugoalh.GitHubActionsToolkit\ -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
+          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
         shell: "pwsh"
-      - name: "Revert Modify PowerShell Gallery Installation Policy"
-        if: "${{steps.psgip.outcome == 'success' && always()}}"
+      - name: "Revert Modify PowerShell Repository"
+        if: "${{steps.modify-powershell-repository.outcome == 'success' && always()}}"
         run: |
-          Set-PSRepository -Name PSGallery -InstallationPolicy '${{steps.psgip.outputs.installationpolicy}}'
+          Set-PSRepository -Name 'PSGallery' -InstallationPolicy '${{steps.modify-powershell-repository.outputs.installation-policy}}'
         shell: "pwsh"
