@@ -41,10 +41,14 @@ function Test-GHActionsEnvironmentVariable {
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$InputObject
 	)
-	if (($InputObject -match '^[\da-z_]+=.+$') -and (($InputObject -split '=').Count -eq 2)) {
-		return $true
+	begin {}
+	process {
+		if (($InputObject -match '^[\da-z_]+=.+$') -and (($InputObject -split '=').Count -eq 2)) {
+			return $true
+		}
+		Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern." -Category SyntaxError
 	}
-	Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern." -Category SyntaxError
+	end {}
 }
 <#
 .SYNOPSIS
