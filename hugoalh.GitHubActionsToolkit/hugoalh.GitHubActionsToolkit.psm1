@@ -11,7 +11,7 @@ Also escape command properties characters.
 String
 #>
 function Format-GHActionsEscapeCharacters {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([string])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][string]$InputObject,
 		[switch]$Command
@@ -34,10 +34,10 @@ An internal function to validate environment variable.
 .PARAMETER InputObject
 Environment variable that need to validate.
 .OUTPUTS
-Boolean | Void
+Boolean
 #>
 function Test-GHActionsEnvironmentVariable {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([bool])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$InputObject
 	)
@@ -47,6 +47,7 @@ function Test-GHActionsEnvironmentVariable {
 			return $true
 		}
 		Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern." -Category SyntaxError
+		return $false
 	}
 	end {}
 }
@@ -65,7 +66,7 @@ Workflow command properties.
 Void
 #>
 function Write-GHActionsCommand {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][string]$Command,
 		[Parameter(Mandatory = $true, Position = 1)][AllowEmptyString()][string]$Message,
@@ -95,7 +96,7 @@ Environment variable value.
 Void
 #>
 function Add-GHActionsEnvironmentVariable {
-	[CmdletBinding(DefaultParameterSetName = 'single')]
+	[CmdletBinding(DefaultParameterSetName = 'single')][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^[\da-z_]+$')][string]$Name,
@@ -155,7 +156,7 @@ System path.
 Void
 #>
 function Add-GHActionsPATH {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][string[]]$Path
 	)
@@ -186,7 +187,7 @@ The secret.
 Void
 #>
 function Add-GHActionsSecretMask {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Value
 	)
@@ -205,7 +206,7 @@ Disable echoing of workflow commands, the workflow run's log will not show the c
 Void
 #>
 function Disable-GHActionsCommandEcho {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param()
 	Write-GHActionsCommand -Command 'echo' -Message 'off'
 }
@@ -218,7 +219,7 @@ Stop processing any workflow commands to allow log anything without accidentally
 String
 #>
 function Disable-GHActionsProcessingCommand {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([string])]
 	param()
 	[string]$EndToken = (New-Guid).Guid
 	Write-GHActionsCommand -Command 'stop-commands' -Message $EndToken
@@ -233,7 +234,7 @@ Enable echoing of workflow commands, the workflow run's log will show the comman
 Void
 #>
 function Enable-GHActionsCommandEcho {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param()
 	Write-GHActionsCommand -Command 'echo' -Message 'on'
 }
@@ -248,7 +249,7 @@ Token from `Disable-GHActionsProcessingCommand`.
 Void
 #>
 function Enable-GHActionsProcessingCommand {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][string]$EndToken
 	)
@@ -265,7 +266,7 @@ Title of the log group.
 Void
 #>
 function Enter-GHActionsLogGroup {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][string]$Title
 	)
@@ -280,7 +281,7 @@ End an expandable group in the log.
 Void
 #>
 function Exit-GHActionsLogGroup {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param ()
 	Write-GHActionsCommand -Command 'endgroup' -Message ''
 }
@@ -299,7 +300,7 @@ Trim the input's value.
 Hashtable | String
 #>
 function Get-GHActionsInput {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([hashtable], [string])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
 		[switch]$Require,
@@ -341,7 +342,7 @@ Get debug status.
 Boolean
 #>
 function Get-GHActionsIsDebug {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([bool])]
 	param ()
 	if ($env:RUNNER_DEBUG -eq 'true') {
 		return $true
@@ -361,7 +362,7 @@ Trim the state's value.
 Hashtable | String
 #>
 function Get-GHActionsState {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([hashtable], [string])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
 		[switch]$Trim
@@ -399,7 +400,7 @@ Get the complete webhook event payload.
 PSCustomObject
 #>
 function Get-GHActionsWebhookEventPayload {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([pscustomobject])]
 	param ()
 	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM | ConvertFrom-Json)
 }
@@ -416,7 +417,7 @@ Value of the output.
 Void
 #>
 function Set-GHActionsOutput {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Value
@@ -436,7 +437,7 @@ Value of the state.
 Void
 #>
 function Set-GHActionsState {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][string]$Name,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Value
@@ -454,7 +455,7 @@ Message that need to log at debug level.
 Void
 #>
 function Write-GHActionsDebug {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message
 	)
@@ -487,7 +488,7 @@ Issue title.
 Void
 #>
 function Write-GHActionsError {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message,
 		[Parameter()][string]$File,
@@ -534,7 +535,7 @@ Message that need to log at error level.
 Void
 #>
 function Write-GHActionsFail {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param(
 		[Parameter(Position = 0)][string]$Message = ''
 	)
@@ -564,7 +565,7 @@ Issue title.
 Void
 #>
 function Write-GHActionsNotice {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message,
 		[Parameter()][string]$File,
@@ -623,7 +624,7 @@ Issue title.
 Void
 #>
 function Write-GHActionsWarning {
-	[CmdletBinding()]
+	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message,
 		[Parameter()][string]$File,
