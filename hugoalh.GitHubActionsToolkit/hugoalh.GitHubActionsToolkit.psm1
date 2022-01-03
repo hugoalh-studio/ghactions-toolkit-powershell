@@ -305,10 +305,10 @@ Whether the input is require. If required and not present, will throw an error.
 .PARAMETER Trim
 Trim the input's value.
 .OUTPUTS
-Hashtable | String
+Hashtable | Null | String
 #>
 function Get-GHActionsInput {
-	[CmdletBinding()][OutputType([hashtable], [string])]
+	[CmdletBinding()][OutputType([hashtable], [null], [string])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
 		[switch]$Require,
@@ -367,10 +367,10 @@ Name of the state.
 .PARAMETER Trim
 Trim the state's value.
 .OUTPUTS
-Hashtable | String
+Hashtable | Null | String
 #>
 function Get-GHActionsState {
-	[CmdletBinding()][OutputType([hashtable], [string])]
+	[CmdletBinding()][OutputType([hashtable], [null], [string])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
 		[switch]$Trim
