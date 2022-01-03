@@ -1,5 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
+enum GHActionsAnnotationType {
+	Notice = 0
+	Warning = 1
+	Warn = 1
+	Error = 2
+}
 <#
 .SYNOPSIS
 GitHub Actions - Internal - Escape Characters
@@ -448,6 +454,63 @@ function Set-GHActionsState {
 }
 <#
 .SYNOPSIS
+GitHub Actions - Write Annotation
+.DESCRIPTION
+Prints an annotation message to the log.
+.PARAMETER Type
+Annotation type.
+.PARAMETER Message
+Message that need to log at annotation.
+.PARAMETER File
+Issue file path.
+.PARAMETER Line
+Issue file line start.
+.PARAMETER Col
+Issue file column start.
+.PARAMETER EndLine
+Issue file line end.
+.PARAMETER EndColumn
+Issue file column end.
+.PARAMETER Title
+Issue title.
+.OUTPUTS
+Void
+#>
+function Write-GHActionsAnnotation {
+	[CmdletBinding()][OutputType([void])]
+	param (
+		[Parameter(Mandatory = $true, Position = 0)][GHActionsAnnotationType]$Type,
+		[Parameter(Mandatory = $true, Position = 1)][string]$Message,
+		[Parameter()][string]$File,
+		[Parameter()][uint]$Line,
+		[Parameter()][uint]$Col,
+		[Parameter()][uint]$EndLine,
+		[Parameter()][uint]$EndColumn,
+		[Parameter()][string]$Title
+	)
+	[hashtable]$Properties = @{}
+	if ($File.Length -gt 0) {
+		$Properties.'file' = $File
+	}
+	if ($Line -gt 0) {
+		$Properties.'line' = $Line
+	}
+	if ($Col -gt 0) {
+		$Properties.'col' = $Col
+	}
+	if ($EndLine -gt 0) {
+		$Properties.'endLine' = $EndLine
+	}
+	if ($EndColumn -gt 0) {
+		$Properties.'endColumn' = $EndColumn
+	}
+	if ($Title.Length -gt 0) {
+		$Properties.'title' = $Title
+	}
+	Write-GHActionsCommand -Command $Type.ToString().ToLower() -Message $Message -Properties $Properties
+}
+<#
+.SYNOPSIS
 GitHub Actions - Write Debug
 .DESCRIPTION
 Prints a debug message to the log.
@@ -492,7 +555,7 @@ Void
 function Write-GHActionsError {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message,
+		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
 		[Parameter()][string]$File,
 		[Parameter()][uint]$Line,
 		[Parameter()][uint]$Col,
@@ -500,31 +563,7 @@ function Write-GHActionsError {
 		[Parameter()][uint]$EndColumn,
 		[Parameter()][string]$Title
 	)
-	begin {
-		[hashtable]$Properties = @{}
-		if ($File.Length -gt 0) {
-			$Properties.'file' = $File
-		}
-		if ($Line -gt 0) {
-			$Properties.'line' = $Line
-		}
-		if ($Col -gt 0) {
-			$Properties.'col' = $Col
-		}
-		if ($EndLine -gt 0) {
-			$Properties.'endLine' = $EndLine
-		}
-		if ($EndColumn -gt 0) {
-			$Properties.'endColumn' = $EndColumn
-		}
-		if ($Title.Length -gt 0) {
-			$Properties.'title' = $Title
-		}
-	}
-	process {
-		Write-GHActionsCommand -Command 'error' -Message $Message -Properties $Properties
-	}
-	end {}
+	Write-GHActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
 <#
 .SYNOPSIS
@@ -541,7 +580,7 @@ function Write-GHActionsFail {
 	param(
 		[Parameter(Position = 0)][string]$Message = ''
 	)
-	Write-GHActionsCommand -Command 'error' -Message $Message
+	Write-GHActionsAnnotation -Type 'Error' -Message $Message
 	exit 1
 }
 <#
@@ -569,7 +608,7 @@ Void
 function Write-GHActionsNotice {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message,
+		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
 		[Parameter()][string]$File,
 		[Parameter()][uint]$Line,
 		[Parameter()][uint]$Col,
@@ -577,31 +616,7 @@ function Write-GHActionsNotice {
 		[Parameter()][uint]$EndColumn,
 		[Parameter()][string]$Title
 	)
-	begin {
-		[hashtable]$Properties = @{}
-		if ($File.Length -gt 0) {
-			$Properties.'file' = $File
-		}
-		if ($Line -gt 0) {
-			$Properties.'line' = $Line
-		}
-		if ($Col -gt 0) {
-			$Properties.'col' = $Col
-		}
-		if ($EndLine -gt 0) {
-			$Properties.'endLine' = $EndLine
-		}
-		if ($EndColumn -gt 0) {
-			$Properties.'endColumn' = $EndColumn
-		}
-		if ($Title.Length -gt 0) {
-			$Properties.'title' = $Title
-		}
-	}
-	process {
-		Write-GHActionsCommand -Command 'notice' -Message $Message -Properties $Properties
-	}
-	end {}
+	Write-GHActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
 <#
 .SYNOPSIS
@@ -628,7 +643,7 @@ Void
 function Write-GHActionsWarning {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message,
+		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
 		[Parameter()][string]$File,
 		[Parameter()][uint]$Line,
 		[Parameter()][uint]$Col,
@@ -636,30 +651,6 @@ function Write-GHActionsWarning {
 		[Parameter()][uint]$EndColumn,
 		[Parameter()][string]$Title
 	)
-	begin {
-		[hashtable]$Properties = @{}
-		if ($File.Length -gt 0) {
-			$Properties.'file' = $File
-		}
-		if ($Line -gt 0) {
-			$Properties.'line' = $Line
-		}
-		if ($Col -gt 0) {
-			$Properties.'col' = $Col
-		}
-		if ($EndLine -gt 0) {
-			$Properties.'endLine' = $EndLine
-		}
-		if ($EndColumn -gt 0) {
-			$Properties.'endColumn' = $EndColumn
-		}
-		if ($Title.Length -gt 0) {
-			$Properties.'title' = $Title
-		}
-	}
-	process {
-		Write-GHActionsCommand -Command 'warning' -Message $Message -Properties $Properties
-	}
-	end {}
+	Write-GHActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
-Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Get-GHActionsWebhookEventPayload, Set-GHActionsOutput, Set-GHActionsState, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning
+Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Get-GHActionsWebhookEventPayload, Set-GHActionsOutput, Set-GHActionsState, Write-GHActionsAnnotation, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning

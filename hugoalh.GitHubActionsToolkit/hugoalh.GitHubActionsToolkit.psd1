@@ -76,6 +76,7 @@
 		'Get-GHActionsWebhookEventPayload',
 		'Set-GHActionsOutput',
 		'Set-GHActionsState',
+		'Write-GHActionsAnnotation',
 		'Write-GHActionsDebug',
 		'Write-GHActionsError',
 		'Write-GHActionsFail',
