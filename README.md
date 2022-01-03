@@ -17,7 +17,7 @@
 
 ## 📝 Description
 
-A PowerShell module to create GitHub Actions easier.
+A PowerShell module to provide a better and easier way to GitHub Actions communicate with the runner machine.
 
 ## 📚 Documentation
 
@@ -56,6 +56,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 - `Get-GHActionsWebhookEventPayload`
 - `Set-GHActionsOutput`
 - `Set-GHActionsState`
+- `Write-GHActionsAnnotation`
 - `Write-GHActionsDebug`
 - `Write-GHActionsError`
 - `Write-GHActionsFail`

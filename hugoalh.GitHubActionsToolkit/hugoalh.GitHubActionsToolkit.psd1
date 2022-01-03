@@ -18,10 +18,10 @@
 	CompanyName = 'hugoalh Studio'
 
 	# Copyright statement for this module
-	Copyright = 'MIT © 2021 hugoalh Studio'
+	Copyright = 'MIT © 2021~2022 hugoalh Studio'
 
 	# Description of the functionality provided by this module
-	Description = 'Create GitHub Actions easier.'
+	Description = 'Provide a better and easier way to GitHub Actions communicate with the runner machine.'
 
 	# Minimum version of the PowerShell engine required by this module
 	PowerShellVersion = '7.2'
