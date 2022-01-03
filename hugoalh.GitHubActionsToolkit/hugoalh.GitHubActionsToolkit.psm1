@@ -1,3 +1,5 @@
+#Requires -PSEdition Core
+#Requires -Version 7.2
 <#
 .SYNOPSIS
 GitHub Actions - Internal - Escape Characters
