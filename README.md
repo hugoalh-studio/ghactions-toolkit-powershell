@@ -43,6 +43,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 
 - `Add-GHActionsEnvironmentVariable`
 - `Add-GHActionsPATH`
+- `Add-GHActionsProblemMatcher`
 - `Add-GHActionsSecretMask`
 - `Disable-GHActionsCommandEcho`
 - `Disable-GHActionsProcessingCommand`
@@ -54,6 +55,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 - `Get-GHActionsIsDebug`
 - `Get-GHActionsState`
 - `Get-GHActionsWebhookEventPayload`
+- `Remove-GHActionsProblemMatcher`
 - `Set-GHActionsOutput`
 - `Set-GHActionsState`
 - `Write-GHActionsAnnotation`
