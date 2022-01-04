@@ -17,7 +17,7 @@
 
 ## 📝 Description
 
-A PowerShell module to provide a better and easier way to GitHub Actions communicate with the runner machine.
+A PowerShell module to provide a better and easier way for GitHub Actions to communicate with the runner machine.
 
 ## 📚 Documentation
 
