@@ -110,6 +110,7 @@
 				'action',
 				'actions',
 				'github',
+				'PSEdition_Core',
 				'toolkit'
 			)
 
@@ -123,7 +124,7 @@
 			IconUri = 'https://i.imgur.com/knmLbFg.png'
 
 			# ReleaseNotes of this module
-			# ReleaseNotes = ''
+			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
 			# Prerelease = ''
