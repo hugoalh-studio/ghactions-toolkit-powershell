@@ -150,6 +150,7 @@ function Add-GHActionsEnvironmentVariable {
 		}) -join "`n")" -Encoding utf8NoBOM
 	}
 }
+Set-Alias -Name 'Add-GHActionsEnv' -Value 'Add-GHActionsEnvironmentVariable' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add PATH
@@ -219,19 +220,22 @@ function Add-GHActionsSecretMask {
 	}
 	end {}
 }
+Set-Alias -Name 'Add-GHActionsMask' -Value 'Add-GHActionsSecretMask' -Option ReadOnly -Scope 'Local'
+Set-Alias -Name 'Add-GHActionsSecret' -Value 'Add-GHActionsSecretMask' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Disable Command Echo
+GitHub Actions - Disable Echo Command
 .DESCRIPTION
 Disable echoing of workflow commands, the workflow run's log will not show the command itself; A workflow command is echoed if there are any errors processing the command; Secret `ACTIONS_STEP_DEBUG` will ignore this.
 .OUTPUTS
 Void
 #>
-function Disable-GHActionsCommandEcho {
+function Disable-GHActionsEchoCommand {
 	[CmdletBinding()][OutputType([void])]
 	param()
 	Write-GHActionsCommand -Command 'echo' -Message 'off'
 }
+Set-Alias -Name 'Disable-GHActionsCommandEcho' -Value 'Disable-GHActionsEchoCommand' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Disable Processing Command
@@ -248,19 +252,21 @@ function Disable-GHActionsProcessingCommand {
 	Write-GHActionsCommand -Command 'stop-commands' -Message $EndToken
 	return $EndToken
 }
+Set-Alias -Name 'Disable-GHActionsCommandProcessing' -Value 'Disable-GHActionsProcessingCommand' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Enable Command Echo
+GitHub Actions - Enable Echo Command
 .DESCRIPTION
 Enable echoing of workflow commands, the workflow run's log will show the command itself; The `add-mask`, `debug`, `warning`, and `error` commands do not support echoing because their outputs are already echoed to the log; Secret `ACTIONS_STEP_DEBUG` will ignore this.
 .OUTPUTS
 Void
 #>
-function Enable-GHActionsCommandEcho {
+function Enable-GHActionsEchoCommand {
 	[CmdletBinding()][OutputType([void])]
 	param()
 	Write-GHActionsCommand -Command 'echo' -Message 'on'
 }
+Set-Alias -Name 'Enable-GHActionsCommandEcho' -Value 'Enable-GHActionsEchoCommand' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Enable Processing Command
@@ -278,6 +284,7 @@ function Enable-GHActionsProcessingCommand {
 	)
 	Write-GHActionsCommand -Command $EndToken -Message ''
 }
+Set-Alias -Name 'Enable-GHActionsCommandProcessing' -Value 'Enable-GHActionsProcessingCommand' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Enter Log Group
@@ -295,6 +302,7 @@ function Enter-GHActionsLogGroup {
 	)
 	Write-GHActionsCommand -Command 'group' -Message $Title
 }
+Set-Alias -Name 'Enter-GHActionsGroup' -Value 'Enter-GHActionsLogGroup' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Exit Log Group
@@ -308,6 +316,7 @@ function Exit-GHActionsLogGroup {
 	param ()
 	Write-GHActionsCommand -Command 'endgroup' -Message ''
 }
+Set-Alias -Name 'Exit-GHActionsGroup' -Value 'Exit-GHActionsLogGroup' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Input
@@ -431,6 +440,8 @@ function Get-GHActionsWebhookEventPayload {
 	)
 	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM | ConvertFrom-Json -AsHashtable:$AsHashTable)
 }
+Set-Alias -Name 'Get-GHActionsEvent' -Value 'Get-GHActionsWebhookEventPayload' -Option ReadOnly -Scope 'Local'
+Set-Alias -Name 'Get-GHActionsPayload' -Value 'Get-GHActionsWebhookEventPayload' -Option ReadOnly -Scope 'Local'
 function Remove-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
@@ -444,16 +455,6 @@ function Remove-GHActionsProblemMatcher {
 	}
 	end {}
 }
-<#
-function Save-GHActionsCache {
-	[CmdletBinding()][OutputType([void])]
-	param (
-		[Parameter(Mandatory = $true, Position = 0)][ValidateLength(1,512)][ValidatePattern('^[\da-z._-]+$')][string]$Key,
-		[Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][string[]]
-		$Path
-	)
-}
-#>
 <#
 .SYNOPSIS
 GitHub Actions - Set Output
@@ -660,6 +661,7 @@ function Write-GHActionsNotice {
 	)
 	Write-GHActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
+Set-Alias -Name 'Write-GHActionsNote' -Value 'Write-GHActionsNotice' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Warning
@@ -695,4 +697,43 @@ function Write-GHActionsWarning {
 	)
 	Write-GHActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
-Export-ModuleMember -Function Add-GHActionsEnvironmentVariable, Add-GHActionsPATH, Add-GHActionsProblemMatcher, Add-GHActionsSecretMask, Disable-GHActionsCommandEcho, Disable-GHActionsProcessingCommand, Enable-GHActionsCommandEcho, Enable-GHActionsProcessingCommand, Enter-GHActionsLogGroup, Exit-GHActionsLogGroup, Get-GHActionsInput, Get-GHActionsIsDebug, Get-GHActionsState, Get-GHActionsWebhookEventPayload, Remove-GHActionsProblemMatcher, Set-GHActionsOutput, Set-GHActionsState, Write-GHActionsAnnotation, Write-GHActionsDebug, Write-GHActionsError, Write-GHActionsFail, Write-GHActionsNotice, Write-GHActionsWarning
+Set-Alias -Name 'Write-GHActionsWarn' -Value 'Write-GHActionsWarning' -Option ReadOnly -Scope 'Local'
+Export-ModuleMember -Function @(
+	'Add-GHActionsEnvironmentVariable',
+	'Add-GHActionsPATH',
+	'Add-GHActionsProblemMatcher',
+	'Add-GHActionsSecretMask',
+	'Disable-GHActionsEchoCommand',
+	'Disable-GHActionsProcessingCommand',
+	'Enable-GHActionsEchoCommand',
+	'Enable-GHActionsProcessingCommand',
+	'Enter-GHActionsLogGroup',
+	'Exit-GHActionsLogGroup',
+	'Get-GHActionsInput',
+	'Get-GHActionsIsDebug',
+	'Get-GHActionsState',
+	'Get-GHActionsWebhookEventPayload',
+	'Remove-GHActionsProblemMatcher',
+	'Set-GHActionsOutput',
+	'Set-GHActionsState',
+	'Write-GHActionsAnnotation',
+	'Write-GHActionsDebug',
+	'Write-GHActionsError',
+	'Write-GHActionsFail',
+	'Write-GHActionsNotice',
+	'Write-GHActionsWarning'
+) -Alias @(
+	'Add-GHActionsEnv',
+	'Add-GHActionsMask',
+	'Add-GHActionsSecret',
+	'Disable-GHActionsCommandEcho',
+	'Disable-GHActionsCommandProcessing',
+	'Enable-GHActionsCommandEcho',
+	'Enable-GHActionsCommandProcessing',
+	'Enter-GHActionsGroup',
+	'Exit-GHActionsGroup',
+	'Get-GHActionsEvent',
+	'Get-GHActionsPayload',
+	'Write-GHActionsNote',
+	'Write-GHActionsWarn'
+)

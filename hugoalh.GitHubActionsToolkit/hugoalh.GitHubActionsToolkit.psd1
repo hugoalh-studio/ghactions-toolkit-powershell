@@ -65,9 +65,9 @@
 		'Add-GHActionsPATH',
 		'Add-GHActionsProblemMatcher',
 		'Add-GHActionsSecretMask',
-		'Disable-GHActionsCommandEcho',
+		'Disable-GHActionsEchoCommand',
 		'Disable-GHActionsProcessingCommand',
-		'Enable-GHActionsCommandEcho',
+		'Enable-GHActionsEchoCommand',
 		'Enable-GHActionsProcessingCommand',
 		'Enter-GHActionsLogGroup',
 		'Exit-GHActionsLogGroup',
@@ -93,7 +93,21 @@
 	VariablesToExport = '*'
 
 	# Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-	AliasesToExport = @()
+	AliasesToExport = @(
+		'Add-GHActionsEnv',
+		'Add-GHActionsMask',
+		'Add-GHActionsSecret',
+		'Disable-GHActionsCommandEcho',
+		'Disable-GHActionsCommandProcessing',
+		'Enable-GHActionsCommandEcho',
+		'Enable-GHActionsCommandProcessing',
+		'Enter-GHActionsGroup',
+		'Exit-GHActionsGroup',
+		'Get-GHActionsEvent',
+		'Get-GHActionsPayload',
+		'Write-GHActionsNote',
+		'Write-GHActionsWarn'	
+	)
 
 	# DSC resources to export from this module
 	# DscResourcesToExport = @()
@@ -112,6 +126,8 @@
 				'action',
 				'actions',
 				'github',
+				'github-action',
+				'github-actions',
 				'PSEdition_Core',
 				'toolkit'
 			)
