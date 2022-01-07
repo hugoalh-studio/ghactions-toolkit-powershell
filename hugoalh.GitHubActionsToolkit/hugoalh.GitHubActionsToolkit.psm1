@@ -182,6 +182,16 @@ function Add-GHActionsPATH {
 		Add-Content -Path $env:GITHUB_PATH -Value "$($Result -join "`n")" -Encoding utf8NoBOM
 	}
 }
+<#
+.SYNOPSIS
+GitHub Actions - Add Problem Matcher
+.DESCRIPTION
+Problem matchers are a way to scan the output of actions for a specified regular expression pattern and automatically surface that information prominently in the user interface, both GitHub Annotations and log file decorations are created when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
+.PARAMETER Path
+Relative path to the JSON file problem matcher.
+.OUTPUTS
+Void
+#>
 function Add-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
@@ -443,6 +453,16 @@ function Get-GHActionsWebhookEventPayload {
 }
 Set-Alias -Name 'Get-GHActionsEvent' -Value 'Get-GHActionsWebhookEventPayload' -Option ReadOnly -Scope 'Local'
 Set-Alias -Name 'Get-GHActionsPayload' -Value 'Get-GHActionsWebhookEventPayload' -Option ReadOnly -Scope 'Local'
+<#
+.SYNOPSIS
+GitHub Actions - Remove Problem Matcher
+.DESCRIPTION
+Remove problem matcher.
+.PARAMETER Owner
+Owner of the problem matcher.
+.OUTPUTS
+Void
+#>
 function Remove-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
