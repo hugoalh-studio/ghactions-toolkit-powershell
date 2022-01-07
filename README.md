@@ -45,9 +45,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 - `Add-GHActionsPATH`
 - `Add-GHActionsProblemMatcher`
 - `Add-GHActionsSecretMask`
-- `Disable-GHActionsCommandEcho`
+- `Disable-GHActionsEchoCommand`
 - `Disable-GHActionsProcessingCommand`
-- `Enable-GHActionsCommandEcho`
+- `Enable-GHActionsEchoCommand`
 - `Enable-GHActionsProcessingCommand`
 - `Enter-GHActionsLogGroup`
 - `Exit-GHActionsLogGroup`
