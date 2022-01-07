@@ -466,7 +466,7 @@ Void
 function Remove-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
 	)
 	begin {}
 	process {
