@@ -25,7 +25,7 @@ String
 function Format-GHActionsCommand {
 	[CmdletBinding()][OutputType([string])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][string]$InputObject,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][Alias('Input', 'Object')][string]$InputObject,
 		[switch]$Property
 	)
 	begin {}
@@ -51,7 +51,7 @@ Boolean
 function Test-GHActionsEnvironmentVariable {
 	[CmdletBinding()][OutputType([bool])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$InputObject
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][string]$InputObject
 	)
 	begin {}
 	process {
@@ -72,8 +72,8 @@ An internal function to write workflow command.
 Workflow command.
 .PARAMETER Message
 Message.
-.PARAMETER Properties
-Workflow command properties.
+.PARAMETER Property
+Workflow command property.
 .OUTPUTS
 Void
 #>
@@ -82,11 +82,11 @@ function Write-GHActionsCommand {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][string]$Command,
 		[Parameter(Mandatory = $true, Position = 1)][AllowEmptyString()][string]$Message,
-		[Parameter(Position = 2)][hashtable]$Properties = @{}
+		[Parameter(Position = 2)][Alias('Properties')][hashtable]$Property = @{}
 	)
 	[string]$Result = "::$Command"
-	if ($Properties.Count -gt 0) {
-		$Result += " $($($Properties.GetEnumerator() | ForEach-Object -Process {
+	if ($Property.Count -gt 0) {
+		$Result += " $($($Property.GetEnumerator() | ForEach-Object -Process {
 			return "$($_.Name)=$(Format-GHActionsCommand -InputObject $_.Value -Property)"
 		}) -join ',')"
 	}
@@ -110,8 +110,8 @@ Void
 function Add-GHActionsEnvironmentVariable {
 	[CmdletBinding(DefaultParameterSetName = '1')][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^[\da-z_]+$')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^[\da-z_]+$')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 1)][ValidatePattern('^.+$')][string]$Value
 	)
 	begin {
@@ -164,7 +164,7 @@ Void
 function Add-GHActionsPATH {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][string[]]$Path
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Paths')][string[]]$Path
 	)
 	begin {
 		[string[]]$Result = @()
@@ -185,7 +185,7 @@ function Add-GHActionsPATH {
 function Add-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][string[]]$Path
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][Alias('File', 'Files', 'Paths', 'PSPath', 'PSPaths')][string[]]$Path
 	)
 	begin {}
 	process {
@@ -212,7 +212,7 @@ Void
 function Add-GHActionsSecretMask {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Value
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Token')][string]$Value
 	)
 	begin {}
 	process {
@@ -247,7 +247,7 @@ String
 function Disable-GHActionsProcessingCommand {
 	[CmdletBinding()][OutputType([string])]
 	param(
-		[Parameter(Position = 0)][ValidatePattern('^.+$')][string]$EndToken = (New-Guid).Guid
+		[Parameter(Position = 0)][ValidatePattern('^.+$')][Alias('Key', 'Token', 'Value')][string]$EndToken = (New-Guid).Guid
 	)
 	Write-GHActionsCommand -Command 'stop-commands' -Message $EndToken
 	return $EndToken
@@ -280,7 +280,7 @@ Void
 function Enable-GHActionsProcessingCommand {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][string]$EndToken
+		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Key', 'Token', 'Value')][string]$EndToken
 	)
 	Write-GHActionsCommand -Command $EndToken -Message ''
 }
@@ -298,7 +298,7 @@ Void
 function Enter-GHActionsLogGroup {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Header', 'Message')][string]$Title
 	)
 	Write-GHActionsCommand -Command 'group' -Message $Title
 }
@@ -334,8 +334,8 @@ Hashtable | String
 function Get-GHActionsInput {
 	[CmdletBinding()][OutputType([hashtable], [string])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
-		[switch]$Require,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Keys', 'Names')][string[]]$Name,
+		[Alias('Required')][switch]$Require,
 		[switch]$Trim
 	)
 	begin {
@@ -396,7 +396,7 @@ Hashtable | String
 function Get-GHActionsState {
 	[CmdletBinding()][OutputType([hashtable], [string])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string[]]$Name,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Keys', 'Names')][string[]]$Name,
 		[switch]$Trim
 	)
 	begin {
@@ -423,6 +423,7 @@ function Get-GHActionsState {
 		return $Result
 	}
 }
+Set-Alias -Name 'Restore-GHActionsState' -Value 'Get-GHActionsState' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Webhook Event Payload
@@ -436,7 +437,7 @@ Hashtable | PSCustomObject
 function Get-GHActionsWebhookEventPayload {
 	[CmdletBinding()][OutputType([hashtable], [pscustomobject])]
 	param (
-		[switch]$AsHashTable
+		[Alias('ToHashTable')][switch]$AsHashTable
 	)
 	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM | ConvertFrom-Json -AsHashtable:$AsHashTable)
 }
@@ -445,12 +446,12 @@ Set-Alias -Name 'Get-GHActionsPayload' -Value 'Get-GHActionsWebhookEventPayload'
 function Remove-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][string[]]$Owner
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
 	)
 	begin {}
 	process {
 		$Owner | ForEach-Object -Process {
-			Write-GHActionsCommand -Command 'remove-matcher' -Message '' -Properties @{ 'owner' = $_ }
+			Write-GHActionsCommand -Command 'remove-matcher' -Message '' -Property @{ 'owner' = $_ }
 		}
 	}
 	end {}
@@ -470,10 +471,10 @@ Void
 function Set-GHActionsOutput {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][string]$Name,
+		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Value
 	)
-	Write-GHActionsCommand -Command 'set-output' -Message $Value -Properties @{ 'name' = $Name }
+	Write-GHActionsCommand -Command 'set-output' -Message $Value -Property @{ 'name' = $Name }
 }
 <#
 .SYNOPSIS
@@ -490,11 +491,12 @@ Void
 function Set-GHActionsState {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][string]$Name,
+		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Value
 	)
-	Write-GHActionsCommand -Command 'save-state' -Message $Value -Properties @{ 'name' = $Name }
+	Write-GHActionsCommand -Command 'save-state' -Message $Value -Property @{ 'name' = $Name }
 }
+Set-Alias -Name 'Save-GHActionsState' -Value 'Set-GHActionsState' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Annotation
@@ -508,7 +510,7 @@ Message that need to log at annotation.
 Issue file path.
 .PARAMETER Line
 Issue file line start.
-.PARAMETER Col
+.PARAMETER Column
 Issue file column start.
 .PARAMETER EndLine
 Issue file line end.
@@ -524,22 +526,22 @@ function Write-GHActionsAnnotation {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][GHActionsAnnotationType]$Type,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][string]$File,
+		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
 		[Parameter()][uint]$Line,
-		[Parameter()][uint]$Col,
+		[Parameter()][Alias('Col')][uint]$Column,
 		[Parameter()][uint]$EndLine,
 		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][string]$Title
+		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	[hashtable]$Properties = @{}
+	[hashtable]$Property = @{}
 	if ($File.Length -gt 0) {
 		$Properties.'file' = $File
 	}
 	if ($Line -gt 0) {
 		$Properties.'line' = $Line
 	}
-	if ($Col -gt 0) {
-		$Properties.'col' = $Col
+	if ($Column -gt 0) {
+		$Properties.'col' = $Column
 	}
 	if ($EndLine -gt 0) {
 		$Properties.'endLine' = $EndLine
@@ -550,7 +552,7 @@ function Write-GHActionsAnnotation {
 	if ($Title.Length -gt 0) {
 		$Properties.'title' = $Title
 	}
-	Write-GHActionsCommand -Command $Type.ToString().ToLower() -Message $Message -Properties $Properties
+	Write-GHActionsCommand -Command $Type.ToString().ToLower() -Message $Message -Property $Property
 }
 <#
 .SYNOPSIS
@@ -599,14 +601,14 @@ function Write-GHActionsError {
 	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][string]$File,
+		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
 		[Parameter()][uint]$Line,
-		[Parameter()][uint]$Col,
+		[Parameter()][Alias('Col')][uint]$Column,
 		[Parameter()][uint]$EndLine,
 		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][string]$Title
+		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GHActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	Write-GHActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
 <#
 .SYNOPSIS
@@ -652,14 +654,14 @@ function Write-GHActionsNotice {
 	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][string]$File,
+		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
 		[Parameter()][uint]$Line,
-		[Parameter()][uint]$Col,
+		[Parameter()][Alias('Col')][uint]$Column,
 		[Parameter()][uint]$EndLine,
 		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][string]$Title
+		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GHActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	Write-GHActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
 Set-Alias -Name 'Write-GHActionsNote' -Value 'Write-GHActionsNotice' -Option ReadOnly -Scope 'Local'
 <#
@@ -688,14 +690,14 @@ function Write-GHActionsWarning {
 	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][string]$File,
+		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
 		[Parameter()][uint]$Line,
-		[Parameter()][uint]$Col,
+		[Parameter()][Alias('Col')][uint]$Column,
 		[Parameter()][uint]$EndLine,
 		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][string]$Title
+		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GHActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Col $Col -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	Write-GHActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
 Set-Alias -Name 'Write-GHActionsWarn' -Value 'Write-GHActionsWarning' -Option ReadOnly -Scope 'Local'
 Export-ModuleMember -Function @(
@@ -734,6 +736,8 @@ Export-ModuleMember -Function @(
 	'Exit-GHActionsGroup',
 	'Get-GHActionsEvent',
 	'Get-GHActionsPayload',
+	'Restore-GHActionsState',
+	'Save-GHActionsState',
 	'Write-GHActionsNote',
 	'Write-GHActionsWarn'
 )

@@ -105,8 +105,10 @@
 		'Exit-GHActionsGroup',
 		'Get-GHActionsEvent',
 		'Get-GHActionsPayload',
+		'Restore-GHActionsState',
+		'Save-GHActionsState',
 		'Write-GHActionsNote',
-		'Write-GHActionsWarn'	
+		'Write-GHActionsWarn'
 	)
 
 	# DSC resources to export from this module
