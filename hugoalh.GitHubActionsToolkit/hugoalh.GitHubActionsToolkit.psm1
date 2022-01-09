@@ -649,7 +649,7 @@ Void
 function Write-GHActionsFail {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][string]$Message
+		[Parameter(Mandatory = $true, Position = 0)][string]$Message
 	)
 	Write-GHActionsAnnotation -Type 'Error' -Message $Message
 	exit 1
