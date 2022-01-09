@@ -553,6 +553,12 @@ function Write-GHActionsAnnotation {
 		[Parameter()][uint]$EndColumn,
 		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
+	[string]$TypeRaw = ""
+	switch ($Type.GetHashCode()) {
+		0 { $TypeRaw = 'notice'; break }
+		1 { $TypeRaw = 'warning'; break }
+		2 { $TypeRaw = 'error'; break }
+	}
 	[hashtable]$Property = @{}
 	if ($File.Length -gt 0) {
 		$Property.'file' = $File
@@ -572,7 +578,7 @@ function Write-GHActionsAnnotation {
 	if ($Title.Length -gt 0) {
 		$Property.'title' = $Title
 	}
-	Write-GHActionsCommand -Command $Type.ToString().ToLower() -Message $Message -Property $Property
+	Write-GHActionsCommand -Command $TypeRaw -Message $Message -Property $Property
 }
 <#
 .SYNOPSIS
