@@ -555,22 +555,22 @@ function Write-GHActionsAnnotation {
 	)
 	[hashtable]$Property = @{}
 	if ($File.Length -gt 0) {
-		$Properties.'file' = $File
+		$Property.'file' = $File
 	}
 	if ($Line -gt 0) {
-		$Properties.'line' = $Line
+		$Property.'line' = $Line
 	}
 	if ($Column -gt 0) {
-		$Properties.'col' = $Column
+		$Property.'col' = $Column
 	}
 	if ($EndLine -gt 0) {
-		$Properties.'endLine' = $EndLine
+		$Property.'endLine' = $EndLine
 	}
 	if ($EndColumn -gt 0) {
-		$Properties.'endColumn' = $EndColumn
+		$Property.'endColumn' = $EndColumn
 	}
 	if ($Title.Length -gt 0) {
-		$Properties.'title' = $Title
+		$Property.'title' = $Title
 	}
 	Write-GHActionsCommand -Command $Type.ToString().ToLower() -Message $Message -Property $Property
 }
