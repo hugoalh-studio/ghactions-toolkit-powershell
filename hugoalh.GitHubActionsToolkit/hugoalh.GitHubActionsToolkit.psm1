@@ -30,7 +30,7 @@ function Format-GHActionsCommand {
 	)
 	begin {}
 	process {
-		[string]$Result = $InputObject -replace '%', '%25' -replace "`n", '%0A' -replace "`r", '%0D'
+		[string]$Result = $InputObject -replace '%', '%25' -replace "\n", '%0A' -replace "\r", '%0D'
 		if ($Property) {
 			$Result = $Result -replace ',', '%2C' -replace ':', '%3A'
 		}
