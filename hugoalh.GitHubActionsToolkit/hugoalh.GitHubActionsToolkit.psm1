@@ -110,7 +110,7 @@ Void
 function Add-GHActionsEnvironmentVariable {
 	[CmdletBinding(DefaultParameterSetName = '1')][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^[\da-z_]+$')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 1)][ValidatePattern('^.+$')][string]$Value
 	)
@@ -119,29 +119,20 @@ function Add-GHActionsEnvironmentVariable {
 	}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
-			'1' {
-				switch ($InputObject.GetType().Name) {
-					'Hashtable' {
-						$InputObject.GetEnumerator() | ForEach-Object -Process {
-							if (Test-GHActionsEnvironmentVariable -InputObject "$($_.Name)=$($_.Value)") {
-								$Result[$_.Name] = $_.Value
-							}
-						}
-					}
-					'String' {
-						if (Test-GHActionsEnvironmentVariable -InputObject $InputObject) {
-							[string[]]$InputObjectSplit = $InputObject.Split('=')
-							$Result[$InputObjectSplit[0]] = $InputObjectSplit[1]
-						}
-					}
-					default {
-						Write-Error -Message 'Parameter `InputObject` must be hashtable or string!' -Category InvalidType
-					}
+			'1' { $InputObject.GetEnumerator() | ForEach-Object -Process {
+				if ($_.Name.GetType().Name -ne 'string') {
+					Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
+				} elseif ($_.Name -notmatch '^[\da-z_]+$') {
+					Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+				} elseif ($_.Value.GetType().Name -ne 'string') {
+					Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
+				} elseif ($_.Value -notmatch '^.+$') {
+					Write-Error -Message "Input value `"$($_.Value)`" is not match the require pattern!" -Category SyntaxError
+				} else {
+					$Result[$_.Name] = $_.Value
 				}
-			}
-			'2' {
-				$Result[$Name] = $Value
-			}
+			}; break }
+			'2' { $Result[$Name] = $Value; break }
 		}
 	}
 	end {
