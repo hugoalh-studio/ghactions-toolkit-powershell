@@ -468,12 +468,30 @@ Value of the output.
 Void
 #>
 function Set-GHActionsOutput {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = '1')][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, Position = 1)][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 1)][string]$Value
 	)
-	Write-GHActionsCommand -Command 'set-output' -Message $Value -Property @{ 'name' = $Name }
+	begin {}
+	process {
+		switch ($PSCmdlet.ParameterSetName) {
+			'1' { $InputObject.GetEnumerator() | ForEach-Object -Process {
+				if ($_.Name.GetType().Name -ne 'string') {
+					Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
+				} elseif ($_.Name -notmatch '^.+$') {
+					Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+				} elseif ($_.Value.GetType().Name -ne 'string') {
+					Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
+				} else {
+					Write-GHActionsCommand -Command 'set-output' -Message $_.Value -Property @{ 'name' = $_.Name }
+				}
+			}; break }
+			'2' { Write-GHActionsCommand -Command 'set-output' -Message $Value -Property @{ 'name' = $Name }; break }
+		}
+	}
+	end {}
 }
 <#
 .SYNOPSIS
@@ -488,12 +506,30 @@ Value of the state.
 Void
 #>
 function Set-GHActionsState {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = '1')][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, Position = 1)][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 1)][string]$Value
 	)
-	Write-GHActionsCommand -Command 'save-state' -Message $Value -Property @{ 'name' = $Name }
+	begin {}
+	process {
+		switch ($PSCmdlet.ParameterSetName) {
+			'1' { $InputObject.GetEnumerator() | ForEach-Object -Process {
+				if ($_.Name.GetType().Name -ne 'string') {
+					Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
+				} elseif ($_.Name -notmatch '^.+$') {
+					Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+				} elseif ($_.Value.GetType().Name -ne 'string') {
+					Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
+				} else {
+					Write-GHActionsCommand -Command 'save-state' -Message $_.Value -Property @{ 'name' = $_.Name }
+				}
+			}; break }
+			'2' { Write-GHActionsCommand -Command 'save-state' -Message $Value -Property @{ 'name' = $Name }; break }
+		}
+	}
+	end {}
 }
 Set-Alias -Name 'Save-GHActionsState' -Value 'Set-GHActionsState' -Option ReadOnly -Scope 'Local'
 <#
