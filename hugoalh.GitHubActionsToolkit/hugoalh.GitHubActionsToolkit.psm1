@@ -40,31 +40,6 @@ function Format-GHActionsCommand {
 }
 <#
 .SYNOPSIS
-GitHub Actions - Internal - Test Environment Variable
-.DESCRIPTION
-An internal function to validate environment variable.
-.PARAMETER InputObject
-Environment variable that need to validate.
-.OUTPUTS
-Boolean
-#>
-function Test-GHActionsEnvironmentVariable {
-	[CmdletBinding()][OutputType([bool])]
-	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][string]$InputObject
-	)
-	begin {}
-	process {
-		if (($InputObject -match '^[\da-z_]+=.+$') -and (($InputObject -split '=').Count -eq 2)) {
-			return $true
-		}
-		Write-Error -Message "Input `"$InputObject`" is not match the require environment variable pattern!" -Category SyntaxError
-		return $false
-	}
-	end {}
-}
-<#
-.SYNOPSIS
 GitHub Actions - Internal - Write Workflow Command
 .DESCRIPTION
 An internal function to write workflow command.
