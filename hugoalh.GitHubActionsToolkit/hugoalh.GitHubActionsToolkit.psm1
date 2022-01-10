@@ -559,12 +559,12 @@ function Write-GHActionsAnnotation {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][GHActionsAnnotationType]$Type,
 		[Parameter(Mandatory = $true, Position = 1)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Parameter()][uint]$Line,
-		[Parameter()][Alias('Col')][uint]$Column,
-		[Parameter()][uint]$EndLine,
-		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[uint]$Line,
+		[Alias('Col')][uint]$Column,
+		[uint]$EndLine,
+		[uint]$EndColumn,
+		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
 	[string]$TypeRaw = ""
 	switch ($Type.GetHashCode()) {
@@ -640,12 +640,12 @@ function Write-GHActionsError {
 	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Parameter()][uint]$Line,
-		[Parameter()][Alias('Col')][uint]$Column,
-		[Parameter()][uint]$EndLine,
-		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[uint]$Line,
+		[Alias('Col')][uint]$Column,
+		[uint]$EndLine,
+		[uint]$EndColumn,
+		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
 	Write-GHActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
@@ -693,12 +693,12 @@ function Write-GHActionsNotice {
 	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Parameter()][uint]$Line,
-		[Parameter()][Alias('Col')][uint]$Column,
-		[Parameter()][uint]$EndLine,
-		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[uint]$Line,
+		[Alias('Col')][uint]$Column,
+		[uint]$EndLine,
+		[uint]$EndColumn,
+		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
 	Write-GHActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
@@ -729,12 +729,12 @@ function Write-GHActionsWarning {
 	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][string]$Message,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Parameter()][uint]$Line,
-		[Parameter()][Alias('Col')][uint]$Column,
-		[Parameter()][uint]$EndLine,
-		[Parameter()][uint]$EndColumn,
-		[Parameter()][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[uint]$Line,
+		[Alias('Col')][uint]$Column,
+		[uint]$EndLine,
+		[uint]$EndColumn,
+		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
 	Write-GHActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 }
