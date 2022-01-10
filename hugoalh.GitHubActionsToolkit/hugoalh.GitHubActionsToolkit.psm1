@@ -251,6 +251,8 @@ Set-Alias -Name 'Disable-GHActionsCommandEcho' -Value 'Disable-GHActionsEchoComm
 GitHub Actions - Disable Processing Command
 .DESCRIPTION
 Stop processing any workflow commands to allow log anything without accidentally running workflow commands.
+.PARAMETER EndToken
+An end token for function `Enable-GHActionsProcessingCommand`.
 .OUTPUTS
 String
 #>
@@ -283,7 +285,7 @@ GitHub Actions - Enable Processing Command
 .DESCRIPTION
 Resume processing any workflow commands to allow running workflow commands.
 .PARAMETER EndToken
-Token from `Disable-GHActionsProcessingCommand`.
+An end token from function `Disable-GHActionsProcessingCommand`.
 .OUTPUTS
 Void
 #>
