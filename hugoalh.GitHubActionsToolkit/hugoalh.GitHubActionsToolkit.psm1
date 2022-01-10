@@ -186,7 +186,7 @@ function Add-GHActionsPATH {
 .SYNOPSIS
 GitHub Actions - Add Problem Matcher
 .DESCRIPTION
-Problem matchers are a way to scan the output of actions for a specified regular expression pattern and automatically surface that information prominently in the user interface, both GitHub Annotations and log file decorations are created when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
+Problem matchers are a way to scan the output of actions for a specified regular expression pattern and automatically surface that information prominently in the user interface, both annotations and log file decorations are created when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
 .PARAMETER Path
 Relative path to the JSON file problem matcher.
 .OUTPUTS
@@ -459,9 +459,9 @@ Set-Alias -Name 'Get-GHActionsPayload' -Value 'Get-GHActionsWebhookEventPayload'
 .SYNOPSIS
 GitHub Actions - Remove Problem Matcher
 .DESCRIPTION
-Remove problem matcher.
+Remove problem matcher that previously added from function `Add-GHActionsProblemMatcher`.
 .PARAMETER Owner
-Owner of the problem matcher.
+Owner of the problem matcher that previously added from function `Add-GHActionsProblemMatcher`.
 .OUTPUTS
 Void
 #>
