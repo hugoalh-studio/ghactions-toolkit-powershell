@@ -216,17 +216,28 @@ GitHub Actions - Add Secret Mask
 Make a secret will get masked from the log.
 .PARAMETER Value
 The secret.
+.PARAMETER Smart
+Use improved method to well make a secret will get masked from the log.
 .OUTPUTS
 Void
 #>
 function Add-GHActionsSecretMask {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Token')][string]$Value
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Token')][string]$Value,
+		[switch]$Smart
 	)
 	begin {}
 	process {
 		Write-GHActionsCommand -Command 'add-mask' -Message $Value
+		if ($Smart) {
+			[string[]]$Bin = $Value -split "[\n\r\s\t]+"
+			$Bin | ForEach-Object -Process {
+				if (($_ -ne $Value) -and ($_.Length -ge 2)) {
+					Write-GHActionsCommand -Command 'add-mask' -Message $_
+				}
+			}
+		}
 	}
 	end {}
 }
