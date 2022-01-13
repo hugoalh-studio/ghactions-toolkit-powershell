@@ -40,6 +40,23 @@ function Format-GHActionsCommand {
 }
 <#
 .SYNOPSIS
+GitHub Actions - Internal - Get All Environment Variable
+.DESCRIPTION
+An internal function to get all environment variable.
+.OUTPUTS
+Hashtable
+#>
+function Get-AllEnvironmentVariable {
+	[CmdletBinding()][OutputType([hashtable])]
+	param ()
+	[hashtable]$Result = @{}
+	Get-ChildItem -Path 'Env:\' | ForEach-Object -Process {
+		$Result[$_.Name] = $_.Value
+	}
+	return $Result
+}
+<#
+.SYNOPSIS
 GitHub Actions - Internal - Write Workflow Command
 .DESCRIPTION
 An internal function to write workflow command.
@@ -418,17 +435,23 @@ Set-Alias -Name 'Restore-GHActionsState' -Value 'Get-GHActionsState' -Option Rea
 GitHub Actions - Get Webhook Event Payload
 .DESCRIPTION
 Get the complete webhook event payload.
-.PARAMETER AsHashTable
+.PARAMETER AsHashtable
 Output as hashtable instead of object.
+.PARAMETER Depth
+Set the maximum depth the JSON input is allowed to have.
+.PARAMETER NoEnumerate
+Specify that output is not enumerated; Setting this parameter causes arrays to be sent as a single object instead of sending every element separately, this guarantees that JSON can be round-tripped via Cmdlet `ConvertTo-Json`.
 .OUTPUTS
 Hashtable | PSCustomObject
 #>
 function Get-GHActionsWebhookEventPayload {
 	[CmdletBinding()][OutputType([hashtable], [pscustomobject])]
 	param (
-		[Alias('ToHashTable')][switch]$AsHashTable
+		[Alias('ToHashtable')][switch]$AsHashtable,
+		[int]$Depth = 1024,
+		[switch]$NoEnumerate
 	)
-	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM | ConvertFrom-Json -AsHashtable:$AsHashTable)
+	return ConvertFrom-Json -InputObject (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding utf8NoBOM) -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate
 }
 Set-Alias -Name 'Get-GHActionsEvent' -Value 'Get-GHActionsWebhookEventPayload' -Option ReadOnly -Scope 'Local'
 Set-Alias -Name 'Get-GHActionsPayload' -Value 'Get-GHActionsWebhookEventPayload' -Option ReadOnly -Scope 'Local'
