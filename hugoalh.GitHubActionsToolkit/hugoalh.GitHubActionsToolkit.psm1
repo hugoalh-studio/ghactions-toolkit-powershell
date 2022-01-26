@@ -136,7 +136,7 @@ Void
 function Add-GHActionsPATH {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Paths')][string[]]$Path
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Paths')][string[]]$Path
 	)
 	begin {
 		[string[]]$Result = @()
@@ -167,7 +167,7 @@ Void
 function Add-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][Alias('File', 'Files', 'Paths', 'PSPath', 'PSPaths')][string[]]$Path
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('File', 'Files', 'Paths', 'PSPath', 'PSPaths')][string[]]$Path
 	)
 	begin {}
 	process {
@@ -204,8 +204,8 @@ function Add-GHActionsSecretMask {
 	process {
 		Write-GHActionsCommand -Command 'add-mask' -Message $Value
 		if ($Smart) {
-			[string[]]$Bin = $Value -split "[\n\r\s\t]+"
-			$Bin | ForEach-Object -Process {
+			[string[]]$ValueChunk = $Value -split "[\n\r\s\t]+"
+			$ValueChunk | ForEach-Object -Process {
 				if (($_ -ne $Value) -and ($_.Length -ge 2)) {
 					Write-GHActionsCommand -Command 'add-mask' -Message $_
 				}
@@ -345,9 +345,8 @@ function Get-GHActionsInput {
 		switch ($PSCmdlet.ParameterSetName) {
 			'all' {
 				$ResultIsHashtable = $true
-				[string[]]$NameResolve = Get-ChildItem -Path 'Env:\' -Include 'INPUT_*'
-				$NameResolve | ForEach-Object -Process {
-					$InputValue = Get-ChildItem -Path "Env:\INPUT_$_"
+				Get-ChildItem -Path 'Env:\' -Include 'INPUT_*' -Name | ForEach-Object -Process {
+					$InputValue = Get-ChildItem -Path "Env:\$_"
 					if ($Trim) {
 						$Result[$_] = $InputValue.Value.Trim()
 					} else {
@@ -358,11 +357,10 @@ function Get-GHActionsInput {
 			}
 			'select' {
 				$Name | ForEach-Object -Process {
-					if ([WildcardPattern]::ContainsWildcardCharacters($Name)) {
-						$Function:ResultIsHashtable = $true
-						[string[]]$NameResolve = Get-ChildItem -Path 'Env:\' -Include "INPUT_$Name"
-						$NameResolve | ForEach-Object -Process {
-							$InputValue = Get-ChildItem -Path "Env:\INPUT_$_"
+					if ([WildcardPattern]::ContainsWildcardCharacters($_)) {
+						$ResultIsHashtable = $true
+						Get-ChildItem -Path 'Env:\' -Include "INPUT_$_" -Name | ForEach-Object -Process {
+							$InputValue = Get-ChildItem -Path "Env:$_"
 							if ($Trim) {
 								$Result[$_] = $InputValue.Value.Trim()
 							} else {
@@ -419,30 +417,62 @@ GitHub Actions - Get State
 Get state.
 .PARAMETER Name
 Name of the state.
+.PARAMETER All
+Get all of the state.
 .PARAMETER Trim
 Trim the state's value.
 .OUTPUTS
 Hashtable | String
 #>
 function Get-GHActionsState {
-	[CmdletBinding()][OutputType([hashtable], [string])]
+	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType([hashtable], [string])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Keys', 'Names')][string[]]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
+		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
 	begin {
 		[hashtable]$Result = @{}
+		[bool]$ResultIsHashtable = $false
 	}
 	process {
-		$Name | ForEach-Object -Process {
-			$StateValue = Get-ChildItem -Path "Env:\STATE_$($_.ToUpper() -replace '[ \n\r\s\t]+','_')" -ErrorAction SilentlyContinue
-			if ($null -eq $StateValue) {
-				$Result[$_] = $StateValue
-			} else {
-				if ($Trim) {
-					$Result[$_] = $StateValue.Value.Trim()
-				} else {
-					$Result[$_] = $StateValue.Value
+		switch ($PSCmdlet.ParameterSetName) {
+			'all' {
+				$ResultIsHashtable = $true
+				Get-ChildItem -Path 'Env:\' -Include 'STATE_*' -Name | ForEach-Object -Process {
+					$StateValue = Get-ChildItem -Path "Env:\$_"
+					if ($Trim) {
+						$Result[$_] = $StateValue.Value.Trim()
+					} else {
+						$Result[$_] = $StateValue.Value
+					}
+				}
+				break
+			}
+			'select' {
+				$Name | ForEach-Object -Process {
+					if ([WildcardPattern]::ContainsWildcardCharacters($_)) {
+						$ResultIsHashtable = $true
+						Get-ChildItem -Path 'Env:\' -Include "STATE_$_" -Name | ForEach-Object -Process {
+							$StateValue = Get-ChildItem -Path "Env:$_"
+							if ($Trim) {
+								$Result[$_] = $StateValue.Value.Trim()
+							} else {
+								$Result[$_] = $StateValue.Value
+							}
+						}
+					} else {
+						$StateValue = Get-ChildItem -Path "Env:\STATE_$_" -ErrorAction SilentlyContinue
+						if ($null -eq $StateValue) {
+							$Result[$_] = $StateValue
+						} else {
+							if ($Trim) {
+								$Result[$_] = $StateValue.Value.Trim()
+							} else {
+								$Result[$_] = $StateValue.Value
+							}
+						}
+					}
 				}
 			}
 		}
@@ -493,7 +523,7 @@ Void
 function Remove-GHActionsProblemMatcher {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][ValidatePattern('^.+$')][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
 	)
 	begin {}
 	process {
@@ -516,27 +546,33 @@ Value of the output.
 Void
 #>
 function Set-GHActionsOutput {
-	[CmdletBinding(DefaultParameterSetName = '1')][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 1)][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1)][string]$Value
 	)
 	begin {}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
-			'1' { $InputObject.GetEnumerator() | ForEach-Object -Process {
-				if ($_.Name.GetType().Name -ne 'string') {
-					Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
-				} elseif ($_.Name -notmatch '^.+$') {
-					Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
-				} elseif ($_.Value.GetType().Name -ne 'string') {
-					Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
-				} else {
-					Write-GHActionsCommand -Command 'set-output' -Message $_.Value -Property @{ 'name' = $_.Name }
+			'multiple' {
+				$InputObject.GetEnumerator() | ForEach-Object -Process {
+					if ($_.Name.GetType().Name -ne 'string') {
+						Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
+					} elseif ($_.Name -notmatch '^.+$') {
+						Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+					} elseif ($_.Value.GetType().Name -ne 'string') {
+						Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
+					} else {
+						Write-GHActionsCommand -Command 'set-output' -Message $_.Value -Property @{ 'name' = $_.Name }
+					}
 				}
-			}; break }
-			'2' { Write-GHActionsCommand -Command 'set-output' -Message $Value -Property @{ 'name' = $Name }; break }
+				break
+			}
+			'single' {
+				Write-GHActionsCommand -Command 'set-output' -Message $Value -Property @{ 'name' = $Name }
+				break
+			}
 		}
 	}
 	end {}
@@ -554,27 +590,33 @@ Value of the state.
 Void
 #>
 function Set-GHActionsState {
-	[CmdletBinding(DefaultParameterSetName = '1')][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 1)][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1)][string]$Value
 	)
 	begin {}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
-			'1' { $InputObject.GetEnumerator() | ForEach-Object -Process {
-				if ($_.Name.GetType().Name -ne 'string') {
-					Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
-				} elseif ($_.Name -notmatch '^.+$') {
-					Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
-				} elseif ($_.Value.GetType().Name -ne 'string') {
-					Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
-				} else {
-					Write-GHActionsCommand -Command 'save-state' -Message $_.Value -Property @{ 'name' = $_.Name }
+			'multiple' {
+				$InputObject.GetEnumerator() | ForEach-Object -Process {
+					if ($_.Name.GetType().Name -ne 'string') {
+						Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
+					} elseif ($_.Name -notmatch '^.+$') {
+						Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+					} elseif ($_.Value.GetType().Name -ne 'string') {
+						Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
+					} else {
+						Write-GHActionsCommand -Command 'save-state' -Message $_.Value -Property @{ 'name' = $_.Name }
+					}
 				}
-			}; break }
-			'2' { Write-GHActionsCommand -Command 'save-state' -Message $Value -Property @{ 'name' = $Name }; break }
+				break
+			}
+			'single' {
+				Write-GHActionsCommand -Command 'save-state' -Message $Value -Property @{ 'name' = $Name }
+				break
+			}
 		}
 	}
 	end {}
