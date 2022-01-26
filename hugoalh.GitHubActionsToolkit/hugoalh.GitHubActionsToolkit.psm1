@@ -40,23 +40,6 @@ function Format-GHActionsCommand {
 }
 <#
 .SYNOPSIS
-GitHub Actions - Internal - Get All Environment Variable
-.DESCRIPTION
-An internal function to get all environment variable.
-.OUTPUTS
-Hashtable
-#>
-function Get-AllEnvironmentVariable {
-	[CmdletBinding()][OutputType([hashtable])]
-	param ()
-	[hashtable]$Result = @{}
-	Get-ChildItem -Path 'Env:\' | ForEach-Object -Process {
-		$Result[$_.Name] = $_.Value
-	}
-	return $Result
-}
-<#
-.SYNOPSIS
 GitHub Actions - Internal - Write Workflow Command
 .DESCRIPTION
 An internal function to write workflow command.
@@ -100,31 +83,37 @@ Environment variable value.
 Void
 #>
 function Add-GHActionsEnvironmentVariable {
-	[CmdletBinding(DefaultParameterSetName = '1')][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = '1', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 0)][ValidatePattern('^[\da-z_]+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = '2', Position = 1)][ValidatePattern('^.+$')][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^[\da-z_]+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1)][ValidatePattern('^.+$')][string]$Value
 	)
 	begin {
 		[hashtable]$Result = @{}
 	}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
-			'1' { $InputObject.GetEnumerator() | ForEach-Object -Process {
-				if ($_.Name.GetType().Name -ne 'string') {
-					Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
-				} elseif ($_.Name -notmatch '^[\da-z_]+$') {
-					Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
-				} elseif ($_.Value.GetType().Name -ne 'string') {
-					Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
-				} elseif ($_.Value -notmatch '^.+$') {
-					Write-Error -Message "Input value `"$($_.Value)`" is not match the require pattern!" -Category SyntaxError
-				} else {
-					$Result[$_.Name] = $_.Value
+			'multiple' {
+				$InputObject.GetEnumerator() | ForEach-Object -Process {
+					if ($_.Name.GetType().Name -ne 'string') {
+						Write-Error -Message "Input name `"$($_.Name)`" must be type of string!" -Category InvalidType
+					} elseif ($_.Name -notmatch '^[\da-z_]+$') {
+						Write-Error -Message "Input name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+					} elseif ($_.Value.GetType().Name -ne 'string') {
+						Write-Error -Message "Input value `"$($_.Value)`" must be type of string!" -Category InvalidType
+					} elseif ($_.Value -notmatch '^.+$') {
+						Write-Error -Message "Input value `"$($_.Value)`" is not match the require pattern!" -Category SyntaxError
+					} else {
+						$Result[$_.Name] = $_.Value
+					}
 				}
-			}; break }
-			'2' { $Result[$Name] = $Value; break }
+				break
+			}
+			'single' {
+				$Result[$Name] = $Value
+				break
+			}
 		}
 	}
 	end {
@@ -182,7 +171,8 @@ function Add-GHActionsProblemMatcher {
 	)
 	begin {}
 	process {
-		Resolve-Path -Path $Path -Relative | ForEach-Object -Process {
+		[string[]]$PathResolve = Resolve-Path -Path $Path -Relative
+		$PathResolve | ForEach-Object -Process {
 			if ((Test-Path -Path $_ -PathType Leaf) -and ((Split-Path -Path $_ -Extension) -eq '.json')) {
 				Write-GHActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.\\', '' -replace '\\', '/')
 			} else {
@@ -332,40 +322,75 @@ Get input.
 Name of the input.
 .PARAMETER Require
 Whether the input is require. If required and not present, will throw an error.
+.PARAMETER All
+Get all of the input.
 .PARAMETER Trim
 Trim the input's value.
 .OUTPUTS
 Hashtable | String
 #>
 function Get-GHActionsInput {
-	[CmdletBinding()][OutputType([hashtable], [string])]
+	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType([hashtable], [string])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Keys', 'Names')][string[]]$Name,
-		[Alias('Required')][switch]$Require,
+		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
+		[Parameter(ParameterSetName = 'select')][Alias('Required')][switch]$Require,
+		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
 	begin {
 		[hashtable]$Result = @{}
+		[bool]$ResultIsHashtable = $false
 	}
 	process {
-		$Name | ForEach-Object -Process {
-			$InputValue = Get-ChildItem -Path "Env:\INPUT_$($_.ToUpper() -replace '[ \n\r\s\t]+','_')" -ErrorAction SilentlyContinue
-			if ($null -eq $InputValue) {
-				if ($Require) {
-					throw "Input ``$_`` is not defined!"
+		switch ($PSCmdlet.ParameterSetName) {
+			'all' {
+				$ResultIsHashtable = $true
+				[string[]]$NameResolve = Get-ChildItem -Path 'Env:\' -Include 'INPUT_*'
+				$NameResolve | ForEach-Object -Process {
+					$InputValue = Get-ChildItem -Path "Env:\INPUT_$_"
+					if ($Trim) {
+						$Result[$_] = $InputValue.Value.Trim()
+					} else {
+						$Result[$_] = $InputValue.Value
+					}
 				}
-				$Result[$_] = $InputValue
-			} else {
-				if ($Trim) {
-					$Result[$_] = $InputValue.Value.Trim()
-				} else {
-					$Result[$_] = $InputValue.Value
+				break
+			}
+			'select' {
+				$Name | ForEach-Object -Process {
+					if ([WildcardPattern]::ContainsWildcardCharacters($Name)) {
+						$Function:ResultIsHashtable = $true
+						[string[]]$NameResolve = Get-ChildItem -Path 'Env:\' -Include "INPUT_$Name"
+						$NameResolve | ForEach-Object -Process {
+							$InputValue = Get-ChildItem -Path "Env:\INPUT_$_"
+							if ($Trim) {
+								$Result[$_] = $InputValue.Value.Trim()
+							} else {
+								$Result[$_] = $InputValue.Value
+							}
+						}
+					} else {
+						$InputValue = Get-ChildItem -Path "Env:\INPUT_$_" -ErrorAction SilentlyContinue
+						if ($null -eq $InputValue) {
+							if ($Require) {
+								throw "Input ``$_`` is not defined!"
+							}
+							$Result[$_] = $InputValue
+						} else {
+							if ($Trim) {
+								$Result[$_] = $InputValue.Value.Trim()
+							} else {
+								$Result[$_] = $InputValue.Value
+							}
+						}
+					}
 				}
+				break
 			}
 		}
 	}
 	end {
-		if ($Result.Count -eq 1) {
+		if (($ResultIsHashtable -eq $false) -and ($Result.Count -eq 1)) {
 			return $Result.Values[0]
 		}
 		return $Result
