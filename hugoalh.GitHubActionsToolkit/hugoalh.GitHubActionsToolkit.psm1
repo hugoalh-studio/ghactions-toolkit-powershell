@@ -624,6 +624,59 @@ function Set-GHActionsState {
 Set-Alias -Name 'Save-GHActionsState' -Value 'Set-GHActionsState' -Option ReadOnly -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Test Environment
+.DESCRIPTION
+Test the current process is executing inside the GitHub Actions environment.
+.PARAMETER Force
+Whether the requirement is force. If forced and not fulfill, will throw an error.
+#>
+function Test-GHActionsEnvironment {
+	[CmdletBinding()][OutputType([bool])]
+	param (
+		[Alias('Forced', 'Require', 'Required')][switch]$Force
+	)
+	if (
+		($env:CI -ne 'true') -or
+		($env:GITHUB_ACTIONS -ne 'true') -or
+		($null -eq $env:GITHUB_ACTION_PATH) -or
+		($null -eq $env:GITHUB_ACTION_REPOSITORY) -or
+		($null -eq $env:GITHUB_ACTION) -or
+		($null -eq $env:GITHUB_ACTOR) -or
+		($null -eq $env:GITHUB_API_URL) -or
+		($null -eq $env:GITHUB_ENV) -or
+		($null -eq $env:GITHUB_EVENT_NAME) -or
+		($null -eq $env:GITHUB_EVENT_PATH) -or
+		($null -eq $env:GITHUB_GRAPHQL_URL) -or
+		($null -eq $env:GITHUB_JOB) -or
+		($null -eq $env:GITHUB_PATH) -or
+		($null -eq $env:GITHUB_REF_NAME) -or
+		($null -eq $env:GITHUB_REF_PROTECTED) -or
+		($null -eq $env:GITHUB_REF_TYPE) -or
+		($null -eq $env:GITHUB_REPOSITORY_OWNER) -or
+		($null -eq $env:GITHUB_REPOSITORY) -or
+		($null -eq $env:GITHUB_RETENTION_DAYS) -or
+		($null -eq $env:GITHUB_RUN_ATTEMPT) -or
+		($null -eq $env:GITHUB_RUN_ID) -or
+		($null -eq $env:GITHUB_RUN_NUMBER) -or
+		($null -eq $env:GITHUB_SERVER_URL) -or
+		($null -eq $env:GITHUB_SHA) -or
+		($null -eq $env:GITHUB_WORKFLOW) -or
+		($null -eq $env:GITHUB_WORKSPACE) -or
+		($null -eq $env:RUNNER_ARCH) -or
+		($null -eq $env:RUNNER_NAME) -or
+		($null -eq $env:RUNNER_OS) -or
+		($null -eq $env:RUNNER_TEMP) -or
+		($null -eq $env:RUNNER_TOOL_CACHE)
+	) {
+		if ($Force) {
+			throw 'This process require to execute inside the GitHub Actions environment.'
+		}
+		return $false
+	}
+	return $true
+}
+<#
+.SYNOPSIS
 GitHub Actions - Write Annotation
 .DESCRIPTION
 Prints an annotation message to the log.
@@ -660,9 +713,18 @@ function Write-GHActionsAnnotation {
 	)
 	[string]$TypeRaw = ""
 	switch ($Type.GetHashCode()) {
-		0 { $TypeRaw = 'notice'; break }
-		1 { $TypeRaw = 'warning'; break }
-		2 { $TypeRaw = 'error'; break }
+		0 {
+			$TypeRaw = 'notice'
+			break
+		}
+		1 {
+			$TypeRaw = 'warning'
+			break
+		}
+		2 {
+			$TypeRaw = 'error'
+			break
+		}
 	}
 	[hashtable]$Property = @{}
 	if ($File.Length -gt 0) {
@@ -849,6 +911,7 @@ Export-ModuleMember -Function @(
 	'Remove-GHActionsProblemMatcher',
 	'Set-GHActionsOutput',
 	'Set-GHActionsState',
+	'Test-GHActionsEnvironment',
 	'Write-GHActionsAnnotation',
 	'Write-GHActionsDebug',
 	'Write-GHActionsError',

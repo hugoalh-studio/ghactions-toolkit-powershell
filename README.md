@@ -58,6 +58,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 - `Remove-GHActionsProblemMatcher`
 - `Set-GHActionsOutput`
 - `Set-GHActionsState`
+- `Test-GHActionsEnvironment`
 - `Write-GHActionsAnnotation`
 - `Write-GHActionsDebug`
 - `Write-GHActionsError`

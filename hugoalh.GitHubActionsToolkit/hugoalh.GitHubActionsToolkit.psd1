@@ -78,6 +78,7 @@
 		'Remove-GHActionsProblemMatcher',
 		'Set-GHActionsOutput',
 		'Set-GHActionsState',
+		'Test-GHActionsEnvironment',
 		'Write-GHActionsAnnotation',
 		'Write-GHActionsDebug',
 		'Write-GHActionsError',
@@ -161,5 +162,5 @@
 	# HelpInfoURI = ''
 
 	# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-	# DefaultCommandPrefix = ''
+	# DefaultCommandPrefix = 'GHActions'
 }
