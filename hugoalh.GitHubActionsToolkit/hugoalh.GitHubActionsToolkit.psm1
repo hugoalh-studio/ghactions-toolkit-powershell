@@ -346,11 +346,12 @@ function Get-GHActionsInput {
 			'all' {
 				$ResultIsHashtable = $true
 				Get-ChildItem -Path 'Env:\' -Include 'INPUT_*' -Name | ForEach-Object -Process {
-					$InputValue = Get-ChildItem -Path "Env:\$_"
+					[string]$InputKey = $_ -replace '^INPUT_', ''
+					[string]$InputValue = Get-ChildItem -Path "Env:\INPUT_$InputKey"
 					if ($Trim) {
-						$Result[$_] = $InputValue.Value.Trim()
+						$Result[$InputKey] = $InputValue.Value.Trim()
 					} else {
-						$Result[$_] = $InputValue.Value
+						$Result[$InputKey] = $InputValue.Value
 					}
 				}
 				break
@@ -360,11 +361,12 @@ function Get-GHActionsInput {
 					if ([WildcardPattern]::ContainsWildcardCharacters($_)) {
 						$ResultIsHashtable = $true
 						Get-ChildItem -Path 'Env:\' -Include "INPUT_$_" -Name | ForEach-Object -Process {
-							$InputValue = Get-ChildItem -Path "Env:$_"
+							[string]$InputKey = $_ -replace '^INPUT_', ''
+							[string]$InputValue = Get-ChildItem -Path "Env:\INPUT_$InputKey"
 							if ($Trim) {
-								$Result[$_] = $InputValue.Value.Trim()
+								$Result[$InputKey] = $InputValue.Value.Trim()
 							} else {
-								$Result[$_] = $InputValue.Value
+								$Result[$InputKey] = $InputValue.Value
 							}
 						}
 					} else {
@@ -440,11 +442,12 @@ function Get-GHActionsState {
 			'all' {
 				$ResultIsHashtable = $true
 				Get-ChildItem -Path 'Env:\' -Include 'STATE_*' -Name | ForEach-Object -Process {
-					$StateValue = Get-ChildItem -Path "Env:\$_"
+					[string]$StateKey = $_ -replace '^STATE_', ''
+					[string]$StateValue = Get-ChildItem -Path "Env:\STATE_$StateKey"
 					if ($Trim) {
-						$Result[$_] = $StateValue.Value.Trim()
+						$Result[$StateKey] = $StateValue.Value.Trim()
 					} else {
-						$Result[$_] = $StateValue.Value
+						$Result[$StateKey] = $StateValue.Value
 					}
 				}
 				break
@@ -454,11 +457,12 @@ function Get-GHActionsState {
 					if ([WildcardPattern]::ContainsWildcardCharacters($_)) {
 						$ResultIsHashtable = $true
 						Get-ChildItem -Path 'Env:\' -Include "STATE_$_" -Name | ForEach-Object -Process {
-							$StateValue = Get-ChildItem -Path "Env:$_"
+							[string]$StateKey = $_ -replace '^STATE_', ''
+							[string]$StateValue = Get-ChildItem -Path "Env:\STATE_$StateKey"
 							if ($Trim) {
-								$Result[$_] = $StateValue.Value.Trim()
+								$Result[$StateKey] = $StateValue.Value.Trim()
 							} else {
-								$Result[$_] = $StateValue.Value
+								$Result[$StateKey] = $StateValue.Value
 							}
 						}
 					} else {
