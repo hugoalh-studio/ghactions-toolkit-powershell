@@ -24,7 +24,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 
 *For the official documentation, please visit [GitHub Repository Wiki](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki).*
 
-### Getting Started
+### Getting Started (Excerpt)
 
 #### Install
 
@@ -40,7 +40,7 @@ Install-Module -Name 'hugoalh.GitHubActionsToolkit'
 Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 ```
 
-### Function
+### Function (Excerpt)
 
 - `Add-GHActionsEnvironmentVariable`
 - `Add-GHActionsPATH`
@@ -67,7 +67,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 - `Write-GHActionsNotice`
 - `Write-GHActionsWarning`
 
-### Example
+### Example (Excerpt)
 
 ```ps1
 Set-GHActionsOutput -Name 'foo' -Value 'bar'
