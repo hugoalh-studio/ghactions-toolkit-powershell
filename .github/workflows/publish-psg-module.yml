@@ -11,7 +11,7 @@ jobs:
     runs-on: "windows-latest"
     steps:
       - name: "Checkout Repository"
-        uses: "actions/checkout@v2.4.0"
+        uses: "actions/checkout@v3.0.0"
       - name: "Modify PowerShell Repository"
         id: "modify-powershell-repository"
         run: |

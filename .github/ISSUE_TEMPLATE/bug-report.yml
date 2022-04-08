@@ -2,7 +2,7 @@
 name: "Bug Report (Form)"
 description: "Report a bug."
 labels:
-  - "Status/Unread 🔵"
+  - "Status/Pending 🔵"
   - "Type/Bug 🐛"
 body:
   - type: "textarea"

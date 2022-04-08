@@ -5,7 +5,7 @@
 > | **Legend** | **Description** |
 > |:-:|:--|
 > | L | **LTS:** Long term supported. |
-> | ✔ | **Yes:** Supported. |
+> | ✔ | **Active / Current:** Currently supported. |
 > | 👎{🐛} | **Partly (Issue):** Partly supported due to confirmed contains bugs and/or issues. |
 > | 👎{🧓} | **Partly (Old):** Partly supported due to deprecated by newer versions. |
 > | ❌{🐛} | **No (Issue):** Not supported due to confirmed contains bugs and/or issues. |
