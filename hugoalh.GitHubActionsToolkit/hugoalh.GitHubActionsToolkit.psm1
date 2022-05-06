@@ -30,7 +30,7 @@ function Format-GitHubActionsCommand {
 	)
 	begin {}
 	process {
-		[string]$Result = $InputObject -replace '%', '%25' -replace "\n", '%0A' -replace "\r", '%0D'
+		[string]$Result = $InputObject -replace '%', '%25' -replace '\n', '%0A' -replace '\r', '%0D'
 		if ($Property) {
 			$Result = $Result -replace ',', '%2C' -replace ':', '%3A'
 		}
@@ -41,9 +41,9 @@ function Format-GitHubActionsCommand {
 Set-Alias -Name 'Format-GHActionsCommand' -Value 'Format-GitHubActionsCommand' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Internal - Write Workflow Command
+GitHub Actions - Write Workflow Command
 .DESCRIPTION
-An internal function to write workflow command.
+Write workflow command.
 .PARAMETER Command
 Workflow command.
 .PARAMETER Message
@@ -56,18 +56,22 @@ Void
 function Write-GitHubActionsCommand {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][string]$Command,
-		[Parameter(Position = 1)][AllowEmptyString()][Alias('Content', 'SubCommand')][string]$Message = '',
-		[Parameter(Position = 2)][Alias('Properties')][hashtable]$Property = @{}
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][string]$Command,
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Content')][string]$Message = '',
+		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $true)][Alias('Properties')][hashtable]$Property = @{}
 	)
-	[string]$Result = "::$Command"
-	if ($Property.Count -gt 0) {
-		$Result += " $(($Property.GetEnumerator() | ForEach-Object -Process {
-			return "$($_.Name)=$(Format-GitHubActionsCommand -InputObject $_.Value -Property)"
-		}) -join ',')"
+	begin {}
+	process {
+		[string]$Result = "::$Command"
+		if ($Property.Count -gt 0) {
+			$Result += " $(($Property.GetEnumerator() | ForEach-Object -Process {
+				return "$($_.Name)=$(Format-GitHubActionsCommand -InputObject $_.Value -Property)"
+			}) -join ',')"
+		}
+		$Result += "::$(Format-GitHubActionsCommand -InputObject $Message)"
+		return Write-Host -Object $Result
 	}
-	$Result += "::$(Format-GitHubActionsCommand -InputObject $Message)"
-	Write-Host -Object $Result
+	end {}
 }
 Set-Alias -Name 'Write-GHActionsCommand' -Value 'Write-GitHubActionsCommand' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -88,8 +92,8 @@ function Add-GitHubActionsEnvironmentVariable {
 	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^(?:[\da-z][\da-z_]*)?[\da-z]$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1)][ValidatePattern('^.+$')][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_]*)?[\da-z]$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][string]$Value
 	)
 	begin {
 		[hashtable]$Result = @{}
@@ -119,9 +123,9 @@ function Add-GitHubActionsEnvironmentVariable {
 		}
 	}
 	end {
-		Add-Content -Path $env:GITHUB_ENV -Value "$(($Result.GetEnumerator() | ForEach-Object -Process {
+		return Add-Content -Path $env:GITHUB_ENV -Value ($Result.GetEnumerator() | ForEach-Object -Process {
 			return "$($_.Name)=$($_.Value)"
-		}) -join "`n")" -Encoding 'UTF8NoBOM'
+		}) -join "`n" -Encoding 'UTF8NoBOM'
 	}
 }
 Set-Alias -Name 'Add-GHActionsEnv' -Value 'Add-GitHubActionsEnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
@@ -157,7 +161,7 @@ function Add-GitHubActionsPATH {
 		}
 	}
 	end {
-		Add-Content -Path $env:GITHUB_PATH -Value "$($Result -join "`n")" -Encoding 'UTF8NoBOM'
+		return Add-Content -Path $env:GITHUB_PATH -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
 	}
 }
 Set-Alias -Name 'Add-GHActionsPATH' -Value 'Add-GitHubActionsPATH' -Option 'ReadOnly' -Scope 'Local'
@@ -178,11 +182,13 @@ function Add-GitHubActionsProblemMatcher {
 	)
 	begin {}
 	process {
-		$Path | ForEach-Object -Process {
-			[string[]](Resolve-Path -Path $_ -Relative) | ForEach-Object -Process {
-				Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
-			}
-		}
+		return ($Path | ForEach-Object -Process {
+			return ([string[]](Resolve-Path -Path $_ -Relative) | Where-Object -FilterScript {
+				return (($null -ne $_) -and ($_.Length -gt 0))
+			} | ForEach-Object -Process {
+				return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
+			})
+		})
 	}
 	end {}
 }
@@ -202,7 +208,7 @@ Void
 function Add-GitHubActionsSecretMask {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Key', 'Token')][string]$Value,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Key', 'Token')][string]$Value,
 		[switch]$Smart
 	)
 	begin {}
@@ -215,6 +221,7 @@ function Add-GitHubActionsSecretMask {
 				}
 			}
 		}
+		return
 	}
 	end {}
 }
@@ -233,7 +240,7 @@ Void
 function Disable-GitHubActionsEchoCommand {
 	[CmdletBinding()][OutputType([void])]
 	param()
-	Write-GitHubActionsCommand -Command 'echo' -Message 'off'
+	return Write-GitHubActionsCommand -Command 'echo' -Message 'off'
 }
 Set-Alias -Name 'Disable-GHActionsCommandEcho' -Value 'Disable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Disable-GHActionsEchoCommand' -Value 'Disable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
@@ -251,7 +258,7 @@ String
 function Disable-GitHubActionsProcessingCommand {
 	[CmdletBinding()][OutputType([string])]
 	param(
-		[Parameter(Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = (New-Guid).Guid
+		[Parameter(Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Message $EndToken
 	return $EndToken
@@ -270,7 +277,7 @@ Void
 function Enable-GitHubActionsEchoCommand {
 	[CmdletBinding()][OutputType([void])]
 	param()
-	Write-GitHubActionsCommand -Command 'echo' -Message 'on'
+	return Write-GitHubActionsCommand -Command 'echo' -Message 'on'
 }
 Set-Alias -Name 'Enable-GHActionsCommandEcho' -Value 'Enable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-GHActionsEchoCommand' -Value 'Enable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
@@ -290,7 +297,7 @@ function Enable-GitHubActionsProcessingCommand {
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
 	)
-	Write-GitHubActionsCommand -Command $EndToken -Message ''
+	return Write-GitHubActionsCommand -Command $EndToken -Message ''
 }
 Set-Alias -Name 'Enable-GHActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-GHActionsProcessingCommand' -Value 'Enable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
@@ -310,7 +317,7 @@ function Enter-GitHubActionsLogGroup {
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Header', 'Message')][string]$Title
 	)
-	Write-GitHubActionsCommand -Command 'group' -Message $Title
+	return Write-GitHubActionsCommand -Command 'group' -Message $Title
 }
 Set-Alias -Name 'Enter-GHActionsGroup' -Value 'Enter-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enter-GHActionsLogGroup' -Value 'Enter-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
@@ -326,7 +333,7 @@ Void
 function Exit-GitHubActionsLogGroup {
 	[CmdletBinding()][OutputType([void])]
 	param ()
-	Write-GitHubActionsCommand -Command 'endgroup' -Message ''
+	return Write-GitHubActionsCommand -Command 'endgroup' -Message ''
 }
 Set-Alias -Name 'Exit-GHActionsGroup' -Value 'Exit-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Exit-GHActionsLogGroup' -Value 'Exit-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
@@ -560,9 +567,9 @@ function Remove-GitHubActionsProblemMatcher {
 	)
 	begin {}
 	process {
-		$Owner | ForEach-Object -Process {
-			Write-GitHubActionsCommand -Command 'remove-matcher' -Message '' -Property @{ 'owner' = $_ }
-		}
+		return ($Owner | ForEach-Object -Process {
+			return Write-GitHubActionsCommand -Command 'remove-matcher' -Message '' -Property @{ 'owner' = $_ }
+		})
 	}
 	end {}
 }
@@ -585,8 +592,8 @@ function Set-GitHubActionsOutput {
 	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1)][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value
 	)
 	begin {}
 	process {
@@ -610,6 +617,7 @@ function Set-GitHubActionsOutput {
 				break
 			}
 		}
+		return
 	}
 	end {}
 }
@@ -632,8 +640,8 @@ function Set-GitHubActionsState {
 	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1)][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value
 	)
 	begin {}
 	process {
@@ -657,6 +665,7 @@ function Set-GitHubActionsState {
 				break
 			}
 		}
+		return
 	}
 	end {}
 }
@@ -678,10 +687,9 @@ function Test-GitHubActionsEnvironment {
 	)
 	if (
 		($env:CI -ne 'true') -or
-		($env:GITHUB_ACTIONS -ne 'true') -or
-		($null -eq $env:GITHUB_ACTION_PATH) -or
 		($null -eq $env:GITHUB_ACTION_REPOSITORY) -or
 		($null -eq $env:GITHUB_ACTION) -or
+		($null -eq $env:GITHUB_ACTIONS) -or
 		($null -eq $env:GITHUB_ACTOR) -or
 		($null -eq $env:GITHUB_API_URL) -or
 		($null -eq $env:GITHUB_ENV) -or
@@ -710,7 +718,7 @@ function Test-GitHubActionsEnvironment {
 		($null -eq $env:RUNNER_TOOL_CACHE)
 	) {
 		if ($Force) {
-			throw 'This process require to execute inside the GitHub Actions environment.'
+			throw 'This process require to execute inside the GitHub Actions environment!'
 		}
 		return $false
 	}
@@ -744,50 +752,54 @@ Void
 function Write-GitHubActionsAnnotation {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][GitHubActionsAnnotationType]$Type,
-		[Parameter(Mandatory = $true, Position = 1)][Alias('Content')][string]$Message,
-		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Alias('LineStart', 'StartLine')][uint]$Line,
-		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Alias('LineEnd')][uint]$EndLine,
-		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][GitHubActionsAnnotationType]$Type,
+		[Parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	[string]$TypeRaw = ""
-	switch ($Type.GetHashCode()) {
-		0 {
-			$TypeRaw = 'notice'
-			break
+	begin {}
+	process {
+		[string]$TypeRaw = ''
+		switch ($Type.GetHashCode()) {
+			0 {
+				$TypeRaw = 'notice'
+				break
+			}
+			1 {
+				$TypeRaw = 'warning'
+				break
+			}
+			2 {
+				$TypeRaw = 'error'
+				break
+			}
 		}
-		1 {
-			$TypeRaw = 'warning'
-			break
+		[hashtable]$Property = @{}
+		if ($File.Length -gt 0) {
+			$Property.'file' = $File
 		}
-		2 {
-			$TypeRaw = 'error'
-			break
+		if ($Line -gt 0) {
+			$Property.'line' = $Line
 		}
+		if ($Column -gt 0) {
+			$Property.'col' = $Column
+		}
+		if ($EndLine -gt 0) {
+			$Property.'endLine' = $EndLine
+		}
+		if ($EndColumn -gt 0) {
+			$Property.'endColumn' = $EndColumn
+		}
+		if ($Title.Length -gt 0) {
+			$Property.'title' = $Title
+		}
+		return Write-GitHubActionsCommand -Command $TypeRaw -Message $Message -Property $Property
 	}
-	[hashtable]$Property = @{}
-	if ($File.Length -gt 0) {
-		$Property.'file' = $File
-	}
-	if ($Line -gt 0) {
-		$Property.'line' = $Line
-	}
-	if ($Column -gt 0) {
-		$Property.'col' = $Column
-	}
-	if ($EndLine -gt 0) {
-		$Property.'endLine' = $EndLine
-	}
-	if ($EndColumn -gt 0) {
-		$Property.'endColumn' = $EndColumn
-	}
-	if ($Title.Length -gt 0) {
-		$Property.'title' = $Title
-	}
-	Write-GitHubActionsCommand -Command $TypeRaw -Message $Message -Property $Property
+	end {}
 }
 Set-Alias -Name 'Write-GHActionsAnnotation' -Value 'Write-GitHubActionsAnnotation' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -807,7 +819,7 @@ function Write-GitHubActionsDebug {
 	)
 	begin {}
 	process {
-		Write-GitHubActionsCommand -Command 'debug' -Message $Message
+		return Write-GitHubActionsCommand -Command 'debug' -Message $Message
 	}
 	end {}
 }
@@ -837,15 +849,19 @@ Void
 function Write-GitHubActionsError {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][string]$Message,
-		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Alias('LineStart', 'StartLine')][uint]$Line,
-		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Alias('LineEnd')][uint]$EndLine,
-		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GitHubActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	begin {}
+	process {
+		return Write-GitHubActionsAnnotation -Type 'Error' @PSBoundParameters
+	}
+	end {}
 }
 Set-Alias -Name 'Write-GHActionsError' -Value 'Write-GitHubActionsError' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -881,7 +897,7 @@ function Write-GitHubActionsFail {
 		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
 		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GitHubActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	Write-GitHubActionsAnnotation -Type 'Error' @PSBoundParameters
 	exit 1
 }
 Set-Alias -Name 'Write-GHActionsFail' -Value 'Write-GitHubActionsFail' -Option 'ReadOnly' -Scope 'Local'
@@ -910,15 +926,19 @@ Void
 function Write-GitHubActionsNotice {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][string]$Message,
-		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Alias('LineStart', 'StartLine')][uint]$Line,
-		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Alias('LineEnd')][uint]$EndLine,
-		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GitHubActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	begin {}
+	process {
+		return Write-GitHubActionsAnnotation -Type 'Notice' @PSBoundParameters
+	}
+	end {}
 }
 Set-Alias -Name 'Write-GHActionsNote' -Value 'Write-GitHubActionsNotice' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Write-GHActionsNotice' -Value 'Write-GitHubActionsNotice' -Option 'ReadOnly' -Scope 'Local'
@@ -948,15 +968,19 @@ Void
 function Write-GitHubActionsWarning {
 	[CmdletBinding()][OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][string]$Message,
-		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
-		[Alias('LineStart', 'StartLine')][uint]$Line,
-		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Alias('LineEnd')][uint]$EndLine,
-		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GitHubActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	begin {}
+	process {
+		return Write-GitHubActionsAnnotation -Type 'Warning' @PSBoundParameters
+	}
+	end {}
 }
 Set-Alias -Name 'Write-GHActionsWarn' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Write-GHActionsWarning' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
