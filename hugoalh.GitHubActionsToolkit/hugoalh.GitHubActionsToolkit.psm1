@@ -355,7 +355,7 @@ Trim the input's value.
 Hashtable | String
 #>
 function Get-GitHubActionsInput {
-	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType([hashtable], [string])]
+	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType(([hashtable], [string]))]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
 		[Parameter(ParameterSetName = 'select')][Alias('Required')][switch]$Require,
@@ -454,7 +454,7 @@ Trim the state's value.
 Hashtable | String
 #>
 function Get-GitHubActionsState {
-	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType([hashtable], [string])]
+	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType(([hashtable], [string]))]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
@@ -533,7 +533,7 @@ Specify that output is not enumerated; Setting this parameter causes arrays to b
 Hashtable | PSCustomObject
 #>
 function Get-GitHubActionsWebhookEventPayload {
-	[CmdletBinding()][OutputType([hashtable], [pscustomobject])]
+	[CmdletBinding()][OutputType(([hashtable], [pscustomobject]))]
 	param (
 		[Alias('ToHashtable')][switch]$AsHashtable,
 		[int]$Depth = 1024,
