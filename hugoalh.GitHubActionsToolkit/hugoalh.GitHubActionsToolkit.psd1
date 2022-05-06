@@ -61,55 +61,101 @@
 
 	# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 	FunctionsToExport = @(
-		'Add-GHActionsEnvironmentVariable',
-		'Add-GHActionsPATH',
-		'Add-GHActionsProblemMatcher',
-		'Add-GHActionsSecretMask',
-		'Disable-GHActionsEchoCommand',
-		'Disable-GHActionsProcessingCommand',
-		'Enable-GHActionsEchoCommand',
-		'Enable-GHActionsProcessingCommand',
-		'Enter-GHActionsLogGroup',
-		'Exit-GHActionsLogGroup',
-		'Get-GHActionsInput',
-		'Get-GHActionsIsDebug',
-		'Get-GHActionsState',
-		'Get-GHActionsWebhookEventPayload',
-		'Remove-GHActionsProblemMatcher',
-		'Set-GHActionsOutput',
-		'Set-GHActionsState',
-		'Test-GHActionsEnvironment',
-		'Write-GHActionsAnnotation',
-		'Write-GHActionsDebug',
-		'Write-GHActionsError',
-		'Write-GHActionsFail',
-		'Write-GHActionsNotice',
-		'Write-GHActionsWarning'
+		'Add-GitHubActionsEnvironmentVariable',
+		'Add-GitHubActionsPATH',
+		'Add-GitHubActionsProblemMatcher',
+		'Add-GitHubActionsSecretMask',
+		'Disable-GitHubActionsEchoCommand',
+		'Disable-GitHubActionsProcessingCommand',
+		'Enable-GitHubActionsEchoCommand',
+		'Enable-GitHubActionsProcessingCommand',
+		'Enter-GitHubActionsLogGroup',
+		'Exit-GitHubActionsLogGroup',
+		'Get-GitHubActionsInput',
+		'Get-GitHubActionsIsDebug',
+		'Get-GitHubActionsState',
+		'Get-GitHubActionsWebhookEventPayload',
+		'Remove-GitHubActionsProblemMatcher',
+		'Set-GitHubActionsOutput',
+		'Set-GitHubActionsState',
+		'Test-GitHubActionsEnvironment',
+		'Write-GitHubActionsAnnotation',
+		'Write-GitHubActionsCommand',
+		'Write-GitHubActionsDebug',
+		'Write-GitHubActionsError',
+		'Write-GitHubActionsFail',
+		'Write-GitHubActionsNotice',
+		'Write-GitHubActionsWarning'
 	)
 
 	# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 	CmdletsToExport = @()
 
 	# Variables to export from this module
-	VariablesToExport = '*'
+	VariablesToExport = @()
 
 	# Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 	AliasesToExport = @(
 		'Add-GHActionsEnv',
+		'Add-GHActionsEnvironment',
+		'Add-GHActionsEnvironmentVariable',
 		'Add-GHActionsMask',
+		'Add-GHActionsPATH',
+		'Add-GHActionsProblemMatcher',
 		'Add-GHActionsSecret',
+		'Add-GitHubActionsEnv',
+		'Add-GitHubActionsEnvironment',
+		'Add-GitHubActionsMask',
+		'Add-GitHubActionsSecret',
 		'Disable-GHActionsCommandEcho',
 		'Disable-GHActionsCommandProcessing',
+		'Disable-GHActionsEchoCommand',
+		'Disable-GHActionsProcessingCommand',
+		'Disable-GitHubActionsCommandEcho',
+		'Disable-GitHubActionsCommandProcessing',
 		'Enable-GHActionsCommandEcho',
 		'Enable-GHActionsCommandProcessing',
+		'Enable-GHActionsEchoCommand',
+		'Enable-GHActionsProcessingCommand',
+		'Enable-GitHubActionsCommandEcho',
+		'Enable-GitHubActionsCommandProcessing',
 		'Enter-GHActionsGroup',
+		'Enter-GHActionsLogGroup',
+		'Enter-GitHubActionsGroup',
 		'Exit-GHActionsGroup',
+		'Exit-GHActionsLogGroup',
+		'Exit-GitHubActionsGroup',
 		'Get-GHActionsEvent',
+		'Get-GHActionsInput',
+		'Get-GHActionsIsDebug',
 		'Get-GHActionsPayload',
+		'Get-GHActionsState',
+		'Get-GHActionsWebhookEvent',
+		'Get-GHActionsWebhookEventPayload',
+		'Get-GHActionsWebhookPayload',
+		'Get-GitHubActionsEvent',
+		'Get-GitHubActionsPayload',
+		'Get-GitHubActionsWebhookEvent',
+		'Get-GitHubActionsWebhookPayload',
+		'Remove-GHActionsProblemMatcher',
 		'Restore-GHActionsState',
+		'Restore-GitHubActionsState',
 		'Save-GHActionsState',
+		'Save-GitHubActionsState',
+		'Set-GHActionsOutput',
+		'Set-GHActionsState',
+		'Test-GHActionsEnvironment',
+		'Write-GHActionsAnnotation',
+		'Write-GHActionsCommand',
+		'Write-GHActionsDebug',
+		'Write-GHActionsError',
+		'Write-GHActionsFail',
 		'Write-GHActionsNote',
-		'Write-GHActionsWarn'
+		'Write-GHActionsNotice',
+		'Write-GHActionsWarn',
+		'Write-GHActionsWarning',
+		'Write-GitHubActionsNote',
+		'Write-GitHubActionsWarn'
 	)
 
 	# DSC resources to export from this module
@@ -126,10 +172,8 @@
 		PSData = @{
 			# Tags applied to this module. These help with module discovery in online galleries.
 			Tags = @(
-				'action',
-				'actions',
-				'github',
-				'github-action',
+				'gh-actions',
+				'ghactions',
 				'github-actions',
 				'PSEdition_Core',
 				'toolkit'
@@ -162,5 +206,5 @@
 	# HelpInfoURI = ''
 
 	# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-	# DefaultCommandPrefix = 'GHActions'
+	# DefaultCommandPrefix = ''
 }

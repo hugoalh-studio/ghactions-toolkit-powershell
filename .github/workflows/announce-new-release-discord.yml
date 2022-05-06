@@ -1,4 +1,3 @@
-# $<Schema>$ https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
 name: "Announce New Release - Discord"
 on:
   release:
@@ -9,33 +8,25 @@ jobs:
     name: "Announce New Release - Discord"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "hugoalh/send-discord-webhook-ghaction@v4.1.1"
+      - uses: "hugoalh/send-discord-webhook-ghaction@v4.2.0"
         with:
           key: "${{secrets.DISCORDWEBHOOK_HUGOALHSTUDIO_STUDIOANNOUNCEMENT_PROJECTNEWRELEASEANNOUNCER}}"
           payload: |
-            {
-              "embeds": [
-                {
-                  "title": "GitHub Actions Toolkit (PowerShell)",
-                  "description": "Version ${{github.event.release.name}} (${{github.event.release.tag_name}}) is released and available on:",
-                  "color": "44,85,145",
-                  "thumbnail": {
-                    "url": "https://i.imgur.com/PRyLxK8.png"
-                  },
-                  "fields": [
-                    {
-                      "name": "GitHub (& Changelog)",
-                      "value": "${{github.event.release.html_url}}"
-                    },
-                    {
-                      "name": "PowerShell Gallery",
-                      "value": "https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit"
-                    },
-                    {
-                      "name": "Repository",
-                      "value": "${{github.event.repository.html_url}}"
-                    }
-                  ]
-                }
-              ]
-            }
+            content: |
+              **__GitHub Actions Toolkit (PowerShell)__**
+
+              Version ${{github.event.release.name}} (${{github.event.release.tag_name}}) is released and available on:
+
+              - **GitHub Repository Release (& Changelog):** <${{github.event.release.html_url}}>
+              - **PowerShell Gallery:** <https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit>
+            embeds:
+              - description: |
+                  **__GitHub Actions Toolkit (PowerShell)__**
+
+                  ${{github.event.repository.description}}
+
+                  - **GitHub:** ${{github.event.repository.html_url}}
+                color: "44,85,145"
+                thumbnail:
+                  url: "https://i.imgur.com/PRyLxK8.png"
+          wait: "true"

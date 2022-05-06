@@ -42,34 +42,34 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 
 ### Function (Excerpt)
 
-- `Add-GHActionsEnvironmentVariable`
-- `Add-GHActionsPATH`
-- `Add-GHActionsProblemMatcher`
-- `Add-GHActionsSecretMask`
-- `Disable-GHActionsEchoCommand`
-- `Disable-GHActionsProcessingCommand`
-- `Enable-GHActionsEchoCommand`
-- `Enable-GHActionsProcessingCommand`
-- `Enter-GHActionsLogGroup`
-- `Exit-GHActionsLogGroup`
-- `Get-GHActionsInput`
-- `Get-GHActionsIsDebug`
-- `Get-GHActionsState`
-- `Get-GHActionsWebhookEventPayload`
-- `Remove-GHActionsProblemMatcher`
-- `Set-GHActionsOutput`
-- `Set-GHActionsState`
-- `Test-GHActionsEnvironment`
-- `Write-GHActionsAnnotation`
-- `Write-GHActionsDebug`
-- `Write-GHActionsError`
-- `Write-GHActionsFail`
-- `Write-GHActionsNotice`
-- `Write-GHActionsWarning`
+- `Add-GitHubActionsEnvironmentVariable`
+- `Add-GitHubActionsPATH`
+- `Add-GitHubActionsProblemMatcher`
+- `Add-GitHubActionsSecretMask`
+- `Disable-GitHubActionsEchoCommand`
+- `Disable-GitHubActionsProcessingCommand`
+- `Enable-GitHubActionsEchoCommand`
+- `Enable-GitHubActionsProcessingCommand`
+- `Enter-GitHubActionsLogGroup`
+- `Exit-GitHubActionsLogGroup`
+- `Get-GitHubActionsInput`
+- `Get-GitHubActionsIsDebug`
+- `Get-GitHubActionsState`
+- `Get-GitHubActionsWebhookEventPayload`
+- `Remove-GitHubActionsProblemMatcher`
+- `Set-GitHubActionsOutput`
+- `Set-GitHubActionsState`
+- `Test-GitHubActionsEnvironment`
+- `Write-GitHubActionsAnnotation`
+- `Write-GitHubActionsDebug`
+- `Write-GitHubActionsError`
+- `Write-GitHubActionsFail`
+- `Write-GitHubActionsNotice`
+- `Write-GitHubActionsWarning`
 
 ### Example (Excerpt)
 
 ```ps1
-Set-GHActionsOutput -Name 'foo' -Value 'bar'
+Set-GitHubActionsOutput -Name 'foo' -Value 'bar'
 #=> ::set-output name=foo::bar
 ```
