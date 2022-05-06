@@ -61,6 +61,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
 - `Set-GitHubActionsState`
 - `Test-GitHubActionsEnvironment`
 - `Write-GitHubActionsAnnotation`
+- `Write-GitHubActionsCommand`
 - `Write-GitHubActionsDebug`
 - `Write-GitHubActionsError`
 - `Write-GitHubActionsFail`
