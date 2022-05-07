@@ -14,7 +14,7 @@ enum GitHubActionsAnnotationType {
 .SYNOPSIS
 GitHub Actions - Internal - Format Command
 .DESCRIPTION
-An internal function to escape command characters that could cause issues.
+An internal function to escape command characters that can cause issues.
 .PARAMETER InputObject
 String that need to escape command characters.
 .PARAMETER Property
@@ -26,7 +26,7 @@ function Format-GitHubActionsCommand {
 	[CmdletBinding()][OutputType([string])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][Alias('Input', 'Object')][string]$InputObject,
-		[switch]$Property
+		[Alias('Properties')][switch]$Property
 	)
 	begin {}
 	process {
@@ -57,7 +57,7 @@ function Write-GitHubActionsCommand {
 	[CmdletBinding()][OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][string]$Command,
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Content')][string]$Message = '',
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message = '',
 		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $true)][Alias('Properties')][hashtable]$Property = @{}
 	)
 	begin {}
@@ -92,7 +92,7 @@ function Add-GitHubActionsEnvironmentVariable {
 	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_]*)?[\da-z]$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][string]$Value
 	)
 	begin {
@@ -104,7 +104,7 @@ function Add-GitHubActionsEnvironmentVariable {
 				$InputObject.GetEnumerator() | ForEach-Object -Process {
 					if ($_.Name.GetType().Name -ne 'string') {
 						Write-Error -Message "Environment variable name `"$($_.Name)`" must be type of string!" -Category 'InvalidType'
-					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_]*)?[\da-z]$') {
+					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
 						Write-Error -Message "Environment variable name `"$($_.Name)`" is not match the require pattern!" -Category 'SyntaxError'
 					} elseif ($_.Value.GetType().Name -ne 'string') {
 						Write-Error -Message "Environment variable value `"$($_.Value)`" must be type of string!" -Category 'InvalidType'
@@ -297,7 +297,7 @@ function Enable-GitHubActionsProcessingCommand {
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
 	)
-	return Write-GitHubActionsCommand -Command $EndToken -Message ''
+	return Write-GitHubActionsCommand -Command $EndToken
 }
 Set-Alias -Name 'Enable-GHActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-GHActionsProcessingCommand' -Value 'Enable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
@@ -333,7 +333,7 @@ Void
 function Exit-GitHubActionsLogGroup {
 	[CmdletBinding()][OutputType([void])]
 	param ()
-	return Write-GitHubActionsCommand -Command 'endgroup' -Message ''
+	return Write-GitHubActionsCommand -Command 'endgroup'
 }
 Set-Alias -Name 'Exit-GHActionsGroup' -Value 'Exit-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Exit-GHActionsLogGroup' -Value 'Exit-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
@@ -568,7 +568,7 @@ function Remove-GitHubActionsProblemMatcher {
 	begin {}
 	process {
 		return ($Owner | ForEach-Object -Process {
-			return Write-GitHubActionsCommand -Command 'remove-matcher' -Message '' -Property @{ 'owner' = $_ }
+			return Write-GitHubActionsCommand -Command 'remove-matcher' -Property @{ 'owner' = $_ }
 		})
 	}
 	end {}
