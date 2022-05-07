@@ -25,31 +25,31 @@ String
 function Format-GitHubActionsCommand {
 	[CmdletBinding()][OutputType([string])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][Alias('Input', 'Object')][string]$InputObject,
+		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][string]$InputObject = '',
 		[Alias('Properties')][switch]$Property
 	)
 	begin {}
 	process {
-		[string]$Result = $InputObject -replace '%', '%25' -replace '\n', '%0A' -replace '\r', '%0D'
+		[string]$OutputObject = $InputObject -replace '%', '%25' -replace '\n', '%0A' -replace '\r', '%0D'
 		if ($Property) {
-			$Result = $Result -replace ',', '%2C' -replace ':', '%3A'
+			$OutputObject = $OutputObject -replace ',', '%2C' -replace ':', '%3A'
 		}
-		return $Result
+		return $OutputObject
 	}
 	end {}
 }
 Set-Alias -Name 'Format-GHActionsCommand' -Value 'Format-GitHubActionsCommand' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Write Workflow Command
+GitHub Actions - Write Command
 .DESCRIPTION
-Write workflow command.
+Write command.
 .PARAMETER Command
-Workflow command.
+Command.
 .PARAMETER Message
 Message.
 .PARAMETER Property
-Workflow command property.
+Command property.
 .OUTPUTS
 Void
 #>
@@ -62,16 +62,14 @@ function Write-GitHubActionsCommand {
 	)
 	begin {}
 	process {
-		[string]$Result = "::$Command"
-		if ($Property.Count -gt 0) {
-			$Result += " $(($Property.GetEnumerator() | ForEach-Object -Process {
-				return "$($_.Name)=$(Format-GitHubActionsCommand -InputObject $_.Value -Property)"
-			}) -join ',')"
+		[string[]]$PropertyResult = $Property.GetEnumerator() | Sort-Object -Property 'Name' | ForEach-Object -Process {
+			return "$($_.Name)=$(Format-GitHubActionsCommand -InputObject $_.Value -Property)"
 		}
-		$Result += "::$(Format-GitHubActionsCommand -InputObject $Message)"
-		return Write-Host -Object $Result
+		Write-Host -Object "::$Command$(($PropertyResult.Count -gt 0) ? " $($PropertyResult -join ',')" : '')::$(Format-GitHubActionsCommand -InputObject $Message)"
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Write-GHActionsCommand' -Value 'Write-GitHubActionsCommand' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -123,9 +121,12 @@ function Add-GitHubActionsEnvironmentVariable {
 		}
 	}
 	end {
-		return Add-Content -Path $env:GITHUB_ENV -Value ($Result.GetEnumerator() | ForEach-Object -Process {
-			return "$($_.Name)=$($_.Value)"
-		}) -join "`n" -Encoding 'UTF8NoBOM'
+		if ($Result.Count -gt 0) {
+			Add-Content -Path $env:GITHUB_ENV -Value (($Result.GetEnumerator() | ForEach-Object -Process {
+				return "$($_.Name)=$($_.Value)"
+			}) -join "`n") -Encoding 'UTF8NoBOM'
+		}
+		return
 	}
 }
 Set-Alias -Name 'Add-GHActionsEnv' -Value 'Add-GitHubActionsEnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
@@ -140,20 +141,26 @@ GitHub Actions - Add PATH
 Add directory to the system `PATH` variable and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated path variable.
 .PARAMETER Path
 System path.
+.PARAMETER NoValidator
+Disable validator to not check the path is valid or not.
 .OUTPUTS
 Void
 #>
 function Add-GitHubActionsPATH {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Paths')][string[]]$Path
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Paths')][string[]]$Path,
+		[Alias('NoValidate', 'SkipValidate', 'SkipValidator')][switch]$NoValidator
 	)
 	begin {
 		[string[]]$Result = @()
 	}
 	process {
 		$Path | ForEach-Object -Process {
-			if (Test-Path -Path $_ -IsValid) {
+			if (
+				$NoValidator -or
+				(Test-Path -Path $_ -IsValid)
+			) {
 				$Result += $_
 			} else {
 				Write-Error -Message "Path `"$_`" is not match the require path pattern!" -Category 'SyntaxError'
@@ -161,7 +168,10 @@ function Add-GitHubActionsPATH {
 		}
 	}
 	end {
-		return Add-Content -Path $env:GITHUB_PATH -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
+		if ($Result.Count -gt 0) {
+			Add-Content -Path $env:GITHUB_PATH -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
+		}
+		return
 	}
 }
 Set-Alias -Name 'Add-GHActionsPATH' -Value 'Add-GitHubActionsPATH' -Option 'ReadOnly' -Scope 'Local'
@@ -182,15 +192,17 @@ function Add-GitHubActionsProblemMatcher {
 	)
 	begin {}
 	process {
-		return ($Path | ForEach-Object -Process {
+		$Path | ForEach-Object -Process {
 			return ([string[]](Resolve-Path -Path $_ -Relative) | Where-Object -FilterScript {
 				return (($null -ne $_) -and ($_.Length -gt 0))
 			} | ForEach-Object -Process {
 				return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
 			})
-		})
+		}
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Add-GHActionsProblemMatcher' -Value 'Add-GitHubActionsProblemMatcher' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -200,30 +212,33 @@ GitHub Actions - Add Secret Mask
 Make a secret will get masked from the log.
 .PARAMETER Value
 The secret.
-.PARAMETER Smart
-Use improved method to well make a secret will get masked from the log.
+.PARAMETER WithChunks
+Split the secret to chunks to well make a secret will get masked from the log.
 .OUTPUTS
 Void
 #>
 function Add-GitHubActionsSecretMask {
 	[CmdletBinding()][OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Key', 'Token')][string]$Value,
-		[switch]$Smart
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
+		[Alias('WithChunk')][switch]$WithChunks
 	)
 	begin {}
 	process {
-		Write-GitHubActionsCommand -Command 'add-mask' -Message $Value
-		if ($Smart) {
+		if ($Value.Length -gt 0) {
+			Write-GitHubActionsCommand -Command 'add-mask' -Message $Value
+		}
+		if ($WithChunks) {
 			[string[]]($Value -split '[\n\r\s\t]+') | ForEach-Object -Process {
 				if (($_ -ne $Value) -and ($_.Length -ge 2)) {
 					Write-GitHubActionsCommand -Command 'add-mask' -Message $_
 				}
 			}
 		}
+	}
+	end {
 		return
 	}
-	end {}
 }
 Set-Alias -Name 'Add-GHActionsMask' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Add-GHActionsSecret' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
@@ -346,66 +361,66 @@ Get input.
 .PARAMETER Name
 Name of the input.
 .PARAMETER Require
-Whether the input is require. If required and not present, will throw an error.
+Whether the input is require; If required and not present, will throw an error.
 .PARAMETER All
-Get all of the input.
+Get all of the inputs.
 .PARAMETER Trim
 Trim the input's value.
 .OUTPUTS
 Hashtable | String
 #>
 function Get-GitHubActionsInput {
-	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType(([hashtable], [string]))]
+	[CmdletBinding(DefaultParameterSetName = 'select')]
+	[OutputType(([hashtable], [string]), ParameterSetName = 'select')]
+	[OutputType([hashtable], ParameterSetName = 'all')]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
-		[Parameter(ParameterSetName = 'select')][Alias('Required')][switch]$Require,
+		[Parameter(ParameterSetName = 'select')][Alias('Force', 'Forced', 'Required')][switch]$Require,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
 	begin {
 		[hashtable]$Result = @{}
-		[bool]$ResultIsHashtable = $false
+		[bool]$OutputObjectIsHashtable = $false
 	}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
 			'all' {
-				$ResultIsHashtable = $true
-				Get-ChildItem -Path 'Env:\' -Include 'INPUT_*' -Name | ForEach-Object -Process {
-					[string]$InputKey = $_ -replace '^INPUT_', ''
-					[string]$InputValue = Get-ChildItem -Path "Env:\INPUT_$InputKey"
+				$OutputObjectIsHashtable = $true
+				Get-ChildItem -Path 'Env:\INPUT_*' | ForEach-Object -Process {
+					[string]$InputKey = $_.Name -replace '^INPUT_', ''
 					if ($Trim) {
-						$Result[$InputKey] = $InputValue.Value.Trim()
+						$Result[$InputKey] = $_.Value.Trim()
 					} else {
-						$Result[$InputKey] = $InputValue.Value
+						$Result[$InputKey] = $_.Value
 					}
 				}
 				break
 			}
 			'select' {
-				$Name | ForEach-Object -Process {
-					if ([WildcardPattern]::ContainsWildcardCharacters($_)) {
-						$ResultIsHashtable = $true
-						Get-ChildItem -Path 'Env:\' -Include "INPUT_$_" -Name | ForEach-Object -Process {
-							[string]$InputKey = $_ -replace '^INPUT_', ''
-							[string]$InputValue = Get-ChildItem -Path "Env:\INPUT_$InputKey"
+				foreach ($Item in $Name) {
+					if ([WildcardPattern]::ContainsWildcardCharacters($Item)) {
+						$OutputObjectIsHashtable = $true
+						Get-ChildItem -Path "Env:\INPUT_$Item" | ForEach-Object -Process {
+							[string]$InputKey = $_.Name -replace '^INPUT_', ''
 							if ($Trim) {
-								$Result[$InputKey] = $InputValue.Value.Trim()
+								$Result[$InputKey] = $_.Value.Trim()
 							} else {
-								$Result[$InputKey] = $InputValue.Value
+								$Result[$InputKey] = $_.Value
 							}
 						}
 					} else {
-						$InputValue = Get-ChildItem -Path "Env:\INPUT_$_" -ErrorAction SilentlyContinue
+						$InputValue = Get-ChildItem -Path "Env:\INPUT_$Item" -ErrorAction SilentlyContinue
 						if ($null -eq $InputValue) {
 							if ($Require) {
-								throw "Input ``$_`` is not defined!"
+								throw "Input ``$Item`` is not defined!"
 							}
-							$Result[$_] = $InputValue
+							$Result[$Item] = $InputValue
 						} else {
 							if ($Trim) {
-								$Result[$_] = $InputValue.Value.Trim()
+								$Result[$Item] = $InputValue.Value.Trim()
 							} else {
-								$Result[$_] = $InputValue.Value
+								$Result[$Item] = $InputValue.Value
 							}
 						}
 					}
@@ -415,7 +430,7 @@ function Get-GitHubActionsInput {
 		}
 	}
 	end {
-		if (($ResultIsHashtable -eq $false) -and ($Result.Count -eq 1)) {
+		if (($OutputObjectIsHashtable -eq $false) -and ($Result.Count -eq 1)) {
 			return $Result.Values[0]
 		}
 		return $Result
@@ -447,14 +462,16 @@ Get state.
 .PARAMETER Name
 Name of the state.
 .PARAMETER All
-Get all of the state.
+Get all of the states.
 .PARAMETER Trim
 Trim the state's value.
 .OUTPUTS
 Hashtable | String
 #>
 function Get-GitHubActionsState {
-	[CmdletBinding(DefaultParameterSetName = 'select')][OutputType(([hashtable], [string]))]
+	[CmdletBinding(DefaultParameterSetName = 'select')]
+	[OutputType(([hashtable], [string]), ParameterSetName = 'select')]
+	[OutputType([hashtable], ParameterSetName = 'all')]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
@@ -462,54 +479,53 @@ function Get-GitHubActionsState {
 	)
 	begin {
 		[hashtable]$Result = @{}
-		[bool]$ResultIsHashtable = $false
+		[bool]$OutputObjectIsHashtable = $false
 	}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
 			'all' {
-				$ResultIsHashtable = $true
-				Get-ChildItem -Path 'Env:\' -Include 'STATE_*' -Name | ForEach-Object -Process {
-					[string]$StateKey = $_ -replace '^STATE_', ''
-					[string]$StateValue = Get-ChildItem -Path "Env:\STATE_$StateKey"
+				$OutputObjectIsHashtable = $true
+				Get-ChildItem -Path 'Env:\STATE_*' | ForEach-Object -Process {
+					[string]$StateKey = $_.Name -replace '^STATE_', ''
 					if ($Trim) {
-						$Result[$StateKey] = $StateValue.Value.Trim()
+						$Result[$StateKey] = $_.Value.Trim()
 					} else {
-						$Result[$StateKey] = $StateValue.Value
+						$Result[$StateKey] = $_.Value
 					}
 				}
 				break
 			}
 			'select' {
-				$Name | ForEach-Object -Process {
-					if ([WildcardPattern]::ContainsWildcardCharacters($_)) {
-						$ResultIsHashtable = $true
-						Get-ChildItem -Path 'Env:\' -Include "STATE_$_" -Name | ForEach-Object -Process {
-							[string]$StateKey = $_ -replace '^STATE_', ''
-							[string]$StateValue = Get-ChildItem -Path "Env:\STATE_$StateKey"
+				foreach ($Item in $Name) {
+					if ([WildcardPattern]::ContainsWildcardCharacters($Item)) {
+						$OutputObjectIsHashtable = $true
+						Get-ChildItem -Path "Env:\STATE_$Item" | ForEach-Object -Process {
+							[string]$StateKey = $_.Name -replace '^STATE_', ''
 							if ($Trim) {
-								$Result[$StateKey] = $StateValue.Value.Trim()
+								$Result[$StateKey] = $_.Value.Trim()
 							} else {
-								$Result[$StateKey] = $StateValue.Value
+								$Result[$StateKey] = $_.Value
 							}
 						}
 					} else {
-						$StateValue = Get-ChildItem -Path "Env:\STATE_$_" -ErrorAction SilentlyContinue
+						$StateValue = Get-ChildItem -Path "Env:\STATE_$Item" -ErrorAction SilentlyContinue
 						if ($null -eq $StateValue) {
-							$Result[$_] = $StateValue
+							$Result[$Item] = $StateValue
 						} else {
 							if ($Trim) {
-								$Result[$_] = $StateValue.Value.Trim()
+								$Result[$Item] = $StateValue.Value.Trim()
 							} else {
-								$Result[$_] = $StateValue.Value
+								$Result[$Item] = $StateValue.Value
 							}
 						}
 					}
 				}
+				break
 			}
 		}
 	}
 	end {
-		if ($Result.Count -eq 1) {
+		if (($OutputObjectIsHashtable -eq $false) -and ($Result.Count -eq 1)) {
 			return $Result.Values[0]
 		}
 		return $Result
@@ -539,7 +555,7 @@ function Get-GitHubActionsWebhookEventPayload {
 		[int]$Depth = 1024,
 		[switch]$NoEnumerate
 	)
-	return ConvertFrom-Json -InputObject (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM') -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate
+	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
 }
 Set-Alias -Name 'Get-GHActionsEvent' -Value 'Get-GitHubActionsWebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-GHActionsPayload' -Value 'Get-GitHubActionsWebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
@@ -567,11 +583,13 @@ function Remove-GitHubActionsProblemMatcher {
 	)
 	begin {}
 	process {
-		return ($Owner | ForEach-Object -Process {
+		$Owner | ForEach-Object -Process {
 			return Write-GitHubActionsCommand -Command 'remove-matcher' -Property @{ 'owner' = $_ }
-		})
+		}
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Remove-GHActionsProblemMatcher' -Value 'Remove-GitHubActionsProblemMatcher' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -593,7 +611,7 @@ function Set-GitHubActionsOutput {
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value
+		[Parameter(ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value = ''
 	)
 	begin {}
 	process {
@@ -617,9 +635,10 @@ function Set-GitHubActionsOutput {
 				break
 			}
 		}
+	}
+	end {
 		return
 	}
-	end {}
 }
 Set-Alias -Name 'Set-GHActionsOutput' -Value 'Set-GitHubActionsOutput' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -641,7 +660,7 @@ function Set-GitHubActionsState {
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value
+		[Parameter(ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
 	)
 	begin {}
 	process {
@@ -665,9 +684,10 @@ function Set-GitHubActionsState {
 				break
 			}
 		}
+	}
+	end {
 		return
 	}
-	end {}
 }
 Set-Alias -Name 'Save-GHActionsState' -Value 'Set-GitHubActionsState' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Save-GitHubActionsState' -Value 'Set-GitHubActionsState' -Option 'ReadOnly' -Scope 'Local'
@@ -677,13 +697,13 @@ Set-Alias -Name 'Set-GHActionsState' -Value 'Set-GitHubActionsState' -Option 'Re
 GitHub Actions - Test Environment
 .DESCRIPTION
 Test the current process is executing inside the GitHub Actions environment.
-.PARAMETER Force
-Whether the requirement is force. If forced and not fulfill, will throw an error.
+.PARAMETER Require
+Whether the requirement is require; If required and not fulfill, will throw an error.
 #>
 function Test-GitHubActionsEnvironment {
 	[CmdletBinding()][OutputType([bool])]
 	param (
-		[Alias('Forced', 'Require', 'Required')][switch]$Force
+		[Alias('Force', 'Forced', 'Required')][switch]$Require
 	)
 	if (
 		($env:CI -ne 'true') -or
@@ -717,7 +737,7 @@ function Test-GitHubActionsEnvironment {
 		($null -eq $env:RUNNER_TEMP) -or
 		($null -eq $env:RUNNER_TOOL_CACHE)
 	) {
-		if ($Force) {
+		if ($Require) {
 			throw 'This process require to execute inside the GitHub Actions environment!'
 		}
 		return $false
@@ -797,9 +817,11 @@ function Write-GitHubActionsAnnotation {
 		if ($Title.Length -gt 0) {
 			$Property.'title' = $Title
 		}
-		return Write-GitHubActionsCommand -Command $TypeRaw -Message $Message -Property $Property
+		Write-GitHubActionsCommand -Command $TypeRaw -Message $Message -Property $Property
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Write-GHActionsAnnotation' -Value 'Write-GitHubActionsAnnotation' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -819,9 +841,11 @@ function Write-GitHubActionsDebug {
 	)
 	begin {}
 	process {
-		return Write-GitHubActionsCommand -Command 'debug' -Message $Message
+		Write-GitHubActionsCommand -Command 'debug' -Message $Message
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Write-GHActionsDebug' -Value 'Write-GitHubActionsDebug' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -859,9 +883,11 @@ function Write-GitHubActionsError {
 	)
 	begin {}
 	process {
-		return Write-GitHubActionsAnnotation -Type 'Error' @PSBoundParameters
+		Write-GitHubActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Write-GHActionsError' -Value 'Write-GitHubActionsError' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -897,7 +923,7 @@ function Write-GitHubActionsFail {
 		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
 		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
 	)
-	Write-GitHubActionsAnnotation -Type 'Error' @PSBoundParameters
+	Write-GitHubActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	exit 1
 }
 Set-Alias -Name 'Write-GHActionsFail' -Value 'Write-GitHubActionsFail' -Option 'ReadOnly' -Scope 'Local'
@@ -936,9 +962,11 @@ function Write-GitHubActionsNotice {
 	)
 	begin {}
 	process {
-		return Write-GitHubActionsAnnotation -Type 'Notice' @PSBoundParameters
+		Write-GitHubActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Write-GHActionsNote' -Value 'Write-GitHubActionsNotice' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Write-GHActionsNotice' -Value 'Write-GitHubActionsNotice' -Option 'ReadOnly' -Scope 'Local'
@@ -978,9 +1006,11 @@ function Write-GitHubActionsWarning {
 	)
 	begin {}
 	process {
-		return Write-GitHubActionsAnnotation -Type 'Warning' @PSBoundParameters
+		Write-GitHubActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
-	end {}
+	end {
+		return
+	}
 }
 Set-Alias -Name 'Write-GHActionsWarn' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Write-GHActionsWarning' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
