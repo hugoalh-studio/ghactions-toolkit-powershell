@@ -163,7 +163,7 @@ function Add-GitHubActionsPATH {
 		$Path | ForEach-Object -Process {
 			if (
 				$NoValidator -or
-				(Test-Path -Path $_ -IsValid)
+				(Test-Path -Path $_ -PathType 'Container' -IsValid)
 			) {
 				$Result += $_
 			} else {
