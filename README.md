@@ -31,13 +31,13 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 PowerShell (>= v7.2.0):
 
 ```ps1
-Install-Module -Name 'hugoalh.GitHubActionsToolkit'
+Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
 ```
 
 #### Use
 
 ```ps1
-Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope Local
+Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'
 ```
 
 ### Function (Excerpt)
