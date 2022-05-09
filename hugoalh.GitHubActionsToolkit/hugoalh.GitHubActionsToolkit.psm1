@@ -281,7 +281,22 @@ function Disable-GitHubActionsProcessingCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommand#Disable-GitHubActionsProcessingCommand')]
 	[OutputType([string])]
 	param(
-		[Parameter(Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
+		[Parameter(Position = 0)][ValidateScript({
+			return (($_ -match '^.+$') -and ($_.Length -ge 4) -and ($_ -inotin @(
+				'add-mask',
+				'add-matcher',
+				'debug',
+				'echo',
+				'endgroup',
+				'error',
+				'group',
+				'notice',
+				'remove-matcher',
+				'save-state',
+				'set-output',
+				'warning'
+			)))
+		})][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Message $EndToken
 	return $EndToken
@@ -320,7 +335,22 @@ function Enable-GitHubActionsProcessingCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommand#Enable-GitHubActionsProcessingCommand')]
 	[OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
+		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
+			return (($_ -match '^.+$') -and ($_.Length -ge 4) -and ($_ -inotin @(
+				'add-mask',
+				'add-matcher',
+				'debug',
+				'echo',
+				'endgroup',
+				'error',
+				'group',
+				'notice',
+				'remove-matcher',
+				'save-state',
+				'set-output',
+				'warning'
+			)))
+		})][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
 	)
 	return Write-GitHubActionsCommand -Command $EndToken
 }
