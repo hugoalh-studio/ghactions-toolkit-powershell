@@ -23,7 +23,8 @@ Also escape command property characters.
 String
 #>
 function Format-GitHubActionsCommand {
-	[CmdletBinding()][OutputType([string])]
+	[CmdletBinding()]
+	[OutputType([string])]
 	param(
 		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][string]$InputObject = '',
 		[Alias('Properties')][switch]$Property
@@ -54,7 +55,8 @@ Command property.
 Void
 #>
 function Write-GitHubActionsCommand {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionscommand#Write-GitHubActionsCommand')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][string]$Command,
 		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message = '',
@@ -87,7 +89,8 @@ Environment variable value.
 Void
 #>
 function Add-GitHubActionsEnvironmentVariable {
-	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = 'multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsenvironmentvariable#Add-GitHubActionsEnvironmentVariable')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$')][Alias('Key')][string]$Name,
@@ -147,7 +150,8 @@ Disable validator to not check the path is valid or not.
 Void
 #>
 function Add-GitHubActionsPATH {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionspath#Add-GitHubActionsPATH')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Paths')][string[]]$Path,
 		[Alias('NoValidate', 'SkipValidate', 'SkipValidator')][switch]$NoValidator
@@ -186,7 +190,8 @@ Relative path to the JSON file problem matcher.
 Void
 #>
 function Add-GitHubActionsProblemMatcher {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('File', 'Files', 'Paths', 'PSPath', 'PSPaths')][string[]]$Path
 	)
@@ -218,7 +223,8 @@ Split the secret to chunks to well make a secret will get masked from the log.
 Void
 #>
 function Add-GitHubActionsSecretMask {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
 		[Alias('WithChunk')][switch]$WithChunks
@@ -253,7 +259,8 @@ Disable echoing of workflow commands, the workflow run's log will not show the c
 Void
 #>
 function Disable-GitHubActionsEchoCommand {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechocommand#Disable-GitHubActionsEchoCommand')]
+	[OutputType([void])]
 	param()
 	return Write-GitHubActionsCommand -Command 'echo' -Message 'off'
 }
@@ -271,7 +278,8 @@ An end token for function `Enable-GitHubActionsProcessingCommand`.
 String
 #>
 function Disable-GitHubActionsProcessingCommand {
-	[CmdletBinding()][OutputType([string])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommand#Disable-GitHubActionsProcessingCommand')]
+	[OutputType([string])]
 	param(
 		[Parameter(Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
 	)
@@ -290,7 +298,8 @@ Enable echoing of workflow commands, the workflow run's log will show the comman
 Void
 #>
 function Enable-GitHubActionsEchoCommand {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechocommand#Enable-GitHubActionsEchoCommand')]
+	[OutputType([void])]
 	param()
 	return Write-GitHubActionsCommand -Command 'echo' -Message 'on'
 }
@@ -308,7 +317,8 @@ An end token from function `Disable-GitHubActionsProcessingCommand`.
 Void
 #>
 function Enable-GitHubActionsProcessingCommand {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommand#Enable-GitHubActionsProcessingCommand')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
 	)
@@ -328,7 +338,8 @@ Title of the log group.
 Void
 #>
 function Enter-GitHubActionsLogGroup {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enter-githubactionsloggroup#Enter-GitHubActionsLogGroup')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Header', 'Message')][string]$Title
 	)
@@ -346,7 +357,8 @@ End an expandable group in the log.
 Void
 #>
 function Exit-GitHubActionsLogGroup {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_exit-githubactionsloggroup#Exit-GitHubActionsLogGroup')]
+	[OutputType([void])]
 	param ()
 	return Write-GitHubActionsCommand -Command 'endgroup'
 }
@@ -362,6 +374,10 @@ Get input.
 Name of the input.
 .PARAMETER Require
 Whether the input is require; If required and not present, will throw an error.
+.PARAMETER NamePrefix
+Name of the inputs start with.
+.PARAMETER NameSuffix
+Name of the inputs end with.
 .PARAMETER All
 Get all of the inputs.
 .PARAMETER Trim
@@ -370,59 +386,70 @@ Trim the input's value.
 Hashtable | String
 #>
 function Get-GitHubActionsInput {
-	[CmdletBinding(DefaultParameterSetName = 'select')]
-	[OutputType(([hashtable], [string]), ParameterSetName = 'select')]
-	[OutputType([hashtable], ParameterSetName = 'all')]
+	[CmdletBinding(DefaultParameterSetName = 'one', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsinput#Get-GitHubActionsInput')]
+	[OutputType([string], ParameterSetName = 'one')]
+	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
-		[Parameter(ParameterSetName = 'select')][Alias('Force', 'Forced', 'Required')][switch]$Require,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidateScript({
+			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
+		})][Alias('Key')][string]$Name,
+		[Parameter(ParameterSetName = 'one')][Alias('Force', 'Forced', 'Required')][switch]$Require,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidateScript({
+			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
+		})][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidateScript({
+			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
+		})][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
 	begin {
-		[hashtable]$Result = @{}
-		[bool]$OutputObjectIsHashtable = $false
+		[hashtable]$OutputObject = @{}
 	}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
 			'all' {
-				$OutputObjectIsHashtable = $true
 				Get-ChildItem -Path 'Env:\INPUT_*' | ForEach-Object -Process {
 					[string]$InputKey = $_.Name -replace '^INPUT_', ''
 					if ($Trim) {
-						$Result[$InputKey] = $_.Value.Trim()
+						$OutputObject[$InputKey] = $_.Value.Trim()
 					} else {
-						$Result[$InputKey] = $_.Value
+						$OutputObject[$InputKey] = $_.Value
 					}
 				}
 				break
 			}
-			'select' {
-				foreach ($Item in $Name) {
-					if ([WildcardPattern]::ContainsWildcardCharacters($Item)) {
-						$OutputObjectIsHashtable = $true
-						Get-ChildItem -Path "Env:\INPUT_$Item" | ForEach-Object -Process {
-							[string]$InputKey = $_.Name -replace '^INPUT_', ''
-							if ($Trim) {
-								$Result[$InputKey] = $_.Value.Trim()
-							} else {
-								$Result[$InputKey] = $_.Value
-							}
-						}
+			'one' {
+				$InputValue = Get-ChildItem -Path "Env:\INPUT_$Name" -ErrorAction 'SilentlyContinue'
+				if ($null -eq $InputValue) {
+					if ($Require) {
+						throw "Input ``$Name`` is not defined!"
+					}
+					return $null
+				}
+				if ($Trim) {
+					return $InputValue.Value.Trim()
+				}
+				return $InputValue.Value
+			}
+			'prefix' {
+				Get-ChildItem -Path "Env:\INPUT_$NamePrefix*" | ForEach-Object -Process {
+					[string]$InputKey = $_.Name -replace "^INPUT_$([regex]::Escape($NamePrefix))", ''
+					if ($Trim) {
+						$OutputObject[$InputKey] = $_.Value.Trim()
 					} else {
-						$InputValue = Get-ChildItem -Path "Env:\INPUT_$Item" -ErrorAction SilentlyContinue
-						if ($null -eq $InputValue) {
-							if ($Require) {
-								throw "Input ``$Item`` is not defined!"
-							}
-							$Result[$Item] = $InputValue
-						} else {
-							if ($Trim) {
-								$Result[$Item] = $InputValue.Value.Trim()
-							} else {
-								$Result[$Item] = $InputValue.Value
-							}
-						}
+						$OutputObject[$InputKey] = $_.Value
+					}
+				}
+				break
+			}
+			'suffix' {
+				Get-ChildItem -Path "Env:\INPUT_*$NameSuffix" | ForEach-Object -Process {
+					[string]$InputKey = $_.Name -replace 'INPUT_', '' -replace "$([regex]::Escape($NameSuffix))$", ''
+					if ($Trim) {
+						$OutputObject[$InputKey] = $_.Value.Trim()
+					} else {
+						$OutputObject[$InputKey] = $_.Value
 					}
 				}
 				break
@@ -430,10 +457,9 @@ function Get-GitHubActionsInput {
 		}
 	}
 	end {
-		if (($OutputObjectIsHashtable -eq $false) -and ($Result.Count -eq 1)) {
-			return $Result.Values[0]
+		if ($PSCmdlet.ParameterSetName -in @('all', 'prefix', 'suffix')) {
+			return $OutputObject
 		}
-		return $Result
 	}
 }
 Set-Alias -Name 'Get-GHActionsInput' -Value 'Get-GitHubActionsInput' -Option 'ReadOnly' -Scope 'Local'
@@ -446,7 +472,8 @@ Get debug status.
 Boolean
 #>
 function Get-GitHubActionsIsDebug {
-	[CmdletBinding()][OutputType([bool])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsisdebug#Get-GitHubActionsIsDebug')]
+	[OutputType([bool])]
 	param ()
 	if ($env:RUNNER_DEBUG -eq 'true') {
 		return $true
@@ -461,6 +488,10 @@ GitHub Actions - Get State
 Get state.
 .PARAMETER Name
 Name of the state.
+.PARAMETER NamePrefix
+Name of the states start with.
+.PARAMETER NameSuffix
+Name of the states end with.
 .PARAMETER All
 Get all of the states.
 .PARAMETER Trim
@@ -469,55 +500,66 @@ Trim the state's value.
 Hashtable | String
 #>
 function Get-GitHubActionsState {
-	[CmdletBinding(DefaultParameterSetName = 'select')]
-	[OutputType(([hashtable], [string]), ParameterSetName = 'select')]
-	[OutputType([hashtable], ParameterSetName = 'all')]
+	[CmdletBinding(DefaultParameterSetName = 'one', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstate#Get-GitHubActionsState')]
+	[OutputType([string], ParameterSetName = 'one')]
+	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'select', Position = 0, ValueFromPipeline = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('Key', 'Keys', 'Names')][string[]]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidateScript({
+			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
+		})][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidateScript({
+			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
+		})][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidateScript({
+			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
+		})][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
 	begin {
-		[hashtable]$Result = @{}
-		[bool]$OutputObjectIsHashtable = $false
+		[hashtable]$OutputObject = @{}
 	}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
 			'all' {
-				$OutputObjectIsHashtable = $true
 				Get-ChildItem -Path 'Env:\STATE_*' | ForEach-Object -Process {
 					[string]$StateKey = $_.Name -replace '^STATE_', ''
 					if ($Trim) {
-						$Result[$StateKey] = $_.Value.Trim()
+						$OutputObject[$StateKey] = $_.Value.Trim()
 					} else {
-						$Result[$StateKey] = $_.Value
+						$OutputObject[$StateKey] = $_.Value
 					}
 				}
 				break
 			}
-			'select' {
-				foreach ($Item in $Name) {
-					if ([WildcardPattern]::ContainsWildcardCharacters($Item)) {
-						$OutputObjectIsHashtable = $true
-						Get-ChildItem -Path "Env:\STATE_$Item" | ForEach-Object -Process {
-							[string]$StateKey = $_.Name -replace '^STATE_', ''
-							if ($Trim) {
-								$Result[$StateKey] = $_.Value.Trim()
-							} else {
-								$Result[$StateKey] = $_.Value
-							}
-						}
+			'one' {
+				$StateValue = Get-ChildItem -Path "Env:\STATE_$Name" -ErrorAction 'SilentlyContinue'
+				if ($null -eq $StateValue) {
+					return $null
+				}
+				if ($Trim) {
+					return $StateValue.Value.Trim()
+				}
+				return $StateValue.Value
+			}
+			'prefix' {
+				Get-ChildItem -Path "Env:\STATE_$NamePrefix*" | ForEach-Object -Process {
+					[string]$StateKey = $_.Name -replace "^STATE_$([regex]::Escape($NamePrefix))", ''
+					if ($Trim) {
+						$OutputObject[$StateKey] = $_.Value.Trim()
 					} else {
-						$StateValue = Get-ChildItem -Path "Env:\STATE_$Item" -ErrorAction SilentlyContinue
-						if ($null -eq $StateValue) {
-							$Result[$Item] = $StateValue
-						} else {
-							if ($Trim) {
-								$Result[$Item] = $StateValue.Value.Trim()
-							} else {
-								$Result[$Item] = $StateValue.Value
-							}
-						}
+						$OutputObject[$StateKey] = $_.Value
+					}
+				}
+				break
+			}
+			'suffix' {
+				Get-ChildItem -Path "Env:\STATE_*$NameSuffix" | ForEach-Object -Process {
+					[string]$StateKey = $_.Name -replace 'STATE_', '' -replace "$([regex]::Escape($NameSuffix))$", ''
+					if ($Trim) {
+						$OutputObject[$StateKey] = $_.Value.Trim()
+					} else {
+						$OutputObject[$StateKey] = $_.Value
 					}
 				}
 				break
@@ -525,10 +567,9 @@ function Get-GitHubActionsState {
 		}
 	}
 	end {
-		if (($OutputObjectIsHashtable -eq $false) -and ($Result.Count -eq 1)) {
-			return $Result.Values[0]
+		if ($PSCmdlet.ParameterSetName -in @('all', 'prefix', 'suffix')) {
+			return $OutputObject
 		}
-		return $Result
 	}
 }
 Set-Alias -Name 'Get-GHActionsState' -Value 'Get-GitHubActionsState' -Option 'ReadOnly' -Scope 'Local'
@@ -549,7 +590,8 @@ Specify that output is not enumerated; Setting this parameter causes arrays to b
 Hashtable | PSCustomObject
 #>
 function Get-GitHubActionsWebhookEventPayload {
-	[CmdletBinding()][OutputType(([hashtable], [pscustomobject]))]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionswebhookeventpayload#Get-GitHubActionsWebhookEventPayload')]
+	[OutputType(([hashtable], [pscustomobject]))]
 	param (
 		[Alias('ToHashtable')][switch]$AsHashtable,
 		[int]$Depth = 1024,
@@ -577,7 +619,8 @@ Owner of the problem matcher that previously added from function `Add-GitHubActi
 Void
 #>
 function Remove-GitHubActionsProblemMatcher {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsproblemmatcher#Remove-GitHubActionsProblemMatcher')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][ValidatePattern('^.+$')][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
 	)
@@ -607,7 +650,8 @@ Value of the output.
 Void
 #>
 function Set-GitHubActionsOutput {
-	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = 'multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
@@ -656,7 +700,8 @@ Value of the state.
 Void
 #>
 function Set-GitHubActionsState {
-	[CmdletBinding(DefaultParameterSetName = 'multiple')][OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = 'multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
@@ -701,7 +746,8 @@ Test the current process is executing inside the GitHub Actions environment.
 Whether the requirement is require; If required and not fulfill, will throw an error.
 #>
 function Test-GitHubActionsEnvironment {
-	[CmdletBinding()][OutputType([bool])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
+	[OutputType([bool])]
 	param (
 		[Alias('Force', 'Forced', 'Required')][switch]$Require
 	)
@@ -770,7 +816,8 @@ Issue title.
 Void
 #>
 function Write-GitHubActionsAnnotation {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsannotation#Write-GitHubActionsAnnotation')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][GitHubActionsAnnotationType]$Type,
 		[Parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
@@ -835,7 +882,8 @@ Message that need to log at debug level.
 Void
 #>
 function Write-GitHubActionsDebug {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsdebug#Write-GitHubActionsDebug')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Content')][string]$Message
 	)
@@ -871,7 +919,8 @@ Issue title.
 Void
 #>
 function Write-GitHubActionsError {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionserror#Write-GitHubActionsError')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
@@ -913,7 +962,8 @@ Issue title.
 Void
 #>
 function Write-GitHubActionsFail {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsfail#Write-GitHubActionsFail')]
+	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][string]$Message,
 		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
@@ -950,7 +1000,8 @@ Issue title.
 Void
 #>
 function Write-GitHubActionsNotice {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsnotice#Write-GitHubActionsNotice')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
@@ -994,7 +1045,8 @@ Issue title.
 Void
 #>
 function Write-GitHubActionsWarning {
-	[CmdletBinding()][OutputType([void])]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionswarning#Write-GitHubActionsWarning')]
+	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
