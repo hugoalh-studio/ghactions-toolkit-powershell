@@ -264,7 +264,7 @@ function Add-GitHubActionsStepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
-		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = ''
+		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @('')
 	)
 	begin {
 		[string[]]$Result = @()
@@ -394,7 +394,7 @@ Set-Alias -Name 'Stop-GitHubActionsProcessingCommands' -Value 'Disable-GitHubAct
 .SYNOPSIS
 GitHub Actions - Enable Echoing Commands
 .DESCRIPTION
-Enable echoing of commands, the run's log will show the command itself; The `add-mask`, `debug`, `warning`, and `error` commands do not support echoing because their outputs are already echoed to the log; Secret `ACTIONS_STEP_DEBUG` will ignore this.
+Enable echoing of commands, the run's log will show the command itself; Commands `add-mask`, `debug`, `warning`, and `error` do not support echoing because their outputs are already echoed to the log; Secret `ACTIONS_STEP_DEBUG` will ignore this.
 .OUTPUTS
 Void
 #>
@@ -938,7 +938,7 @@ function Set-GitHubActionsStepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
-		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = ''
+		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @('')
 	)
 	begin {
 		[string[]]$Result = @()
