@@ -46,10 +46,11 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'
 - `Add-GitHubActionsPATH`
 - `Add-GitHubActionsProblemMatcher`
 - `Add-GitHubActionsSecretMask`
-- `Disable-GitHubActionsEchoCommand`
-- `Disable-GitHubActionsProcessingCommand`
-- `Enable-GitHubActionsEchoCommand`
-- `Enable-GitHubActionsProcessingCommand`
+- `Add-GitHubActionsStepSummary`
+- `Disable-GitHubActionsEchoingCommands`
+- `Disable-GitHubActionsProcessingCommands`
+- `Enable-GitHubActionsEchoingCommands`
+- `Enable-GitHubActionsProcessingCommands`
 - `Enter-GitHubActionsLogGroup`
 - `Exit-GitHubActionsLogGroup`
 - `Get-GitHubActionsInput`
@@ -57,8 +58,10 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'
 - `Get-GitHubActionsState`
 - `Get-GitHubActionsWebhookEventPayload`
 - `Remove-GitHubActionsProblemMatcher`
+- `Remove-GitHubActionsStepSummary`
 - `Set-GitHubActionsOutput`
 - `Set-GitHubActionsState`
+- `Set-GitHubActionsStepSummary`
 - `Test-GitHubActionsEnvironment`
 - `Write-GitHubActionsAnnotation`
 - `Write-GitHubActionsCommand`
