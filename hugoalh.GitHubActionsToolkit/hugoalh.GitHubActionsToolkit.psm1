@@ -44,7 +44,7 @@ Set-Alias -Name 'Format-GHActionsCommand' -Value 'Format-GitHubActionsCommand' -
 .SYNOPSIS
 GitHub Actions - Write Command
 .DESCRIPTION
-Write command.
+Write command to communicate with the runner machine.
 .PARAMETER Command
 Command.
 .PARAMETER Message
@@ -141,7 +141,7 @@ Set-Alias -Name 'Add-GitHubActionsEnvironment' -Value 'Add-GitHubActionsEnvironm
 .SYNOPSIS
 GitHub Actions - Add PATH
 .DESCRIPTION
-Add directory to the system `PATH` variable and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated path variable.
+Add directory to the system `PATH` variable and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated path variables.
 .PARAMETER Path
 System path.
 .PARAMETER NoValidator
@@ -252,33 +252,91 @@ Set-Alias -Name 'Add-GitHubActionsMask' -Value 'Add-GitHubActionsSecretMask' -Op
 Set-Alias -Name 'Add-GitHubActionsSecret' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Disable Echo Command
+GitHub Actions - Add Step Summary
 .DESCRIPTION
-Disable echoing of workflow commands, the workflow run's log will not show the command itself; A workflow command is echoed if there are any errors processing the command; Secret `ACTIONS_STEP_DEBUG` will ignore this.
+Add some GitHub flavored Markdown for step so that it will be displayed on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures. When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
+.PARAMETER Value
+Content.
 .OUTPUTS
 Void
 #>
-function Disable-GitHubActionsEchoCommand {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechocommand#Disable-GitHubActionsEchoCommand')]
+function Add-GitHubActionsStepSummary {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
+	[OutputType([void])]
+	param (
+		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = ''
+	)
+	begin {
+		[string[]]$Result = @()
+	}
+	process {
+		$Result += $Value -join "`n"
+	}
+	end {
+		if ($Result.Count -gt 0) {
+			Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
+		}
+		return
+	}
+}
+Set-Alias -Name 'Add-GHActionsStepSummary' -Value 'Add-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
+GitHub Actions - Disable Echoing Commands
+.DESCRIPTION
+Disable echoing of commands, the run's log will not show the command itself; A command is echoed if there are any errors processing the command; Secret `ACTIONS_STEP_DEBUG` will ignore this.
+.OUTPUTS
+Void
+#>
+function Disable-GitHubActionsEchoingCommands {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechoingcommands#Disable-GitHubActionsEchoingCommands')]
 	[OutputType([void])]
 	param()
 	return Write-GitHubActionsCommand -Command 'echo' -Message 'off'
 }
-Set-Alias -Name 'Disable-GHActionsCommandEcho' -Value 'Disable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-GHActionsEchoCommand' -Value 'Disable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-GitHubActionsCommandEcho' -Value 'Disable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandsEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandsEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsEchoCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsEchoCommands' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsEchoingCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsEchoingCommands' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandsEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandsEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsEchoCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsEchoCommands' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsEchoingCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandsEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandsEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsEchoCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsEchoCommands' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsEchoingCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsEchoingCommands' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandsEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandsEchoing' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsEchoCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsEchoCommands' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsEchoingCommand' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsEchoingCommands' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Disable Processing Command
+GitHub Actions - Disable Processing Commands
 .DESCRIPTION
-Stop processing any workflow commands to allow log anything without accidentally running workflow commands.
+Stop processing any commands to allow log anything without accidentally running commands.
 .PARAMETER EndToken
-An end token for function `Enable-GitHubActionsProcessingCommand`.
+An end token for function `Enable-GitHubActionsProcessingCommands`.
 .OUTPUTS
 String
 #>
-function Disable-GitHubActionsProcessingCommand {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommand#Disable-GitHubActionsProcessingCommand')]
+function Disable-GitHubActionsProcessingCommands {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
 	[OutputType([string])]
 	param(
 		[Parameter(Position = 0)][ValidateScript({
@@ -301,38 +359,94 @@ function Disable-GitHubActionsProcessingCommand {
 	Write-GitHubActionsCommand -Command 'stop-commands' -Message $EndToken
 	return $EndToken
 }
-Set-Alias -Name 'Disable-GHActionsCommandProcessing' -Value 'Disable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-GHActionsProcessingCommand' -Value 'Disable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-GitHubActionsCommandProcessing' -Value 'Disable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandsProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsCommandsProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsProcessCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsProcessCommands' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsProcessingCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GHActionsProcessingCommands' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandsProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsCommandsProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsProcessCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsProcessCommands' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Disable-GitHubActionsProcessingCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandsProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsCommandsProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsProcessCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsProcessCommands' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsProcessingCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GHActionsProcessingCommands' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandsProcess' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsCommandsProcessing' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsProcessCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsProcessCommands' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsProcessingCommand' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Stop-GitHubActionsProcessingCommands' -Value 'Disable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Enable Echo Command
+GitHub Actions - Enable Echoing Commands
 .DESCRIPTION
-Enable echoing of workflow commands, the workflow run's log will show the command itself; The `add-mask`, `debug`, `warning`, and `error` commands do not support echoing because their outputs are already echoed to the log; Secret `ACTIONS_STEP_DEBUG` will ignore this.
+Enable echoing of commands, the run's log will show the command itself; The `add-mask`, `debug`, `warning`, and `error` commands do not support echoing because their outputs are already echoed to the log; Secret `ACTIONS_STEP_DEBUG` will ignore this.
 .OUTPUTS
 Void
 #>
-function Enable-GitHubActionsEchoCommand {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechocommand#Enable-GitHubActionsEchoCommand')]
+function Enable-GitHubActionsEchoingCommands {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechoingcommands#Enable-GitHubActionsEchoingCommands')]
 	[OutputType([void])]
 	param()
 	return Write-GitHubActionsCommand -Command 'echo' -Message 'on'
 }
-Set-Alias -Name 'Enable-GHActionsCommandEcho' -Value 'Enable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-GHActionsEchoCommand' -Value 'Enable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-GitHubActionsCommandEcho' -Value 'Enable-GitHubActionsEchoCommand' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandsEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandsEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsEchoCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsEchoCommands' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsEchoingCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsEchoingCommands' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandsEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandsEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsEchoCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsEchoCommands' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsEchoingCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandsEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandsEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsEchoCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsEchoCommands' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsEchoingCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsEchoingCommands' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandsEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandsEchoing' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsEchoCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsEchoCommands' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsEchoingCommand' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsEchoingCommands' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Enable Processing Command
+GitHub Actions - Enable Processing Commands
 .DESCRIPTION
-Resume processing any workflow commands to allow running workflow commands.
+Resume processing any commands to allow running commands.
 .PARAMETER EndToken
-An end token from function `Disable-GitHubActionsProcessingCommand`.
+An end token from function `Disable-GitHubActionsProcessingCommands`.
 .OUTPUTS
 Void
 #>
-function Enable-GitHubActionsProcessingCommand {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommand#Enable-GitHubActionsProcessingCommand')]
+function Enable-GitHubActionsProcessingCommands {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommands#Enable-GitHubActionsProcessingCommands')]
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
@@ -354,14 +468,42 @@ function Enable-GitHubActionsProcessingCommand {
 	)
 	return Write-GitHubActionsCommand -Command $EndToken
 }
-Set-Alias -Name 'Enable-GHActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-GHActionsProcessingCommand' -Value 'Enable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-GitHubActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommand' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandsProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsCommandsProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsProcessCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsProcessCommands' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsProcessingCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GHActionsProcessingCommands' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandsProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsCommandsProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsProcessCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsProcessCommands' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enable-GitHubActionsProcessingCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandsProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsCommandsProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsProcessCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsProcessCommands' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsProcessingCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GHActionsProcessingCommands' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandsProcess' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsCommandsProcessing' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsProcessCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsProcessCommands' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsProcessingCommand' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Start-GitHubActionsProcessingCommands' -Value 'Enable-GitHubActionsProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Enter Log Group
 .DESCRIPTION
-Create an expandable group in the log; Anything write to the log between `Enter-GitHubActionsLogGroup` and `Exit-GitHubActionsLogGroup` commands are inside an expandable group in the log.
+Create an expandable group in the log; Anything write to the log between functions `Enter-GitHubActionsLogGroup` and `Exit-GitHubActionsLogGroup` are inside an expandable group in the log.
 .PARAMETER Title
 Title of the log group.
 .OUTPUTS
@@ -667,6 +809,21 @@ function Remove-GitHubActionsProblemMatcher {
 Set-Alias -Name 'Remove-GHActionsProblemMatcher' -Value 'Remove-GitHubActionsProblemMatcher' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Remove Step Summary
+.DESCRIPTION
+Remove step summary that added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+.OUTPUTS
+Void
+#>
+function Remove-GitHubActionsStepSummary {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
+	[OutputType([void])]
+	param ()
+	return Remove-Item -Path $env:GITHUB_STEP_SUMMARY
+}
+Set-Alias -Name 'Remove-GHActionsStepSummary' -Value 'Remove-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Set Output
 .DESCRIPTION
 Set output.
@@ -769,6 +926,36 @@ Set-Alias -Name 'Save-GitHubActionsState' -Value 'Set-GitHubActionsState' -Optio
 Set-Alias -Name 'Set-GHActionsState' -Value 'Set-GitHubActionsState' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Set Step Summary
+.DESCRIPTION
+Set some GitHub flavored Markdown for step so that it will be displayed on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures. When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
+.PARAMETER Value
+Content.
+.OUTPUTS
+Void
+#>
+function Set-GitHubActionsStepSummary {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
+	[OutputType([void])]
+	param (
+		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = ''
+	)
+	begin {
+		[string[]]$Result = @()
+	}
+	process {
+		$Result += $Value -join "`n"
+	}
+	end {
+		if ($Result.Count -gt 0) {
+			Set-Content -Path $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
+		}
+		return
+	}
+}
+Set-Alias -Name 'Set-GHActionsStepSummary' -Value 'Set-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Test Environment
 .DESCRIPTION
 Test the current process is executing inside the GitHub Actions environment.
@@ -805,6 +992,7 @@ function Test-GitHubActionsEnvironment {
 		($null -eq $env:GITHUB_RUN_NUMBER) -or
 		($null -eq $env:GITHUB_SERVER_URL) -or
 		($null -eq $env:GITHUB_SHA) -or
+		($null -eq $env:GITHUB_STEP_SUMMARY) -or
 		($null -eq $env:GITHUB_WORKFLOW) -or
 		($null -eq $env:GITHUB_WORKSPACE) -or
 		($null -eq $env:RUNNER_ARCH) -or
@@ -1102,10 +1290,11 @@ Export-ModuleMember -Function @(
 	'Add-GitHubActionsPATH',
 	'Add-GitHubActionsProblemMatcher',
 	'Add-GitHubActionsSecretMask',
-	'Disable-GitHubActionsEchoCommand',
-	'Disable-GitHubActionsProcessingCommand',
-	'Enable-GitHubActionsEchoCommand',
-	'Enable-GitHubActionsProcessingCommand',
+	'Add-GitHubActionsStepSummary',
+	'Disable-GitHubActionsEchoingCommands',
+	'Disable-GitHubActionsProcessingCommands',
+	'Enable-GitHubActionsEchoingCommands',
+	'Enable-GitHubActionsProcessingCommands',
 	'Enter-GitHubActionsLogGroup',
 	'Exit-GitHubActionsLogGroup',
 	'Get-GitHubActionsInput',
@@ -1113,8 +1302,10 @@ Export-ModuleMember -Function @(
 	'Get-GitHubActionsState',
 	'Get-GitHubActionsWebhookEventPayload',
 	'Remove-GitHubActionsProblemMatcher',
+	'Remove-GitHubActionsStepSummary',
 	'Set-GitHubActionsOutput',
 	'Set-GitHubActionsState',
+	'Set-GitHubActionsStepSummary',
 	'Test-GitHubActionsEnvironment',
 	'Write-GitHubActionsAnnotation',
 	'Write-GitHubActionsCommand',
@@ -1131,22 +1322,71 @@ Export-ModuleMember -Function @(
 	'Add-GHActionsPATH',
 	'Add-GHActionsProblemMatcher',
 	'Add-GHActionsSecret',
+	'Add-GHActionsStepSummary',
 	'Add-GitHubActionsEnv',
 	'Add-GitHubActionsEnvironment',
 	'Add-GitHubActionsMask',
 	'Add-GitHubActionsSecret',
 	'Disable-GHActionsCommandEcho',
+	'Disable-GHActionsCommandEchoing',
+	'Disable-GHActionsCommandProcess',
 	'Disable-GHActionsCommandProcessing',
+	'Disable-GHActionsCommandsEcho',
+	'Disable-GHActionsCommandsEchoing',
+	'Disable-GHActionsCommandsProcess',
+	'Disable-GHActionsCommandsProcessing',
 	'Disable-GHActionsEchoCommand',
+	'Disable-GHActionsEchoCommands',
+	'Disable-GHActionsEchoingCommand',
+	'Disable-GHActionsEchoingCommands',
+	'Disable-GHActionsProcessCommand',
+	'Disable-GHActionsProcessCommands',
 	'Disable-GHActionsProcessingCommand',
+	'Disable-GHActionsProcessingCommands',
 	'Disable-GitHubActionsCommandEcho',
+	'Disable-GitHubActionsCommandEchoing',
+	'Disable-GitHubActionsCommandProcess',
 	'Disable-GitHubActionsCommandProcessing',
+	'Disable-GitHubActionsCommandsEcho',
+	'Disable-GitHubActionsCommandsEchoing',
+	'Disable-GitHubActionsCommandsProcess',
+	'Disable-GitHubActionsCommandsProcessing',
+	'Disable-GitHubActionsEchoCommand',
+	'Disable-GitHubActionsEchoCommands',
+	'Disable-GitHubActionsEchoingCommand',
+	'Disable-GitHubActionsProcessCommand',
+	'Disable-GitHubActionsProcessCommands',
+	'Disable-GitHubActionsProcessingCommand',
 	'Enable-GHActionsCommandEcho',
+	'Enable-GHActionsCommandEchoing',
+	'Enable-GHActionsCommandProcess',
 	'Enable-GHActionsCommandProcessing',
+	'Enable-GHActionsCommandsEcho',
+	'Enable-GHActionsCommandsEchoing',
+	'Enable-GHActionsCommandsProcess',
+	'Enable-GHActionsCommandsProcessing',
 	'Enable-GHActionsEchoCommand',
+	'Enable-GHActionsEchoCommands',
+	'Enable-GHActionsEchoingCommand',
+	'Enable-GHActionsEchoingCommands',
+	'Enable-GHActionsProcessCommand',
+	'Enable-GHActionsProcessCommands',
 	'Enable-GHActionsProcessingCommand',
+	'Enable-GHActionsProcessingCommands',
 	'Enable-GitHubActionsCommandEcho',
+	'Enable-GitHubActionsCommandEchoing',
+	'Enable-GitHubActionsCommandProcess',
 	'Enable-GitHubActionsCommandProcessing',
+	'Enable-GitHubActionsCommandsEcho',
+	'Enable-GitHubActionsCommandsEchoing',
+	'Enable-GitHubActionsCommandsProcess',
+	'Enable-GitHubActionsCommandsProcessing',
+	'Enable-GitHubActionsEchoCommand',
+	'Enable-GitHubActionsEchoCommands',
+	'Enable-GitHubActionsEchoingCommand',
+	'Enable-GitHubActionsProcessCommand',
+	'Enable-GitHubActionsProcessCommands',
+	'Enable-GitHubActionsProcessingCommand',
 	'Enter-GHActionsGroup',
 	'Enter-GHActionsLogGroup',
 	'Enter-GitHubActionsGroup',
@@ -1166,12 +1406,78 @@ Export-ModuleMember -Function @(
 	'Get-GitHubActionsWebhookEvent',
 	'Get-GitHubActionsWebhookPayload',
 	'Remove-GHActionsProblemMatcher',
+	'Remove-GHActionsStepSummary',
 	'Restore-GHActionsState',
 	'Restore-GitHubActionsState',
 	'Save-GHActionsState',
 	'Save-GitHubActionsState',
 	'Set-GHActionsOutput',
 	'Set-GHActionsState',
+	'Set-GHActionsStepSummary',
+	'Start-GHActionsCommandEcho',
+	'Start-GHActionsCommandEchoing',
+	'Start-GHActionsCommandProcess',
+	'Start-GHActionsCommandProcessing',
+	'Start-GHActionsCommandsEcho',
+	'Start-GHActionsCommandsEchoing',
+	'Start-GHActionsCommandsProcess',
+	'Start-GHActionsCommandsProcessing',
+	'Start-GHActionsEchoCommand',
+	'Start-GHActionsEchoCommands',
+	'Start-GHActionsEchoingCommand',
+	'Start-GHActionsEchoingCommands',
+	'Start-GHActionsProcessCommand',
+	'Start-GHActionsProcessCommands',
+	'Start-GHActionsProcessingCommand',
+	'Start-GHActionsProcessingCommands',
+	'Start-GitHubActionsCommandEcho',
+	'Start-GitHubActionsCommandEchoing',
+	'Start-GitHubActionsCommandProcess',
+	'Start-GitHubActionsCommandProcessing',
+	'Start-GitHubActionsCommandsEcho',
+	'Start-GitHubActionsCommandsEchoing',
+	'Start-GitHubActionsCommandsProcess',
+	'Start-GitHubActionsCommandsProcessing',
+	'Start-GitHubActionsEchoCommand',
+	'Start-GitHubActionsEchoCommands',
+	'Start-GitHubActionsEchoingCommand',
+	'Start-GitHubActionsEchoingCommands',
+	'Start-GitHubActionsProcessCommand',
+	'Start-GitHubActionsProcessCommands',
+	'Start-GitHubActionsProcessingCommand',
+	'Start-GitHubActionsProcessingCommands',
+	'Stop-GHActionsCommandEcho',
+	'Stop-GHActionsCommandEchoing',
+	'Stop-GHActionsCommandProcess',
+	'Stop-GHActionsCommandProcessing',
+	'Stop-GHActionsCommandsEcho',
+	'Stop-GHActionsCommandsEchoing',
+	'Stop-GHActionsCommandsProcess',
+	'Stop-GHActionsCommandsProcessing',
+	'Stop-GHActionsEchoCommand',
+	'Stop-GHActionsEchoCommands',
+	'Stop-GHActionsEchoingCommand',
+	'Stop-GHActionsEchoingCommands',
+	'Stop-GHActionsProcessCommand',
+	'Stop-GHActionsProcessCommands',
+	'Stop-GHActionsProcessingCommand',
+	'Stop-GHActionsProcessingCommands',
+	'Stop-GitHubActionsCommandEcho',
+	'Stop-GitHubActionsCommandEchoing',
+	'Stop-GitHubActionsCommandProcess',
+	'Stop-GitHubActionsCommandProcessing',
+	'Stop-GitHubActionsCommandsEcho',
+	'Stop-GitHubActionsCommandsEchoing',
+	'Stop-GitHubActionsCommandsProcess',
+	'Stop-GitHubActionsCommandsProcessing',
+	'Stop-GitHubActionsEchoCommand',
+	'Stop-GitHubActionsEchoCommands',
+	'Stop-GitHubActionsEchoingCommand',
+	'Stop-GitHubActionsEchoingCommands',
+	'Stop-GitHubActionsProcessCommand',
+	'Stop-GitHubActionsProcessCommands',
+	'Stop-GitHubActionsProcessingCommand',
+	'Stop-GitHubActionsProcessingCommands',
 	'Test-GHActionsEnvironment',
 	'Write-GHActionsAnnotation',
 	'Write-GHActionsCommand',
