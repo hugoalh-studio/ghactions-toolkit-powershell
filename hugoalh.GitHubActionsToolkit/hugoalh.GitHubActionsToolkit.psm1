@@ -80,7 +80,7 @@ GitHub Actions - Add Environment Variable
 .DESCRIPTION
 Add environment variable to the system environment variables and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated environment variables.
 .PARAMETER InputObject
-Environment variable.
+Environment variables.
 .PARAMETER Name
 Environment variable name.
 .PARAMETER Value
@@ -226,7 +226,7 @@ function Add-GitHubActionsSecretMask {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
 	[OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
+		[Parameter(Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Key', 'Secret', 'Token')][string]$Value = '',
 		[Alias('WithChunk')][switch]$WithChunks
 	)
 	begin {}
@@ -828,7 +828,7 @@ GitHub Actions - Set Output
 .DESCRIPTION
 Set output.
 .PARAMETER InputObject
-Output.
+Outputs.
 .PARAMETER Name
 Name of the output.
 .PARAMETER Value
@@ -878,7 +878,7 @@ GitHub Actions - Set State
 .DESCRIPTION
 Set state.
 .PARAMETER InputObject
-State.
+States.
 .PARAMETER Name
 Name of the state.
 .PARAMETER Value
@@ -892,7 +892,7 @@ function Set-GitHubActionsState {
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
+		[Parameter(ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value = ''
 	)
 	begin {}
 	process {
