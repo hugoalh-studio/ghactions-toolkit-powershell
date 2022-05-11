@@ -125,9 +125,9 @@ function Add-GitHubActionsEnvironmentVariable {
 	}
 	end {
 		if ($Result.Count -gt 0) {
-			Add-Content -Path $env:GITHUB_ENV -Value (($Result.GetEnumerator() | ForEach-Object -Process {
+			Add-Content -LiteralPath $env:GITHUB_ENV -Value (($Result.GetEnumerator() | ForEach-Object -Process {
 				return "$($_.Name)=$($_.Value)"
-			}) -join "`n") -Encoding 'UTF8NoBOM'
+			}) -join "`n") -Confirm:$false -Encoding 'UTF8NoBOM'
 		}
 		return
 	}
@@ -173,7 +173,7 @@ function Add-GitHubActionsPATH {
 	}
 	end {
 		if ($Result.Count -gt 0) {
-			Add-Content -Path $env:GITHUB_PATH -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
+			Add-Content -LiteralPath $env:GITHUB_PATH -Value ($Result -join "`n") -Confirm:$false -Encoding 'UTF8NoBOM'
 		}
 		return
 	}
@@ -186,23 +186,37 @@ GitHub Actions - Add Problem Matcher
 Problem matchers are a way to scan the output of actions for a specified regular expression pattern and automatically surface that information prominently in the user interface, both annotations and log file decorations are created when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
 .PARAMETER Path
 Relative path to the JSON file problem matcher.
+.PARAMETER LiteralPath
+Relative literal path to the JSON file problem matcher.
 .OUTPUTS
 Void
 #>
 function Add-GitHubActionsProblemMatcher {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
+	[CmdletBinding(DefaultParameterSetName = 'path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
 	[OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('File', 'Files', 'Paths', 'PSPath', 'PSPaths')][string[]]$Path
+		[Parameter(Mandatory = $true, ParameterSetName = 'path', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('File', 'Files', 'Paths')][string[]]$Path,
+		[Parameter(Mandatory = $true, ParameterSetName = 'literal-path', ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][string[]]$LiteralPath
 	)
 	begin {}
 	process {
-		$Path | ForEach-Object -Process {
-			return ([string[]](Resolve-Path -Path $_ -Relative) | Where-Object -FilterScript {
-				return (($null -ne $_) -and ($_.Length -gt 0))
-			} | ForEach-Object -Process {
-				return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
-			})
+		switch ($PSCmdlet.ParameterSetName) {
+			'path' {
+				$Path | ForEach-Object -Process {
+					return ([string[]](Resolve-Path -Path $_ -Relative) | Where-Object -FilterScript {
+						return (($null -ne $_) -and ($_.Length -gt 0))
+					} | ForEach-Object -Process {
+						return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
+					})
+				}
+				break
+			}
+			'literal-path' {
+				$LiteralPath | ForEach-Object -Process {
+					return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
+				}
+				break
+			}
 		}
 	}
 	end {
@@ -257,6 +271,8 @@ GitHub Actions - Add Step Summary
 Add some GitHub flavored Markdown for step so that it will be displayed on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures. When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
 .PARAMETER Value
 Content.
+.PARAMETER NoNewLine
+Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 Void
 #>
@@ -264,7 +280,8 @@ function Add-GitHubActionsStepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
-		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @('')
+		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @(''),
+		[switch]$NoNewLine
 	)
 	begin {
 		[string[]]$Result = @()
@@ -274,7 +291,7 @@ function Add-GitHubActionsStepSummary {
 	}
 	end {
 		if ($Result.Count -gt 0) {
-			Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
+			Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$false -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
 		return
 	}
@@ -749,6 +766,25 @@ Set-Alias -Name 'Restore-GHActionsState' -Value 'Get-GitHubActionsState' -Option
 Set-Alias -Name 'Restore-GitHubActionsState' -Value 'Get-GitHubActionsState' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Get Step Summary
+.DESCRIPTION
+Get step summary that added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+.PARAMETER Raw
+Ignore newline characters and return the entire contents of a file in one string with the newlines preserved. By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
+.OUTPUTS
+String | String[]
+#>
+function Get-GitHubActionsStepSummary {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
+	[OutputType(([string], [string[]]))]
+	param (
+		[switch]$Raw
+	)
+	return Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM'
+}
+Set-Alias -Name 'Get-GHActionsStepSummary' -Value 'Get-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Get Webhook Event Payload
 .DESCRIPTION
 Get the complete webhook event payload.
@@ -769,7 +805,7 @@ function Get-GitHubActionsWebhookEventPayload {
 		[int]$Depth = 1024,
 		[switch]$NoEnumerate
 	)
-	return (Get-Content -Path $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
+	return (Get-Content -LiteralPath $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
 }
 Set-Alias -Name 'Get-GHActionsEvent' -Value 'Get-GitHubActionsWebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-GHActionsPayload' -Value 'Get-GitHubActionsWebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
@@ -819,7 +855,7 @@ function Remove-GitHubActionsStepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param ()
-	return Remove-Item -Path $env:GITHUB_STEP_SUMMARY
+	return Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY -Confirm:$false
 }
 Set-Alias -Name 'Remove-GHActionsStepSummary' -Value 'Remove-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -931,6 +967,8 @@ GitHub Actions - Set Step Summary
 Set some GitHub flavored Markdown for step so that it will be displayed on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures. When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
 .PARAMETER Value
 Content.
+.PARAMETER NoNewLine
+Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 Void
 #>
@@ -938,7 +976,8 @@ function Set-GitHubActionsStepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
-		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @('')
+		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @(''),
+		[switch]$NoNewLine
 	)
 	begin {
 		[string[]]$Result = @()
@@ -948,7 +987,7 @@ function Set-GitHubActionsStepSummary {
 	}
 	end {
 		if ($Result.Count -gt 0) {
-			Set-Content -Path $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Encoding 'UTF8NoBOM'
+			Set-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$false -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
 		return
 	}
@@ -1300,6 +1339,7 @@ Export-ModuleMember -Function @(
 	'Get-GitHubActionsInput',
 	'Get-GitHubActionsIsDebug',
 	'Get-GitHubActionsState',
+	'Get-GitHubActionsStepSummary',
 	'Get-GitHubActionsWebhookEventPayload',
 	'Remove-GitHubActionsProblemMatcher',
 	'Remove-GitHubActionsStepSummary',
@@ -1398,6 +1438,7 @@ Export-ModuleMember -Function @(
 	'Get-GHActionsIsDebug',
 	'Get-GHActionsPayload',
 	'Get-GHActionsState',
+	'Get-GHActionsStepSummary',
 	'Get-GHActionsWebhookEvent',
 	'Get-GHActionsWebhookEventPayload',
 	'Get-GHActionsWebhookPayload',
