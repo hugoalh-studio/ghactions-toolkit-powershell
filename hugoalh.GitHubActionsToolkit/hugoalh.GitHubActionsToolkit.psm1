@@ -579,16 +579,10 @@ function Get-GitHubActionsInput {
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidateScript({
-			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
-		})][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$')][Alias('Key')][string]$Name,
 		[Parameter(ParameterSetName = 'one')][Alias('Force', 'Forced', 'Required')][switch]$Require,
-		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidateScript({
-			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
-		})][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidateScript({
-			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
-		})][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
@@ -609,7 +603,7 @@ function Get-GitHubActionsInput {
 				break
 			}
 			'one' {
-				$InputValue = Get-ChildItem -LiteralPath "Env:\INPUT_$Name" -ErrorAction 'SilentlyContinue'
+				$InputValue = Get-ChildItem -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				if ($null -eq $InputValue) {
 					if ($Require) {
 						return Write-GitHubActionsFail -Message "Input ``$Name`` is not defined!"
@@ -622,7 +616,7 @@ function Get-GitHubActionsInput {
 				return $InputValue.Value
 			}
 			'prefix' {
-				Get-ChildItem -Path "Env:\INPUT_$NamePrefix*" | ForEach-Object -Process {
+				Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*" | ForEach-Object -Process {
 					[string]$InputKey = $_.Name -replace "^INPUT_$([regex]::Escape($NamePrefix))", ''
 					if ($Trim) {
 						$OutputObject[$InputKey] = $_.Value.Trim()
@@ -633,7 +627,7 @@ function Get-GitHubActionsInput {
 				break
 			}
 			'suffix' {
-				Get-ChildItem -Path "Env:\INPUT_*$NameSuffix" | ForEach-Object -Process {
+				Get-ChildItem -Path "Env:\INPUT_*$($NameSuffix.ToUpper())" | ForEach-Object -Process {
 					[string]$InputKey = $_.Name -replace "^INPUT_|$([regex]::Escape($NameSuffix))$", ''
 					if ($Trim) {
 						$OutputObject[$InputKey] = $_.Value.Trim()
@@ -693,15 +687,9 @@ function Get-GitHubActionsState {
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidateScript({
-			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
-		})][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidateScript({
-			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
-		})][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidateScript({
-			return (($_ -match '^.+$') -and ([WildcardPattern]::ContainsWildcardCharacters($_) -eq $false))
-		})][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
@@ -722,7 +710,7 @@ function Get-GitHubActionsState {
 				break
 			}
 			'one' {
-				$StateValue = Get-ChildItem -LiteralPath "Env:\STATE_$Name" -ErrorAction 'SilentlyContinue'
+				$StateValue = Get-ChildItem -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				if ($null -eq $StateValue) {
 					return $null
 				}
@@ -732,7 +720,7 @@ function Get-GitHubActionsState {
 				return $StateValue.Value
 			}
 			'prefix' {
-				Get-ChildItem -Path "Env:\STATE_$NamePrefix*" | ForEach-Object -Process {
+				Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*" | ForEach-Object -Process {
 					[string]$StateKey = $_.Name -replace "^STATE_$([regex]::Escape($NamePrefix))", ''
 					if ($Trim) {
 						$OutputObject[$StateKey] = $_.Value.Trim()
@@ -743,7 +731,7 @@ function Get-GitHubActionsState {
 				break
 			}
 			'suffix' {
-				Get-ChildItem -Path "Env:\STATE_*$NameSuffix" | ForEach-Object -Process {
+				Get-ChildItem -Path "Env:\STATE_*$($NameSuffix.ToUpper())" | ForEach-Object -Process {
 					[string]$StateKey = $_.Name -replace "^STATE_|$([regex]::Escape($NameSuffix))$", ''
 					if ($Trim) {
 						$OutputObject[$StateKey] = $_.Value.Trim()
