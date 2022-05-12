@@ -634,7 +634,7 @@ function Get-GitHubActionsInput {
 			}
 			'suffix' {
 				Get-ChildItem -Path "Env:\INPUT_*$NameSuffix" | ForEach-Object -Process {
-					[string]$InputKey = $_.Name -replace '^INPUT_', '' -replace "$([regex]::Escape($NameSuffix))$", ''
+					[string]$InputKey = $_.Name -replace "^INPUT_|$([regex]::Escape($NameSuffix))$", ''
 					if ($Trim) {
 						$OutputObject[$InputKey] = $_.Value.Trim()
 					} else {
@@ -744,7 +744,7 @@ function Get-GitHubActionsState {
 			}
 			'suffix' {
 				Get-ChildItem -Path "Env:\STATE_*$NameSuffix" | ForEach-Object -Process {
-					[string]$StateKey = $_.Name -replace '^STATE_', '' -replace "$([regex]::Escape($NameSuffix))$", ''
+					[string]$StateKey = $_.Name -replace "^STATE_|$([regex]::Escape($NameSuffix))$", ''
 					if ($Trim) {
 						$OutputObject[$StateKey] = $_.Value.Trim()
 					} else {
