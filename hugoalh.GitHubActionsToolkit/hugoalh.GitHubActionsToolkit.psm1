@@ -609,10 +609,10 @@ function Get-GitHubActionsInput {
 				break
 			}
 			'one' {
-				$InputValue = Get-ChildItem -Path "Env:\INPUT_$Name" -ErrorAction 'SilentlyContinue'
+				$InputValue = Get-ChildItem -LiteralPath "Env:\INPUT_$Name" -ErrorAction 'SilentlyContinue'
 				if ($null -eq $InputValue) {
 					if ($Require) {
-						throw "Input ``$Name`` is not defined!"
+						return Write-GitHubActionsFail -Message "Input ``$Name`` is not defined!"
 					}
 					return $null
 				}
@@ -722,7 +722,7 @@ function Get-GitHubActionsState {
 				break
 			}
 			'one' {
-				$StateValue = Get-ChildItem -Path "Env:\STATE_$Name" -ErrorAction 'SilentlyContinue'
+				$StateValue = Get-ChildItem -LiteralPath "Env:\STATE_$Name" -ErrorAction 'SilentlyContinue'
 				if ($null -eq $StateValue) {
 					return $null
 				}
@@ -1052,7 +1052,7 @@ function Test-GitHubActionsEnvironment {
 		($null -eq $env:RUNNER_TOOL_CACHE)
 	) {
 		if ($Require) {
-			throw 'This process require to execute inside the GitHub Actions environment!'
+			return Write-GitHubActionsFail -Message 'This process require to execute inside the GitHub Actions environment!'
 		}
 		return $false
 	}
