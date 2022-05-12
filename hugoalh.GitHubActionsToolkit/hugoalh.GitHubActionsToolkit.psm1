@@ -771,16 +771,27 @@ GitHub Actions - Get Step Summary
 Get step summary that added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
 .PARAMETER Raw
 Ignore newline characters and return the entire contents of a file in one string with the newlines preserved. By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
+.PARAMETER Sizes
+Get step summary sizes instead of the content.
 .OUTPUTS
-String | String[]
+String | String[] | UInt
 #>
 function Get-GitHubActionsStepSummary {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
-	[OutputType(([string], [string[]]))]
+	[CmdletBinding(DefaultParameterSetName = 'content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
+	[OutputType(([string], [string[]]), ParameterSetName = 'content')]
+	[OutputType([uint], ParameterSetName = 'sizes')]
 	param (
-		[switch]$Raw
+		[Parameter(ParameterSetName = 'content')][switch]$Raw,
+		[Parameter(Mandatory = $true, ParameterSetName = 'sizes')][Alias('Size')][switch]$Sizes
 	)
-	return Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM'
+	switch ($PSCmdlet.ParameterSetName) {
+		'content' {
+			return Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM'
+		}
+		'sizes' {
+			return (Get-ChildItem -LiteralPath $env:GITHUB_STEP_SUMMARY).Length
+		}
+	}
 }
 Set-Alias -Name 'Get-GHActionsStepSummary' -Value 'Get-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
 <#
