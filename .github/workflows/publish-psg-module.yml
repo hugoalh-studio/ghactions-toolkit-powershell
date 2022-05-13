@@ -19,9 +19,7 @@ jobs:
         shell: "pwsh"
       - name: "Setup PowerShellGet"
         run: |
-          if (Get-InstalledModule -Name 'PowerShellGet' -MinimumVersion '2.2.5' -ErrorAction SilentlyContinue) {} else {
-            Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Scope 'AllUsers' -AcceptLicense -Verbose
-          }
+          Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Scope 'AllUsers' -AcceptLicense -Verbose
         shell: "pwsh"
       - name: "Update PowerShell Modules"
         run: |
