@@ -26,7 +26,7 @@ function Format-GitHubActionsCommand {
 	[CmdletBinding()]
 	[OutputType([string])]
 	param(
-		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][string]$InputObject = '',
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][Alias('Input', 'Object')][string]$InputObject,
 		[Alias('Properties')][switch]$Property
 	)
 	begin {}
@@ -240,7 +240,7 @@ function Add-GitHubActionsSecretMask {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
 	[OutputType([void])]
 	param(
-		[Parameter(Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][Alias('Key', 'Secret', 'Token')][string]$Value = '',
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
 		[Alias('WithChunk')][switch]$WithChunks
 	)
 	begin {}
@@ -280,14 +280,16 @@ function Add-GitHubActionsStepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
-		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @(''),
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][string[]]$Value,
 		[switch]$NoNewLine
 	)
 	begin {
 		[string[]]$Result = @()
 	}
 	process {
-		$Result += $Value -join "`n"
+		if ($Value.Count -gt 0) {
+			$Result += $Value -join "`n"
+		}
 	}
 	end {
 		if ($Result.Count -gt 0) {
@@ -877,7 +879,7 @@ function Set-GitHubActionsOutput {
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value = ''
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
 	)
 	begin {}
 	process {
@@ -927,7 +929,7 @@ function Set-GitHubActionsState {
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
-		[Parameter(ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][string]$Value = ''
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
 	)
 	begin {}
 	process {
@@ -975,14 +977,16 @@ function Set-GitHubActionsStepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
-		[Parameter(Position = 0, ValueFromPipeline = $true)][Alias('Content')][string[]]$Value = @(''),
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][string[]]$Value,
 		[switch]$NoNewLine
 	)
 	begin {
 		[string[]]$Result = @()
 	}
 	process {
-		$Result += $Value -join "`n"
+		if ($Value.Count -gt 0) {
+			$Result += $Value -join "`n"
+		}
 	}
 	end {
 		if ($Result.Count -gt 0) {
@@ -1075,7 +1079,7 @@ function Write-GitHubActionsAnnotation {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsannotation#Write-GitHubActionsAnnotation')]
 	[OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][GitHubActionsAnnotationType]$Type,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ArgumentCompletions('Error', 'Note', 'Notice', 'Warn', 'Warning')][GitHubActionsAnnotationType]$Type,
 		[Parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
