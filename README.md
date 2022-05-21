@@ -28,7 +28,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 
 #### Install
 
-PowerShell (>= v7.2.0):
+- PowerShell >= v7.2.0
 
 ```ps1
 Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
