@@ -204,7 +204,7 @@ function Add-GitHubActionsProblemMatcher {
 			'path' {
 				$Path | ForEach-Object -Process {
 					return ([string[]](Resolve-Path -Path $_ -Relative) | Where-Object -FilterScript {
-						return (($null -ne $_) -and ($_.Length -gt 0))
+						return ($null -ne $_ -and $_.Length -gt 0)
 					} | ForEach-Object -Process {
 						return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
 					})
@@ -250,7 +250,7 @@ function Add-GitHubActionsSecretMask {
 		}
 		if ($WithChunks) {
 			[string[]]($Value -split '[\n\r\s\t]+') | ForEach-Object -Process {
-				if (($_ -ne $Value) -and ($_.Length -ge 2)) {
+				if ($_ -ne $Value -and $_.Length -ge 2) {
 					Write-GitHubActionsCommand -Command 'add-mask' -Message $_
 				}
 			}
@@ -359,7 +359,7 @@ function Disable-GitHubActionsProcessingCommands {
 	[OutputType([string])]
 	param(
 		[Parameter(Position = 0)][ValidateScript({
-			return (($_ -match '^.+$') -and ($_.Length -ge 4) -and ($_ -inotin @(
+			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin @(
 				'add-mask',
 				'add-matcher',
 				'debug',
@@ -372,7 +372,7 @@ function Disable-GitHubActionsProcessingCommands {
 				'save-state',
 				'set-output',
 				'warning'
-			)))
+			))
 		})][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Message $EndToken
@@ -469,7 +469,7 @@ function Enable-GitHubActionsProcessingCommands {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
-			return (($_ -match '^.+$') -and ($_.Length -ge 4) -and ($_ -inotin @(
+			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin @(
 				'add-mask',
 				'add-matcher',
 				'debug',
@@ -482,7 +482,7 @@ function Enable-GitHubActionsProcessingCommands {
 				'save-state',
 				'set-output',
 				'warning'
-			)))
+			))
 		})][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
 	)
 	return Write-GitHubActionsCommand -Command $EndToken
@@ -1011,37 +1011,37 @@ function Test-GitHubActionsEnvironment {
 		[Alias('Force', 'Forced', 'Required')][switch]$Require
 	)
 	if (
-		($env:CI -ne 'true') -or
-		($null -eq $env:GITHUB_ACTION_REPOSITORY) -or
-		($null -eq $env:GITHUB_ACTION) -or
-		($null -eq $env:GITHUB_ACTIONS) -or
-		($null -eq $env:GITHUB_ACTOR) -or
-		($null -eq $env:GITHUB_API_URL) -or
-		($null -eq $env:GITHUB_ENV) -or
-		($null -eq $env:GITHUB_EVENT_NAME) -or
-		($null -eq $env:GITHUB_EVENT_PATH) -or
-		($null -eq $env:GITHUB_GRAPHQL_URL) -or
-		($null -eq $env:GITHUB_JOB) -or
-		($null -eq $env:GITHUB_PATH) -or
-		($null -eq $env:GITHUB_REF_NAME) -or
-		($null -eq $env:GITHUB_REF_PROTECTED) -or
-		($null -eq $env:GITHUB_REF_TYPE) -or
-		($null -eq $env:GITHUB_REPOSITORY_OWNER) -or
-		($null -eq $env:GITHUB_REPOSITORY) -or
-		($null -eq $env:GITHUB_RETENTION_DAYS) -or
-		($null -eq $env:GITHUB_RUN_ATTEMPT) -or
-		($null -eq $env:GITHUB_RUN_ID) -or
-		($null -eq $env:GITHUB_RUN_NUMBER) -or
-		($null -eq $env:GITHUB_SERVER_URL) -or
-		($null -eq $env:GITHUB_SHA) -or
-		($null -eq $env:GITHUB_STEP_SUMMARY) -or
-		($null -eq $env:GITHUB_WORKFLOW) -or
-		($null -eq $env:GITHUB_WORKSPACE) -or
-		($null -eq $env:RUNNER_ARCH) -or
-		($null -eq $env:RUNNER_NAME) -or
-		($null -eq $env:RUNNER_OS) -or
-		($null -eq $env:RUNNER_TEMP) -or
-		($null -eq $env:RUNNER_TOOL_CACHE)
+		$env:CI -ne 'true' -or
+		$null -eq $env:GITHUB_ACTION_REPOSITORY -or
+		$null -eq $env:GITHUB_ACTION -or
+		$null -eq $env:GITHUB_ACTIONS -or
+		$null -eq $env:GITHUB_ACTOR -or
+		$null -eq $env:GITHUB_API_URL -or
+		$null -eq $env:GITHUB_ENV -or
+		$null -eq $env:GITHUB_EVENT_NAME -or
+		$null -eq $env:GITHUB_EVENT_PATH -or
+		$null -eq $env:GITHUB_GRAPHQL_URL -or
+		$null -eq $env:GITHUB_JOB -or
+		$null -eq $env:GITHUB_PATH -or
+		$null -eq $env:GITHUB_REF_NAME -or
+		$null -eq $env:GITHUB_REF_PROTECTED -or
+		$null -eq $env:GITHUB_REF_TYPE -or
+		$null -eq $env:GITHUB_REPOSITORY_OWNER -or
+		$null -eq $env:GITHUB_REPOSITORY -or
+		$null -eq $env:GITHUB_RETENTION_DAYS -or
+		$null -eq $env:GITHUB_RUN_ATTEMPT -or
+		$null -eq $env:GITHUB_RUN_ID -or
+		$null -eq $env:GITHUB_RUN_NUMBER -or
+		$null -eq $env:GITHUB_SERVER_URL -or
+		$null -eq $env:GITHUB_SHA -or
+		$null -eq $env:GITHUB_STEP_SUMMARY -or
+		$null -eq $env:GITHUB_WORKFLOW -or
+		$null -eq $env:GITHUB_WORKSPACE -or
+		$null -eq $env:RUNNER_ARCH -or
+		$null -eq $env:RUNNER_NAME -or
+		$null -eq $env:RUNNER_OS -or
+		$null -eq $env:RUNNER_TEMP -or
+		$null -eq $env:RUNNER_TOOL_CACHE
 	) {
 		if ($Require) {
 			return Write-GitHubActionsFail -Message 'This process require to execute inside the GitHub Actions environment!'
