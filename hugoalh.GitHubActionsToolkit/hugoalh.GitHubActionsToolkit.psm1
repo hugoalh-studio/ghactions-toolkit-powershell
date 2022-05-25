@@ -1,14 +1,14 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
 enum GitHubActionsAnnotationType {
-	Notice = 0
-	N = 0
-	Note = 0
-	Warning = 1
-	W = 1
-	Warn = 1
-	Error = 2
-	E = 2
+	E
+	Error
+	N
+	Note
+	Notice
+	W
+	Warn
+	Warning
 }
 <#
 .SYNOPSIS
@@ -58,7 +58,7 @@ function Write-GitHubActionsCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionscommand#Write-GitHubActionsCommand')]
 	[OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][string]$Command,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'GitHub Actions command must be in single line string!')][string]$Command,
 		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message = '',
 		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $true)][Alias('Properties')][hashtable]$Property = @{}
 	)
@@ -93,8 +93,8 @@ function Add-GitHubActionsEnvironmentVariable {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require environment variable name pattern!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Environment variable value must be in single line string!')][string]$Value
 	)
 	begin {
 		[hashtable]$Result = @{}
@@ -104,13 +104,13 @@ function Add-GitHubActionsEnvironmentVariable {
 			'multiple' {
 				$InputObject.GetEnumerator() | ForEach-Object -Process {
 					if ($_.Name.GetType().Name -ne 'string') {
-						Write-Error -Message "Environment variable name `"$($_.Name)`" must be type of string!" -Category 'InvalidType'
+						Write-Error -Message 'Environment variable name must be type of string!' -Category 'InvalidType'
 					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "Environment variable name `"$($_.Name)`" is not match the require pattern!" -Category 'SyntaxError'
+						Write-Error -Message "``$($_.Name)`` is not match the require environment variable name pattern!" -Category 'SyntaxError'
 					} elseif ($_.Value.GetType().Name -ne 'string') {
-						Write-Error -Message "Environment variable value `"$($_.Value)`" must be type of string!" -Category 'InvalidType'
+						Write-Error -Message 'Environment variable value must be type of string!' -Category 'InvalidType'
 					} elseif ($_.Value -notmatch '^.+$') {
-						Write-Error -Message "Environment variable value `"$($_.Value)`" is not match the require pattern!" -Category 'SyntaxError'
+						Write-Error -Message 'Environment variable value must be in single line string!' -Category 'SyntaxError'
 					} else {
 						$Result[$_.Name] = $_.Value
 					}
@@ -153,7 +153,7 @@ function Add-GitHubActionsPATH {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionspath#Add-GitHubActionsPATH')]
 	[OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Paths')][string[]]$Path,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'PATH must be in single line string!')][Alias('Paths')][string[]]$Path,
 		[Alias('NoValidate', 'SkipValidate', 'SkipValidator')][switch]$NoValidator
 	)
 	begin {
@@ -167,7 +167,7 @@ function Add-GitHubActionsPATH {
 			) {
 				$Result += $_
 			} else {
-				Write-Error -Message "Path `"$_`" is not match the require path pattern!" -Category 'SyntaxError'
+				Write-Error -Message "``$_`` is not match the require PATH pattern!" -Category 'SyntaxError'
 			}
 		}
 	}
@@ -195,8 +195,8 @@ function Add-GitHubActionsProblemMatcher {
 	[CmdletBinding(DefaultParameterSetName = 'path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
 	[OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, ParameterSetName = 'path', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$')][Alias('File', 'Files', 'Paths')][string[]]$Path,
-		[Parameter(Mandatory = $true, ParameterSetName = 'literal-path', ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][string[]]$LiteralPath
+		[Parameter(Mandatory = $true, ParameterSetName = 'path', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$', ErrorMessage = 'GitHub Actions problem matcher path must be in single line string!')][Alias('File', 'Files', 'Paths')][string[]]$Path,
+		[Parameter(Mandatory = $true, ParameterSetName = 'literal-path', ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Problem matcher literal path must be in single line string!')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][string[]]$LiteralPath
 	)
 	begin {}
 	process {
@@ -373,7 +373,7 @@ function Disable-GitHubActionsProcessingCommands {
 				'set-output',
 				'warning'
 			))
-		})][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
+		}, ErrorMessage = 'GitHub Actions disable processing commands end token must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Message $EndToken
 	return $EndToken
@@ -483,7 +483,7 @@ function Enable-GitHubActionsProcessingCommands {
 				'set-output',
 				'warning'
 			))
-		})][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
+		}, ErrorMessage = 'GitHub Actions enable processing commands end token must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
 	)
 	return Write-GitHubActionsCommand -Command $EndToken
 }
@@ -532,7 +532,7 @@ function Enter-GitHubActionsLogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enter-githubactionsloggroup#Enter-GitHubActionsLogGroup')]
 	[OutputType([void])]
 	param(
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$')][Alias('Header', 'Message')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'GitHub Actions log group title must be in single line string!')][Alias('Header', 'Message')][string]$Title
 	)
 	return Write-GitHubActionsCommand -Command 'group' -Message $Title
 }
@@ -581,10 +581,10 @@ function Get-GitHubActionsInput {
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name pattern!')][Alias('Key')][string]$Name,
 		[Parameter(ParameterSetName = 'one')][Alias('Force', 'Forced', 'Required')][switch]$Require,
-		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name prefix pattern!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name suffix pattern!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
@@ -689,9 +689,9 @@ function Get-GitHubActionsState {
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name pattern!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name prefix pattern!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name suffix pattern!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
@@ -831,7 +831,7 @@ function Remove-GitHubActionsProblemMatcher {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsproblemmatcher#Remove-GitHubActionsProblemMatcher')]
 	[OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][ValidatePattern('^.+$')][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][ValidatePattern('^.+$', ErrorMessage = 'GitHub Actions problem matcher owner must be in single line string!')][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
 	)
 	begin {}
 	process {
@@ -878,7 +878,7 @@ function Set-GitHubActionsOutput {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions output name pattern!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
 	)
 	begin {}
@@ -887,11 +887,11 @@ function Set-GitHubActionsOutput {
 			'multiple' {
 				$InputObject.GetEnumerator() | ForEach-Object -Process {
 					if ($_.Name.GetType().Name -ne 'string') {
-						Write-Error -Message "Output name `"$($_.Name)`" must be type of string!" -Category InvalidType
-					} elseif ($_.Name -notmatch '^.+$') {
-						Write-Error -Message "Output name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+						Write-Error -Message 'GitHub Actions output name must be type of string!' -Category InvalidType
+					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+						Write-Error -Message "``$($_.Name)`` is not match the require GitHub Actions output name pattern!" -Category SyntaxError
 					} elseif ($_.Value.GetType().Name -ne 'string') {
-						Write-Error -Message "Output value `"$($_.Value)`" must be type of string!" -Category InvalidType
+						Write-Error -Message 'GitHub Actions output value must be type of string!' -Category InvalidType
 					} else {
 						Write-GitHubActionsCommand -Command 'set-output' -Message $_.Value -Property @{ 'name' = $_.Name }
 					}
@@ -928,7 +928,7 @@ function Set-GitHubActionsState {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name pattern!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
 	)
 	begin {}
@@ -937,11 +937,11 @@ function Set-GitHubActionsState {
 			'multiple' {
 				$InputObject.GetEnumerator() | ForEach-Object -Process {
 					if ($_.Name.GetType().Name -ne 'string') {
-						Write-Error -Message "State name `"$($_.Name)`" must be type of string!" -Category InvalidType
-					} elseif ($_.Name -notmatch '^.+$') {
-						Write-Error -Message "State name `"$($_.Name)`" is not match the require pattern!" -Category SyntaxError
+						Write-Error -Message 'State name must be type of string!' -Category InvalidType
+					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+						Write-Error -Message "``$($_.Name)`` is not match the require GitHub Actions state name pattern!" -Category SyntaxError
 					} elseif ($_.Value.GetType().Name -ne 'string') {
-						Write-Error -Message "State value `"$($_.Value)`" must be type of string!" -Category InvalidType
+						Write-Error -Message 'State value must be type of string!' -Category InvalidType
 					} else {
 						Write-GitHubActionsCommand -Command 'save-state' -Message $_.Value -Property @{ 'name' = $_.Name }
 					}
@@ -1079,29 +1079,29 @@ function Write-GitHubActionsAnnotation {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsannotation#Write-GitHubActionsAnnotation')]
 	[OutputType([void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ArgumentCompletions('Error', 'Note', 'Notice', 'Warn', 'Warning')][GitHubActionsAnnotationType]$Type,
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][GitHubActionsAnnotationType]$Type,
 		[Parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions annotation issue file must be in single line string!')][Alias('Path')][string]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions annotation title must be in single line string!')][Alias('Header')][string]$Title
 	)
 	begin {}
 	process {
 		[string]$TypeRaw = ''
-		switch ($Type.GetHashCode()) {
-			0 {
+		switch ($Type) {
+			{$_ -match '^e(?:rror)?$'} {
+				$TypeRaw = 'error'
+				break
+			}
+			{$_ -match '^n(?:ot(?:ic)?e)?$'} {
 				$TypeRaw = 'notice'
 				break
 			}
-			1 {
+			{$_ -match '^w(?:arn(?:ing)?)?$'} {
 				$TypeRaw = 'warning'
-				break
-			}
-			2 {
-				$TypeRaw = 'error'
 				break
 			}
 		}
@@ -1183,12 +1183,12 @@ function Write-GitHubActionsError {
 	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions error annotation issue file must be in single line string!')][Alias('Path')][string]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions error annotation title must be in single line string!')][Alias('Header')][string]$Title
 	)
 	begin {}
 	process {
@@ -1226,12 +1226,12 @@ function Write-GitHubActionsFail {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][string]$Message,
-		[ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions error annotation issue file must be in single line string!')][Alias('Path')][string]$File,
 		[Alias('LineStart', 'StartLine')][uint]$Line,
 		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
 		[Alias('LineEnd')][uint]$EndLine,
 		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions error annotation title must be in single line string!')][Alias('Header')][string]$Title
 	)
 	Write-GitHubActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	exit 1
@@ -1264,12 +1264,12 @@ function Write-GitHubActionsNotice {
 	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions notice annotation issue file must be in single line string!')][Alias('Path')][string]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions notice annotation title must be in single line string!')][Alias('Header')][string]$Title
 	)
 	begin {}
 	process {
@@ -1309,12 +1309,12 @@ function Write-GitHubActionsWarning {
 	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Path')][string]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions warning annotation issue file must be in single line string!')][Alias('Path')][string]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$')][Alias('Header')][string]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'GitHub Actions warning annotation title must be in single line string!')][Alias('Header')][string]$Title
 	)
 	begin {}
 	process {
