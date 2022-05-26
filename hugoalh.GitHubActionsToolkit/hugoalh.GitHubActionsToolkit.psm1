@@ -937,11 +937,11 @@ function Set-GitHubActionsState {
 			'multiple' {
 				$InputObject.GetEnumerator() | ForEach-Object -Process {
 					if ($_.Name.GetType().Name -ne 'string') {
-						Write-Error -Message 'State name must be type of string!' -Category InvalidType
+						Write-Error -Message 'GitHub Actions state name must be type of string!' -Category InvalidType
 					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
 						Write-Error -Message "``$($_.Name)`` is not match the require GitHub Actions state name pattern!" -Category SyntaxError
 					} elseif ($_.Value.GetType().Name -ne 'string') {
-						Write-Error -Message 'State value must be type of string!' -Category InvalidType
+						Write-Error -Message 'GitHub Actions state value must be type of string!' -Category InvalidType
 					} else {
 						Write-GitHubActionsCommand -Command 'save-state' -Message $_.Value -Property @{ 'name' = $_.Name }
 					}
