@@ -21,7 +21,7 @@
 	Copyright = 'MIT © 2021~2022 hugoalh Studio'
 
 	# Description of the functionality provided by this module
-	Description = 'Provide a better and easier way for GitHub Actions to communicate with the runner machine.'
+	Description = 'Provide a better and easier way for GitHub Actions to communicate with the runner machine, and the toolkit for developing GitHub Actions in PowerShell.'
 
 	# Minimum version of the PowerShell engine required by this module
 	PowerShellVersion = '7.2'
