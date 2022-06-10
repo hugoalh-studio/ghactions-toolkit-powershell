@@ -202,12 +202,8 @@ function Add-GitHubActionsProblemMatcher {
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
 			'path' {
-				$Path | ForEach-Object -Process {
-					return ([string[]](Resolve-Path -Path $_ -Relative) | Where-Object -FilterScript {
-						return ($null -ne $_ -and $_.Length -gt 0)
-					} | ForEach-Object -Process {
-						return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
-					})
+				[string[]](Resolve-Path -Path $Path -Relative) | ForEach-Object -Process {
+					return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
 				}
 				break
 			}
