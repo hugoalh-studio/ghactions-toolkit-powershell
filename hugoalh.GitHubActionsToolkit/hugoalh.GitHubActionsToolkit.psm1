@@ -677,24 +677,18 @@ function Get-GitHubActionsOidcToken {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsoidctoken#Get-GitHubActionsOidcToken')]
 	[OutputType([string])]
 	param (
-		[Parameter(Position = 0)][AllowNull()][string]$Audience
+		[Parameter(Position = 0)][string]$Audience
 	)
 	[string]$OidcTokenRequestToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
 	[string]$OidcTokenRequestURL = $env:ACTIONS_ID_TOKEN_REQUEST_URL
-	if (
-		$null -eq $OidcTokenRequestToken -or
-		$OidcTokenRequestToken.Length -eq 0
-	) {
+	if ($OidcTokenRequestToken.Length -eq 0) {
 		return Write-Error -Message 'Unable to get GitHub Actions OIDC token request token!' -Category 'ResourceUnavailable'
 	}
 	Add-GitHubActionsSecretMask -Value $OidcTokenRequestToken
-	if (
-		$null -eq $OidcTokenRequestURL -or
-		$OidcTokenRequestURL.Length -eq 0
-	) {
+	if ($OidcTokenRequestURL.Length -eq 0) {
 		return Write-Error -Message 'Unable to get GitHub Actions OIDC token request URL!' -Category 'ResourceUnavailable'
 	}
-	if ($null -ne $Audience -and $Audience.Length -gt 0) {
+	if ($Audience.Length -gt 0) {
 		Add-GitHubActionsSecretMask -Value $Audience
 		[string]$AudienceEncode = [System.Web.HttpUtility]::UrlEncode($Audience)
 		Add-GitHubActionsSecretMask -Value $AudienceEncode
