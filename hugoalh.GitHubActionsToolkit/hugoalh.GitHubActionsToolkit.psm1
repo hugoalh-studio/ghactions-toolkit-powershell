@@ -579,6 +579,7 @@ function Get-GitHubActionsInput {
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name pattern!')][Alias('Key')][string]$Name,
 		[Parameter(ParameterSetName = 'one')][Alias('Force', 'Forced', 'Required')][switch]$Require,
+		[Parameter(ParameterSetName = 'one')][Alias('ErrorMessage', 'FailMessage', 'RequireErrorMessage')][string]$RequireFailMessage = 'Input `{0}` is not defined!',
 		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name prefix pattern!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
 		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name suffix pattern!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
@@ -604,7 +605,7 @@ function Get-GitHubActionsInput {
 				$InputValue = Get-ChildItem -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				if ($null -eq $InputValue) {
 					if ($Require) {
-						return Write-GitHubActionsFail -Message "Input ``$Name`` is not defined!"
+						return Write-GitHubActionsFail -Message ($RequireFailMessage -f $Name)
 					}
 					return $null
 				}
