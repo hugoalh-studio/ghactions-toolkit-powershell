@@ -93,7 +93,7 @@ function Add-GitHubActionsEnvironmentVariable {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require environment variable name pattern!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][string]$Value
 	)
 	begin {
@@ -106,7 +106,7 @@ function Add-GitHubActionsEnvironmentVariable {
 					if ($_.Name.GetType().Name -ne 'string') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
 					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($_.Name)`` is not match the require environment variable name pattern!" -Category 'SyntaxError'
+						Write-Error -Message "``$($_.Name)`` is not a valid environment variable name!" -Category 'SyntaxError'
 					} elseif ($_.Value.GetType().Name -ne 'string') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
 					} elseif ($_.Value -notmatch '^.+$') {
@@ -167,7 +167,7 @@ function Add-GitHubActionsPATH {
 			) {
 				$Result += $_
 			} else {
-				Write-Error -Message "``$_`` is not match the require PATH pattern!" -Category 'SyntaxError'
+				Write-Error -Message "``$_`` is not a valid PATH!" -Category 'SyntaxError'
 			}
 		}
 	}
@@ -577,11 +577,11 @@ function Get-GitHubActionsInput {
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name pattern!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][string]$Name,
 		[Parameter(ParameterSetName = 'one')][Alias('Force', 'Forced', 'Required')][switch]$Require,
 		[Parameter(ParameterSetName = 'one')][Alias('ErrorMessage', 'FailMessage', 'RequireErrorMessage')][string]$RequireFailMessage = 'Input `{0}` is not defined!',
-		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name prefix pattern!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions input name suffix pattern!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
@@ -729,9 +729,9 @@ function Get-GitHubActionsState {
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
 	param(
-		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name pattern!')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name prefix pattern!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name suffix pattern!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
+		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
 		[Parameter(ParameterSetName = 'all')][switch]$All,
 		[switch]$Trim
 	)
@@ -918,7 +918,7 @@ function Set-GitHubActionsOutput {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions output name pattern!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
 	)
 	begin {}
@@ -929,7 +929,7 @@ function Set-GitHubActionsOutput {
 					if ($_.Name.GetType().Name -ne 'string') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category InvalidType
 					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($_.Name)`` is not match the require GitHub Actions output name pattern!" -Category SyntaxError
+						Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions output name!" -Category SyntaxError
 					} elseif ($_.Value.GetType().Name -ne 'string') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category InvalidType
 					} else {
@@ -968,7 +968,7 @@ function Set-GitHubActionsState {
 	[OutputType([void])]
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not match the require GitHub Actions state name pattern!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
 	)
 	begin {}
@@ -979,7 +979,7 @@ function Set-GitHubActionsState {
 					if ($_.Name.GetType().Name -ne 'string') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category InvalidType
 					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($_.Name)`` is not match the require GitHub Actions state name pattern!" -Category SyntaxError
+						Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions state name!" -Category SyntaxError
 					} elseif ($_.Value.GetType().Name -ne 'string') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category InvalidType
 					} else {
