@@ -561,6 +561,8 @@ Get input.
 Name of the input.
 .PARAMETER Require
 Whether the input is require; If required and not present, will throw an error.
+.PARAMETER RequireFailMessage
+The error message when the input is required and not present.
 .PARAMETER NamePrefix
 Name of the inputs start with.
 .PARAMETER NameSuffix
