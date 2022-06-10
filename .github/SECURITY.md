@@ -14,8 +14,8 @@
 | **Tag / Version** | **Target** | **Support** |
 |:-:|:-:|:-:|
 | v0.X.X | PowerShell v7.2.0 | L |
-| v0.3.0 \~ v0.3.2 | PowerShell v7.2.0 | 👎{🐛🧓} |
-| v0.2.X | PowerShell v7.2.0 | 👎{🧓} |
+| v0.3.0 \~ v0.3.2 | PowerShell v7.2.0 | ❌{🐛🧓} |
+| v0.2.X | PowerShell v7.2.0 | ❌{🧓} |
 | < v0.2.X | PowerShell v7.2.0 | ❌{🐛🧓} |
 
 ## Report Vulnerability
