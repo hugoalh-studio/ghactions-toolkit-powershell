@@ -13,6 +13,46 @@ enum GitHubActionsAnnotationType {
 }
 <#
 .SYNOPSIS
+GitHub Actions - Add Secret Mask
+.DESCRIPTION
+Make a secret will get masked from the log.
+.PARAMETER Value
+The secret.
+.PARAMETER WithChunks
+Split the secret to chunks to well make a secret will get masked from the log.
+.OUTPUTS
+Void
+#>
+function Add-GitHubActionsSecretMask {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
+	[OutputType([void])]
+	param (
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
+		[Alias('WithChunk')][switch]$WithChunks
+	)
+	begin {}
+	process {
+		if ($Value.Length -gt 0) {
+			Write-GitHubActionsCommand -Command 'add-mask' -Message $Value
+		}
+		if ($WithChunks) {
+			[string[]]($Value -split '[\b\n\r\s\t_-]+') | ForEach-Object -Process {
+				if ($_ -ne $Value -and $_.Length -gt 2) {
+					Write-GitHubActionsCommand -Command 'add-mask' -Message $_
+				}
+			}
+		}
+	}
+	end {
+		return
+	}
+}
+Set-Alias -Name 'Add-GHActionsMask' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Add-GHActionsSecret' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Add-GitHubActionsMask' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Add-GitHubActionsSecret' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Enter Log Group
 .DESCRIPTION
 Create an expandable group in the log; Anything write to the log between functions `Enter-GitHubActionsLogGroup` and `Exit-GitHubActionsLogGroup` are inside an expandable group in the log.
@@ -326,6 +366,7 @@ Set-Alias -Name 'Write-GHActionsWarn' -Value 'Write-GitHubActionsWarning' -Optio
 Set-Alias -Name 'Write-GHActionsWarning' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Write-GitHubActionsWarn' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
+	'Add-GitHubActionsSecretMask',
 	'Enter-GitHubActionsLogGroup',
 	'Exit-GitHubActionsLogGroup',
 	'Write-GitHubActionsAnnotation',
@@ -335,6 +376,10 @@ Export-ModuleMember -Function @(
 	'Write-GitHubActionsNotice',
 	'Write-GitHubActionsWarning'
 ) -Alias @(
+	'Add-GHActionsMask',
+	'Add-GHActionsSecret',
+	'Add-GitHubActionsMask',
+	'Add-GitHubActionsSecret',
 	'Enter-GHActionsGroup',
 	'Enter-GHActionsLogGroup',
 	'Enter-GitHubActionsGroup',
