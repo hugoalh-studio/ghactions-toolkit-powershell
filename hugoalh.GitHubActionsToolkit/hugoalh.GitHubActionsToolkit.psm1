@@ -1,14 +1,14 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
 enum GitHubActionsAnnotationType {
-	E
-	Error
-	N
-	Note
-	Notice
-	W
-	Warn
-	Warning
+	Notice = 0
+	N = 0
+	Note = 0
+	Warning = 1
+	W = 1
+	Warn = 1
+	Error = 2
+	E = 2
 }
 <#
 .SYNOPSIS
@@ -1133,17 +1133,17 @@ function Write-GitHubActionsAnnotation {
 	begin {}
 	process {
 		[string]$TypeRaw = ''
-		switch ($Type) {
-			{$_ -match '^e(?:rror)?$'} {
-				$TypeRaw = 'error'
-				break
-			}
-			{$_ -match '^n(?:ot(?:ic)?e)?$'} {
+		switch ($Type.GetHashCode()) {
+			0 {
 				$TypeRaw = 'notice'
 				break
 			}
-			{$_ -match '^w(?:arn(?:ing)?)?$'} {
+			1 {
 				$TypeRaw = 'warning'
+				break
+			}
+			2 {
+				$TypeRaw = 'error'
 				break
 			}
 		}
