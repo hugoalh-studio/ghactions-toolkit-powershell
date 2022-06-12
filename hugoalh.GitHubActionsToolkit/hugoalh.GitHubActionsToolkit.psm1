@@ -33,7 +33,7 @@ String
 function Format-GitHubActionsCommand {
 	[CmdletBinding()]
 	[OutputType([string])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyString()][Alias('Input', 'Object')][string]$InputObject,
 		[Alias('Properties')][switch]$Property
 	)
@@ -105,7 +105,7 @@ Void
 function Add-GitHubActionsEnvironmentVariable {
 	[CmdletBinding(DefaultParameterSetName = 'multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsenvironmentvariable#Add-GitHubActionsEnvironmentVariable')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][string]$Value,
@@ -226,7 +226,7 @@ Void
 function Add-GitHubActionsPATH {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionspath#Add-GitHubActionsPATH')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` must be in single line string!')][Alias('Paths')][string[]]$Path,
 		[Alias('NoValidate', 'SkipValidate', 'SkipValidator')][switch]$NoValidator
 	)
@@ -309,7 +309,7 @@ Void
 function Add-GitHubActionsSecretMask {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
 		[Alias('WithChunk')][switch]$WithChunks
 	)
@@ -380,7 +380,7 @@ Void
 function Disable-GitHubActionsEchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechoingcommands#Disable-GitHubActionsEchoingCommands')]
 	[OutputType([void])]
-	param()
+	param ()
 	return Write-GitHubActionsCommand -Command 'echo' -Message 'off'
 }
 Set-Alias -Name 'Disable-GHActionsCommandEcho' -Value 'Disable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -427,7 +427,7 @@ String
 function Disable-GitHubActionsProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
 	[OutputType([string])]
-	param(
+	param (
 		[Parameter(Position = 0)][ValidateScript({
 			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin @(
 				'add-mask',
@@ -490,7 +490,7 @@ Void
 function Enable-GitHubActionsEchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechoingcommands#Enable-GitHubActionsEchoingCommands')]
 	[OutputType([void])]
-	param()
+	param ()
 	return Write-GitHubActionsCommand -Command 'echo' -Message 'on'
 }
 Set-Alias -Name 'Enable-GHActionsCommandEcho' -Value 'Enable-GitHubActionsEchoingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -537,7 +537,7 @@ Void
 function Enable-GitHubActionsProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommands#Enable-GitHubActionsProcessingCommands')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
 			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin @(
 				'add-mask',
@@ -601,7 +601,7 @@ Void
 function Enter-GitHubActionsLogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enter-githubactionsloggroup#Enter-GitHubActionsLogGroup')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header', 'Message')][string]$Title
 	)
 	return Write-GitHubActionsCommand -Command 'group' -Message $Title
@@ -652,7 +652,7 @@ function Get-GitHubActionsInput {
 	[CmdletBinding(DefaultParameterSetName = 'one', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsinput#Get-GitHubActionsInput')]
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
-	param(
+	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][string]$Name,
 		[Parameter(ParameterSetName = 'one')][Alias('Force', 'Forced', 'Required')][switch]$Require,
 		[Parameter(ParameterSetName = 'one')][Alias('ErrorMessage', 'FailMessage', 'RequireErrorMessage')][string]$RequireFailMessage = 'Input `{0}` is not defined!',
@@ -804,7 +804,7 @@ function Get-GitHubActionsState {
 	[CmdletBinding(DefaultParameterSetName = 'one', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstate#Get-GitHubActionsState')]
 	[OutputType([string], ParameterSetName = 'one')]
 	[OutputType([hashtable], ParameterSetName = ('all', 'prefix', 'suffix'))]
-	param(
+	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'one', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][string]$NamePrefix,
 		[Parameter(Mandatory = $true, ParameterSetName = 'suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][string]$NameSuffix,
@@ -992,7 +992,7 @@ Void
 function Set-GitHubActionsOutput {
 	[CmdletBinding(DefaultParameterSetName = 'multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
@@ -1042,7 +1042,7 @@ Void
 function Set-GitHubActionsState {
 	[CmdletBinding(DefaultParameterSetName = 'multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][string]$Value
@@ -1340,7 +1340,7 @@ Void
 function Write-GitHubActionsFail {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsfail#Write-GitHubActionsFail')]
 	[OutputType([void])]
-	param(
+	param (
 		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][string]$Message,
 		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][string]$File,
 		[Alias('LineStart', 'StartLine')][uint]$Line,
