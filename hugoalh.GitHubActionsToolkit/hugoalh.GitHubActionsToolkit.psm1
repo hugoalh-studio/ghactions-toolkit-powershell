@@ -1,5 +1,13 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
+enum EnvironmentVariableScope {
+	Process = 0
+	P = 0
+	User = 1
+	U = 1
+	System = 2
+	S = 2
+}
 enum GitHubActionsAnnotationType {
 	Notice = 0
 	N = 0
@@ -78,13 +86,19 @@ Set-Alias -Name 'Write-GHActionsCommand' -Value 'Write-GitHubActionsCommand' -Op
 .SYNOPSIS
 GitHub Actions - Add Environment Variable
 .DESCRIPTION
-Add environment variable to the system environment variables and automatically makes it available to all subsequent actions in the current job; The currently running action cannot access the updated environment variables.
+Add environment variable to all subsequent steps in the current job.
 .PARAMETER InputObject
 Environment variables.
 .PARAMETER Name
 Environment variable name.
 .PARAMETER Value
 Environment variable value.
+.PARAMETER NoClobber
+Prevent to add environment variables that exist in the current step, or all subsequent steps in the current job.
+.PARAMETER WithLocal
+Also add to the current step.
+.PARAMETER LocalScope
+Local scope to add environment variables.
 .OUTPUTS
 Void
 #>
@@ -94,31 +108,49 @@ function Add-GitHubActionsEnvironmentVariable {
 	param(
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][string]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][string]$Value
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][string]$Value,
+		[Alias('NoOverride', 'NoOverwrite')][switch]$NoClobber,
+		[Alias('WithCurrent')][switch]$WithLocal,
+		[Alias('LocalEnvironmentVariableScope')][EnvironmentVariableScope]$LocalScope = 'Process'
 	)
 	begin {
+		[hashtable]$Original = ConvertFrom-StringData -StringData (Get-Content -LiteralPath $env:GITHUB_ENV -Raw -Encoding 'UTF8NoBOM')
 		[hashtable]$Result = @{}
 	}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
 			'multiple' {
-				$InputObject.GetEnumerator() | ForEach-Object -Process {
-					if ($_.Name.GetType().Name -ne 'string') {
+				foreach ($Item in $InputObject.GetEnumerator()) {
+					if ($Item.Name.GetType().Name -ne 'string') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-					} elseif ($_.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($_.Name)`` is not a valid environment variable name!" -Category 'SyntaxError'
-					} elseif ($_.Value.GetType().Name -ne 'string') {
-						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-					} elseif ($_.Value -notmatch '^.+$') {
-						Write-Error -Message 'Parameter `Value` must be in single line string!' -Category 'SyntaxError'
-					} else {
-						$Result[$_.Name] = $_.Value
+						continue
 					}
+					if ($Item.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+						Write-Error -Message "``$($Item.Name)`` is not a valid environment variable name!" -Category 'SyntaxError'
+						continue
+					}
+					if ($Item.Value.GetType().Name -ne 'string') {
+						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
+						continue
+					}
+					if ($Item.Value -notmatch '^.+$') {
+						Write-Error -Message 'Parameter `Value` must be in single line string!' -Category 'SyntaxError'
+						continue
+					}
+					if ($NoClobber -and $null -ne $Original[$Item.Name.ToUpper()]) {
+						Write-Error -Message "Environment variable ``$($Item.Name)`` is exists in all subsequent steps (no clobber)!" -Category 'ResourceExists'
+						continue
+					}
+					$Result[$Item.Name.ToUpper()] = $Item.Value
 				}
 				break
 			}
 			'single' {
-				$Result[$Name] = $Value
+				if ($NoClobber -and $null -ne $Original[$Name.ToUpper()]) {
+					Write-Error -Message "Environment variable ``$Name`` is exists in all subsequent steps (no clobber)!" -Category 'ResourceExists'
+				} else {
+					$Result[$Name.ToUpper()] = $Value
+				}
 				break
 			}
 		}
@@ -128,6 +160,28 @@ function Add-GitHubActionsEnvironmentVariable {
 			Add-Content -LiteralPath $env:GITHUB_ENV -Value (($Result.GetEnumerator() | ForEach-Object -Process {
 				return "$($_.Name)=$($_.Value)"
 			}) -join "`n") -Confirm:$false -Encoding 'UTF8NoBOM'
+			if ($WithLocal) {
+				foreach($Item in $Result.GetEnumerator()) {
+					if ($NoClobber -and $null -ne (Get-ChildItem -LiteralPath "Env:\$($Item.Name)" -ErrorAction 'SilentlyContinue')) {
+						Write-Error -Message "Environment variable ``$($Item.Name)`` is exists in current step (no clobber)!" -Category 'ResourceExists'
+						continue
+					}
+					switch ($LocalScope.GetHashCode()) {
+						0 {
+							New-Item -Path "Env:\$($Item.Name)" -Value $Item.Value
+							break
+						}
+						1 {
+							[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value)
+							break
+						}
+						2 {
+							[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value, 'Machine')
+							break
+						}
+					}
+				}
+			}
 		}
 		return
 	}
