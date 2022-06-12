@@ -84,6 +84,50 @@ function Write-GitHubActionsCommand {
 Set-Alias -Name 'Write-GHActionsCommand' -Value 'Write-GitHubActionsCommand' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Internal - Add Local Environment Variable
+.DESCRIPTION
+An internal function to add local environment variable.
+.PARAMETER Name
+Environment variable name.
+.PARAMETER Value
+Environment variable value.
+.PARAMETER NoClobber
+Prevent to add environment variables that exist in the current step.
+.PARAMETER LocalScope
+Local scope to add environment variables.
+.OUTPUTS
+Void
+#>
+function Add-LocalEnvironmentVariable {
+	[CmdletBinding()]
+	[OutputType([void])]
+	param (
+		[Parameter(Mandatory = $true, Position = 0)][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, Position = 1)][string]$Value,
+		[Alias('NoOverride', 'NoOverwrite')][switch]$NoClobber,
+		[Alias('LocalEnvironmentVariableScope')][EnvironmentVariableScope]$LocalScope = 'Process'
+	)
+	if ($NoClobber -and $null -ne (Get-ChildItem -LiteralPath "Env:\$Name" -ErrorAction 'SilentlyContinue')) {
+		Write-Error -Message "Environment variable ``$Name`` is exists in current step (no clobber)!" -Category 'ResourceExists'
+	} else {
+		switch ($LocalScope.GetHashCode()) {
+			0 {
+				New-Item -Path "Env:\$Name" -Value $Value
+				break
+			}
+			1 {
+				[System.Environment]::SetEnvironmentVariable($Name, $Value)
+				break
+			}
+			2 {
+				[System.Environment]::SetEnvironmentVariable($Name, $Value, 'Machine')
+				break
+			}
+		}
+	}
+}
+<#
+.SYNOPSIS
 GitHub Actions - Add Environment Variable
 .DESCRIPTION
 Add environment variable to all subsequent steps in the current job.
@@ -144,24 +188,7 @@ function Add-GitHubActionsEnvironmentVariable {
 						$Result[$ItemNameUpper] = $Item.Value
 					}
 					if ($WithLocal) {
-						if ($NoClobber -and $null -ne (Get-ChildItem -LiteralPath "Env:\$ItemNameUpper" -ErrorAction 'SilentlyContinue')) {
-							Write-Error -Message "Environment variable ``$($Item.Name)`` is exists in current step (no clobber)!" -Category 'ResourceExists'
-						} else {
-							switch ($LocalScope.GetHashCode()) {
-								0 {
-									New-Item -Path "Env:\$ItemNameUpper" -Value $Item.Value
-									break
-								}
-								1 {
-									[System.Environment]::SetEnvironmentVariable($ItemNameUpper, $Item.Value)
-									break
-								}
-								2 {
-									[System.Environment]::SetEnvironmentVariable($ItemNameUpper, $Item.Value, 'Machine')
-									break
-								}
-							}
-						}
+						Add-LocalEnvironmentVariable -Name $ItemNameUpper -Value $Item.Value -NoClobber:$NoClobber -LocalScope $LocalScope
 					}
 				}
 				break
@@ -174,24 +201,7 @@ function Add-GitHubActionsEnvironmentVariable {
 					$Result[$NameUpper] = $Value
 				}
 				if ($WithLocal) {
-					if ($NoClobber -and $null -ne (Get-ChildItem -LiteralPath "Env:\$NameUpper" -ErrorAction 'SilentlyContinue')) {
-						Write-Error -Message "Environment variable ``$Name`` is exists in current step (no clobber)!" -Category 'ResourceExists'
-					} else {
-						switch ($LocalScope.GetHashCode()) {
-							0 {
-								New-Item -Path "Env:\$NameUpper" -Value $Value
-								break
-							}
-							1 {
-								[System.Environment]::SetEnvironmentVariable($NameUpper, $Value)
-								break
-							}
-							2 {
-								[System.Environment]::SetEnvironmentVariable($NameUpper, $Value, 'Machine')
-								break
-							}
-						}
-					}
+					Add-LocalEnvironmentVariable -Name $NameUpper -Value $Value -NoClobber:$NoClobber -LocalScope $LocalScope
 				}
 				break
 			}
