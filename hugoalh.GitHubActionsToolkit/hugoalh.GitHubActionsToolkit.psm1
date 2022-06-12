@@ -137,19 +137,61 @@ function Add-GitHubActionsEnvironmentVariable {
 						Write-Error -Message 'Parameter `Value` must be in single line string!' -Category 'SyntaxError'
 						continue
 					}
-					if ($NoClobber -and $null -ne $Original[$Item.Name.ToUpper()]) {
+					[string]$ItemNameUpper = $Item.Name.ToUpper()
+					if ($NoClobber -and $null -ne $Original[$ItemNameUpper]) {
 						Write-Error -Message "Environment variable ``$($Item.Name)`` is exists in all subsequent steps (no clobber)!" -Category 'ResourceExists'
-						continue
+					} else {
+						$Result[$ItemNameUpper] = $Item.Value
 					}
-					$Result[$Item.Name.ToUpper()] = $Item.Value
+					if ($WithLocal) {
+						if ($NoClobber -and $null -ne (Get-ChildItem -LiteralPath "Env:\$ItemNameUpper" -ErrorAction 'SilentlyContinue')) {
+							Write-Error -Message "Environment variable ``$($Item.Name)`` is exists in current step (no clobber)!" -Category 'ResourceExists'
+						} else {
+							switch ($LocalScope.GetHashCode()) {
+								0 {
+									New-Item -Path "Env:\$ItemNameUpper" -Value $Item.Value
+									break
+								}
+								1 {
+									[System.Environment]::SetEnvironmentVariable($ItemNameUpper, $Item.Value)
+									break
+								}
+								2 {
+									[System.Environment]::SetEnvironmentVariable($ItemNameUpper, $Item.Value, 'Machine')
+									break
+								}
+							}
+						}
+					}
 				}
 				break
 			}
 			'single' {
-				if ($NoClobber -and $null -ne $Original[$Name.ToUpper()]) {
+				[string]$NameUpper = $Name.ToUpper()
+				if ($NoClobber -and $null -ne $Original[$NameUpper]) {
 					Write-Error -Message "Environment variable ``$Name`` is exists in all subsequent steps (no clobber)!" -Category 'ResourceExists'
 				} else {
-					$Result[$Name.ToUpper()] = $Value
+					$Result[$NameUpper] = $Value
+				}
+				if ($WithLocal) {
+					if ($NoClobber -and $null -ne (Get-ChildItem -LiteralPath "Env:\$NameUpper" -ErrorAction 'SilentlyContinue')) {
+						Write-Error -Message "Environment variable ``$Name`` is exists in current step (no clobber)!" -Category 'ResourceExists'
+					} else {
+						switch ($LocalScope.GetHashCode()) {
+							0 {
+								New-Item -Path "Env:\$NameUpper" -Value $Value
+								break
+							}
+							1 {
+								[System.Environment]::SetEnvironmentVariable($NameUpper, $Value)
+								break
+							}
+							2 {
+								[System.Environment]::SetEnvironmentVariable($NameUpper, $Value, 'Machine')
+								break
+							}
+						}
+					}
 				}
 				break
 			}
@@ -160,28 +202,6 @@ function Add-GitHubActionsEnvironmentVariable {
 			Add-Content -LiteralPath $env:GITHUB_ENV -Value (($Result.GetEnumerator() | ForEach-Object -Process {
 				return "$($_.Name)=$($_.Value)"
 			}) -join "`n") -Confirm:$false -Encoding 'UTF8NoBOM'
-			if ($WithLocal) {
-				foreach($Item in $Result.GetEnumerator()) {
-					if ($NoClobber -and $null -ne (Get-ChildItem -LiteralPath "Env:\$($Item.Name)" -ErrorAction 'SilentlyContinue')) {
-						Write-Error -Message "Environment variable ``$($Item.Name)`` is exists in current step (no clobber)!" -Category 'ResourceExists'
-						continue
-					}
-					switch ($LocalScope.GetHashCode()) {
-						0 {
-							New-Item -Path "Env:\$($Item.Name)" -Value $Item.Value
-							break
-						}
-						1 {
-							[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value)
-							break
-						}
-						2 {
-							[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value, 'Machine')
-							break
-						}
-					}
-				}
-			}
 		}
 		return
 	}
