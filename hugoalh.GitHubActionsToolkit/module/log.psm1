@@ -1,6 +1,8 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath 'command.psm1') -Scope 'Local'
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
+) -Prefix 'GitHubActions' -Scope 'Local'
 enum GitHubActionsAnnotationType {
 	Notice = 0
 	N = 0
@@ -13,46 +15,6 @@ enum GitHubActionsAnnotationType {
 }
 <#
 .SYNOPSIS
-GitHub Actions - Add Secret Mask
-.DESCRIPTION
-Make a secret will get masked from the log.
-.PARAMETER Value
-The secret.
-.PARAMETER WithChunks
-Split the secret to chunks to well make a secret will get masked from the log.
-.OUTPUTS
-Void
-#>
-function Add-GitHubActionsSecretMask {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
-	[OutputType([void])]
-	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
-		[Alias('WithChunk')][switch]$WithChunks
-	)
-	begin {}
-	process {
-		if ($Value.Length -gt 0) {
-			Write-GitHubActionsCommand -Command 'add-mask' -Message $Value
-		}
-		if ($WithChunks) {
-			[string[]]($Value -split '[\b\n\r\s\t_-]+') | ForEach-Object -Process {
-				if ($_ -ne $Value -and $_.Length -gt 2) {
-					Write-GitHubActionsCommand -Command 'add-mask' -Message $_
-				}
-			}
-		}
-	}
-	end {
-		return
-	}
-}
-Set-Alias -Name 'Add-GHActionsMask' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Add-GHActionsSecret' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Add-GitHubActionsMask' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Add-GitHubActionsSecret' -Value 'Add-GitHubActionsSecretMask' -Option 'ReadOnly' -Scope 'Local'
-<#
-.SYNOPSIS
 GitHub Actions - Enter Log Group
 .DESCRIPTION
 Create an expandable group in the log; Anything write to the log between functions `Enter-GitHubActionsLogGroup` and `Exit-GitHubActionsLogGroup` are inside an expandable group in the log.
@@ -61,7 +23,7 @@ Title of the log group.
 .OUTPUTS
 Void
 #>
-function Enter-GitHubActionsLogGroup {
+function Enter-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enter-githubactionsloggroup#Enter-GitHubActionsLogGroup')]
 	[OutputType([void])]
 	param (
@@ -69,9 +31,7 @@ function Enter-GitHubActionsLogGroup {
 	)
 	return Write-GitHubActionsCommand -Command 'group' -Message $Title
 }
-Set-Alias -Name 'Enter-GHActionsGroup' -Value 'Enter-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enter-GHActionsLogGroup' -Value 'Enter-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enter-GitHubActionsGroup' -Value 'Enter-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Enter-Group' -Value 'Enter-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Exit Log Group
@@ -80,15 +40,13 @@ End an expandable group in the log.
 .OUTPUTS
 Void
 #>
-function Exit-GitHubActionsLogGroup {
+function Exit-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_exit-githubactionsloggroup#Exit-GitHubActionsLogGroup')]
 	[OutputType([void])]
 	param ()
 	return Write-GitHubActionsCommand -Command 'endgroup'
 }
-Set-Alias -Name 'Exit-GHActionsGroup' -Value 'Exit-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Exit-GHActionsLogGroup' -Value 'Exit-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Exit-GitHubActionsGroup' -Value 'Exit-GitHubActionsLogGroup' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Exit-Group' -Value 'Exit-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Annotation
@@ -113,7 +71,7 @@ Issue title.
 .OUTPUTS
 Void
 #>
-function Write-GitHubActionsAnnotation {
+function Write-Annotation {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsannotation#Write-GitHubActionsAnnotation')]
 	[OutputType([void])]
 	param (
@@ -168,7 +126,6 @@ function Write-GitHubActionsAnnotation {
 		return
 	}
 }
-Set-Alias -Name 'Write-GHActionsAnnotation' -Value 'Write-GitHubActionsAnnotation' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Debug
@@ -179,7 +136,7 @@ Message that need to log at debug level.
 .OUTPUTS
 Void
 #>
-function Write-GitHubActionsDebug {
+function Write-Debug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsdebug#Write-GitHubActionsDebug')]
 	[OutputType([void])]
 	param (
@@ -193,7 +150,6 @@ function Write-GitHubActionsDebug {
 		return
 	}
 }
-Set-Alias -Name 'Write-GHActionsDebug' -Value 'Write-GitHubActionsDebug' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Error
@@ -216,7 +172,7 @@ Issue title.
 .OUTPUTS
 Void
 #>
-function Write-GitHubActionsError {
+function Write-Error {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionserror#Write-GitHubActionsError')]
 	[OutputType([void])]
 	param (
@@ -230,13 +186,12 @@ function Write-GitHubActionsError {
 	)
 	begin {}
 	process {
-		Write-GitHubActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+		Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
 	end {
 		return
 	}
 }
-Set-Alias -Name 'Write-GHActionsError' -Value 'Write-GitHubActionsError' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Fail
@@ -259,7 +214,7 @@ Issue title.
 .OUTPUTS
 Void
 #>
-function Write-GitHubActionsFail {
+function Write-Fail {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsfail#Write-GitHubActionsFail')]
 	[OutputType([void])]
 	param (
@@ -271,10 +226,9 @@ function Write-GitHubActionsFail {
 		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
 		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][string]$Title
 	)
-	Write-GitHubActionsAnnotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	exit 1
 }
-Set-Alias -Name 'Write-GHActionsFail' -Value 'Write-GitHubActionsFail' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Notice
@@ -297,7 +251,7 @@ Issue title.
 .OUTPUTS
 Void
 #>
-function Write-GitHubActionsNotice {
+function Write-Notice {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsnotice#Write-GitHubActionsNotice')]
 	[OutputType([void])]
 	param (
@@ -311,15 +265,13 @@ function Write-GitHubActionsNotice {
 	)
 	begin {}
 	process {
-		Write-GitHubActionsAnnotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+		Write-Annotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
 	end {
 		return
 	}
 }
-Set-Alias -Name 'Write-GHActionsNote' -Value 'Write-GitHubActionsNotice' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Write-GHActionsNotice' -Value 'Write-GitHubActionsNotice' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Write-GitHubActionsNote' -Value 'Write-GitHubActionsNotice' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Warning
@@ -342,7 +294,7 @@ Issue title.
 .OUTPUTS
 Void
 #>
-function Write-GitHubActionsWarning {
+function Write-Warning {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionswarning#Write-GitHubActionsWarning')]
 	[OutputType([void])]
 	param (
@@ -356,44 +308,25 @@ function Write-GitHubActionsWarning {
 	)
 	begin {}
 	process {
-		Write-GitHubActionsAnnotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+		Write-Annotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
 	end {
 		return
 	}
 }
-Set-Alias -Name 'Write-GHActionsWarn' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Write-GHActionsWarning' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Write-GitHubActionsWarn' -Value 'Write-GitHubActionsWarning' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Write-Warn' -Value 'Write-Warning' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
-	'Add-GitHubActionsSecretMask',
-	'Enter-GitHubActionsLogGroup',
-	'Exit-GitHubActionsLogGroup',
-	'Write-GitHubActionsAnnotation',
-	'Write-GitHubActionsDebug',
-	'Write-GitHubActionsError',
-	'Write-GitHubActionsFail',
-	'Write-GitHubActionsNotice',
-	'Write-GitHubActionsWarning'
+	'Enter-LogGroup',
+	'Exit-LogGroup',
+	'Write-Annotation',
+	'Write-Debug',
+	'Write-Error',
+	'Write-Fail',
+	'Write-Notice',
+	'Write-Warning'
 ) -Alias @(
-	'Add-GHActionsMask',
-	'Add-GHActionsSecret',
-	'Add-GitHubActionsMask',
-	'Add-GitHubActionsSecret',
-	'Enter-GHActionsGroup',
-	'Enter-GHActionsLogGroup',
-	'Enter-GitHubActionsGroup',
-	'Exit-GHActionsGroup',
-	'Exit-GHActionsLogGroup',
-	'Exit-GitHubActionsGroup',
-	'Write-GHActionsAnnotation',
-	'Write-GHActionsDebug',
-	'Write-GHActionsError',
-	'Write-GHActionsFail',
-	'Write-GHActionsNote',
-	'Write-GHActionsNotice',
-	'Write-GHActionsWarn',
-	'Write-GHActionsWarning',
-	'Write-GitHubActionsNote',
-	'Write-GitHubActionsWarn'
+	'Enter-Group',
+	'Exit-Group',
+	'Write-Note',
+	'Write-Warn'
 )

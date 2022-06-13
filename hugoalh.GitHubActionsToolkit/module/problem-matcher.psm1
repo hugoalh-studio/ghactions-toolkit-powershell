@@ -1,6 +1,8 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath 'command.psm1') -Scope 'Local'
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Problem Matcher
@@ -13,7 +15,7 @@ Relative literal path to the JSON file problem matcher.
 .OUTPUTS
 Void
 #>
-function Add-GitHubActionsProblemMatcher {
+function Add-ProblemMatcher {
 	[CmdletBinding(DefaultParameterSetName = 'path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
 	[OutputType([void])]
 	param (
@@ -41,7 +43,6 @@ function Add-GitHubActionsProblemMatcher {
 		return
 	}
 }
-Set-Alias -Name 'Add-GHActionsProblemMatcher' -Value 'Add-GitHubActionsProblemMatcher' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Remove Problem Matcher
@@ -52,7 +53,7 @@ Owner of the problem matcher that previously added from function `Add-GitHubActi
 .OUTPUTS
 Void
 #>
-function Remove-GitHubActionsProblemMatcher {
+function Remove-ProblemMatcher {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsproblemmatcher#Remove-GitHubActionsProblemMatcher')]
 	[OutputType([void])]
 	param (
@@ -68,11 +69,7 @@ function Remove-GitHubActionsProblemMatcher {
 		return
 	}
 }
-Set-Alias -Name 'Remove-GHActionsProblemMatcher' -Value 'Remove-GitHubActionsProblemMatcher' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
-	'Add-GitHubActionsProblemMatcher',
-	'Remove-GitHubActionsProblemMatcher'
-) -Alias @(
-	'Add-GHActionsProblemMatcher',
-	'Remove-GHActionsProblemMatcher'
+	'Add-ProblemMatcher',
+	'Remove-ProblemMatcher'
 )

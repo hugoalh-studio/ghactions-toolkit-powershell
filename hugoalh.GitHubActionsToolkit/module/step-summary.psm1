@@ -12,7 +12,7 @@ Do not add a new line or carriage return to the content, the string representati
 .OUTPUTS
 Void
 #>
-function Add-GitHubActionsStepSummary {
+function Add-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
@@ -34,7 +34,6 @@ function Add-GitHubActionsStepSummary {
 		return
 	}
 }
-Set-Alias -Name 'Add-GHActionsStepSummary' -Value 'Add-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Step Summary
@@ -47,7 +46,7 @@ Get step summary sizes instead of the content.
 .OUTPUTS
 String | String[] | UInt
 #>
-function Get-GitHubActionsStepSummary {
+function Get-StepSummary {
 	[CmdletBinding(DefaultParameterSetName = 'content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
 	[OutputType(([string], [string[]]), ParameterSetName = 'content')]
 	[OutputType([uint], ParameterSetName = 'sizes')]
@@ -64,7 +63,6 @@ function Get-GitHubActionsStepSummary {
 		}
 	}
 }
-Set-Alias -Name 'Get-GHActionsStepSummary' -Value 'Get-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Remove Step Summary
@@ -73,13 +71,12 @@ Remove step summary that added/setted from functions `Add-GitHubActionsStepSumma
 .OUTPUTS
 Void
 #>
-function Remove-GitHubActionsStepSummary {
+function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param ()
 	return Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY -Confirm:$false
 }
-Set-Alias -Name 'Remove-GHActionsStepSummary' -Value 'Remove-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Set Step Summary
@@ -92,7 +89,7 @@ Do not add a new line or carriage return to the content, the string representati
 .OUTPUTS
 Void
 #>
-function Set-GitHubActionsStepSummary {
+function Set-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
 	[OutputType([void])]
 	param (
@@ -114,15 +111,9 @@ function Set-GitHubActionsStepSummary {
 		return
 	}
 }
-Set-Alias -Name 'Set-GHActionsStepSummary' -Value 'Set-GitHubActionsStepSummary' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
-	'Add-GitHubActionsStepSummary',
-	'Get-GitHubActionsStepSummary',
-	'Remove-GitHubActionsStepSummary',
-	'Set-GitHubActionsStepSummary'
-) -Alias @(
-	'Add-GHActionsStepSummary',
-	'Get-GHActionsStepSummary',
-	'Remove-GHActionsStepSummary',
-	'Set-GHActionsStepSummary'
+	'Add-StepSummary',
+	'Get-StepSummary',
+	'Remove-StepSummary',
+	'Set-StepSummary'
 )

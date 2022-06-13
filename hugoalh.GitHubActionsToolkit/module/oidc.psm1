@@ -1,6 +1,8 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath 'log.psm1') -Scope 'Local'
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'utility.psm1')
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get OIDC Token
@@ -11,7 +13,7 @@ Audience.
 .OUTPUTS
 String
 #>
-function Get-GitHubActionsOidcToken {
+function Get-OidcToken {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsoidctoken#Get-GitHubActionsOidcToken')]
 	[OutputType([string])]
 	param (
@@ -43,9 +45,6 @@ function Get-GitHubActionsOidcToken {
 		return Write-Error @_
 	}
 }
-Set-Alias -Name 'Get-GHActionsOidcToken' -Value 'Get-GitHubActionsOidcToken' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
-	'Get-GitHubActionsOidcToken'
-) -Alias @(
-	'Get-GHActionsOidcToken'
+	'Get-OidcToken'
 )
