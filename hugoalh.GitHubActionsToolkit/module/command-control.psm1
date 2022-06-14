@@ -15,6 +15,7 @@ Import-Module -Name @(
 	'remove-matcher',
 	'save-state',
 	'set-output',
+	'stop-commands'
 	'warning'
 )
 <#
