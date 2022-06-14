@@ -7,7 +7,7 @@ Import-Module -Name @(
 .SYNOPSIS
 GitHub Actions - Add Problem Matcher
 .DESCRIPTION
-Problem matchers are a way to scan the output of actions for a specified regular expression pattern and automatically surface that information prominently in the user interface, both annotations and log file decorations are created when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
+Add problem matcher, a way to scan the output of actions for a specified regular expression pattern and automatically surface that information prominently in the user interface, both annotation and log decoration are created when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
 .PARAMETER Path
 Relative path to the JSON file problem matcher.
 .PARAMETER LiteralPath
@@ -26,14 +26,14 @@ function Add-ProblemMatcher {
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
 			'path' {
-				[string[]](Resolve-Path -Path $Path -Relative) | ForEach-Object -Process {
-					return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
+				foreach ($Item in [string[]](Resolve-Path -Path $Path -Relative)) {
+					Write-GitHubActionsCommand -Command 'add-matcher' -Message ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
 				}
 				break
 			}
 			'literal-path' {
-				$LiteralPath | ForEach-Object -Process {
-					return Write-GitHubActionsCommand -Command 'add-matcher' -Message ($_ -replace '^\.[\\\/]', '' -replace '\\', '/')
+				foreach ($Item in $LiteralPath) {
+					Write-GitHubActionsCommand -Command 'add-matcher' -Message ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
 				}
 				break
 			}
@@ -61,8 +61,8 @@ function Remove-ProblemMatcher {
 	)
 	begin {}
 	process {
-		$Owner | ForEach-Object -Process {
-			return Write-GitHubActionsCommand -Command 'remove-matcher' -Property @{ 'owner' = $_ }
+		foreach ($Item in $Owner) {
+			Write-GitHubActionsCommand -Command 'remove-matcher' -Property @{ 'owner' = $Item }
 		}
 	}
 	end {

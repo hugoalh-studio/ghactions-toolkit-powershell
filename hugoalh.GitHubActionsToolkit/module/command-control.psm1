@@ -3,11 +3,25 @@
 Import-Module -Name @(
 	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
+[string[]]$GitHubActionsCommands = @(
+	'add-mask',
+	'add-matcher',
+	'debug',
+	'echo',
+	'endgroup',
+	'error',
+	'group',
+	'notice',
+	'remove-matcher',
+	'save-state',
+	'set-output',
+	'warning'
+)
 <#
 .SYNOPSIS
 GitHub Actions - Disable Echoing Commands
 .DESCRIPTION
-Disable echoing of commands, the run's log will not show the command itself; A command is echoed if there are any errors processing the command; Secret `ACTIONS_STEP_DEBUG` will ignore this.
+Disable echoing most of the commands, the log will not show the command itself; Secret `ACTIONS_STEP_DEBUG` will ignore this setting; When processing a command, it will still echo if there has any issues.
 .OUTPUTS
 Void
 #>
@@ -36,7 +50,7 @@ Set-Alias -Name 'Stop-EchoingCommands' -Value 'Disable-EchoingCommands' -Option 
 .SYNOPSIS
 GitHub Actions - Disable Processing Commands
 .DESCRIPTION
-Stop processing any commands to allow log anything without accidentally running commands.
+Disable processing any commands, to allow log anything without accidentally execute any commands.
 .PARAMETER EndToken
 An end token for function `Enable-GitHubActionsProcessingCommands`.
 .OUTPUTS
@@ -47,20 +61,7 @@ function Disable-ProcessingCommands {
 	[OutputType([string])]
 	param (
 		[Parameter(Position = 0)][ValidateScript({
-			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin @(
-				'add-mask',
-				'add-matcher',
-				'debug',
-				'echo',
-				'endgroup',
-				'error',
-				'group',
-				'notice',
-				'remove-matcher',
-				'save-state',
-				'set-output',
-				'warning'
-			))
+			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
 		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Message $EndToken
@@ -85,7 +86,7 @@ Set-Alias -Name 'Stop-ProcessingCommands' -Value 'Disable-ProcessingCommands' -O
 .SYNOPSIS
 GitHub Actions - Enable Echoing Commands
 .DESCRIPTION
-Enable echoing of commands, the run's log will show the command itself; Commands `add-mask`, `debug`, `warning`, and `error` do not support echoing because their outputs are already echoed to the log; Secret `ACTIONS_STEP_DEBUG` will ignore this.
+Enable echoing most of the commands, the log will show the command itself; Secret `ACTIONS_STEP_DEBUG` will ignore this setting.
 .OUTPUTS
 Void
 #>
@@ -114,7 +115,7 @@ Set-Alias -Name 'Start-EchoingCommands' -Value 'Enable-EchoingCommands' -Option 
 .SYNOPSIS
 GitHub Actions - Enable Processing Commands
 .DESCRIPTION
-Resume processing any commands to allow running commands.
+Enable processing any commands, to allow execute any commands.
 .PARAMETER EndToken
 An end token from function `Disable-GitHubActionsProcessingCommands`.
 .OUTPUTS
@@ -125,20 +126,7 @@ function Enable-ProcessingCommands {
 	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
-			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin @(
-				'add-mask',
-				'add-matcher',
-				'debug',
-				'echo',
-				'endgroup',
-				'error',
-				'group',
-				'notice',
-				'remove-matcher',
-				'save-state',
-				'set-output',
-				'warning'
-			))
+			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
 		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
 	)
 	return Write-GitHubActionsCommand -Command $EndToken

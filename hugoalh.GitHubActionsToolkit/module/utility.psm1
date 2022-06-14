@@ -29,9 +29,9 @@ function Add-SecretMask {
 			Write-GitHubActionsCommand -Command 'add-mask' -Message $Value
 		}
 		if ($WithChunks) {
-			[string[]]($Value -split '[\b\n\r\s\t_-]+') | ForEach-Object -Process {
-				if ($_ -ne $Value -and $_.Length -gt 2) {
-					Write-GitHubActionsCommand -Command 'add-mask' -Message $_
+			foreach ($Item in [string[]]($Value -split '[\b\n\r\s\t_-]+')) {
+				if ($Item -ne $Value -and $Item.Length -gt 2) {
+					Write-GitHubActionsCommand -Command 'add-mask' -Message $Item
 				}
 			}
 		}

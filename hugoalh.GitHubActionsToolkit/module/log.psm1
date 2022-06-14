@@ -51,7 +51,7 @@ Set-Alias -Name 'Exit-Group' -Value 'Exit-LogGroup' -Option 'ReadOnly' -Scope 'L
 .SYNOPSIS
 GitHub Actions - Write Annotation
 .DESCRIPTION
-Prints an annotation message to the log.
+Print an annotation message to the log.
 .PARAMETER Type
 Annotation type.
 .PARAMETER Message
@@ -130,7 +130,7 @@ function Write-Annotation {
 .SYNOPSIS
 GitHub Actions - Write Debug
 .DESCRIPTION
-Prints a debug message to the log.
+Print a debug message to the log.
 .PARAMETER Message
 Message that need to log at debug level.
 .OUTPUTS
@@ -154,7 +154,7 @@ function Write-Debug {
 .SYNOPSIS
 GitHub Actions - Write Error
 .DESCRIPTION
-Prints an error message to the log.
+Print an error message to the log.
 .PARAMETER Message
 Message that need to log at error level.
 .PARAMETER File
@@ -196,7 +196,7 @@ function Write-Error {
 .SYNOPSIS
 GitHub Actions - Write Fail
 .DESCRIPTION
-Prints an error message to the log and end the process.
+Print an error message to the log and end the process.
 .PARAMETER Message
 Message that need to log at error level.
 .PARAMETER File
@@ -233,7 +233,7 @@ function Write-Fail {
 .SYNOPSIS
 GitHub Actions - Write Notice
 .DESCRIPTION
-Prints a notice message to the log.
+Print a notice message to the log.
 .PARAMETER Message
 Message that need to log at notice level.
 .PARAMETER File
@@ -276,7 +276,7 @@ Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Lo
 .SYNOPSIS
 GitHub Actions - Write Warning
 .DESCRIPTION
-Prints a warning message to the log.
+Print a warning message to the log.
 .PARAMETER Message
 Message that need to log at warning level.
 .PARAMETER File

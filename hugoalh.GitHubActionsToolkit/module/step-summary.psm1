@@ -38,7 +38,7 @@ function Add-StepSummary {
 .SYNOPSIS
 GitHub Actions - Get Step Summary
 .DESCRIPTION
-Get step summary that added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+Get step summary that previously added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
 .PARAMETER Raw
 Ignore newline characters and return the entire contents of a file in one string with the newlines preserved. By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
 .PARAMETER Sizes
@@ -67,7 +67,7 @@ function Get-StepSummary {
 .SYNOPSIS
 GitHub Actions - Remove Step Summary
 .DESCRIPTION
-Remove step summary that added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+Remove step summary that previously added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
 .OUTPUTS
 Void
 #>

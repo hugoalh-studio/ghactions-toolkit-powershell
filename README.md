@@ -39,7 +39,7 @@ Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
 ```ps1
 <# Either #>
 Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local' # Recommend
-Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scope 'Local' # (>= v0.5.0-beta.1) Changeable Prefix
+Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scope 'Local' # (>= v0.5.0) Changeable Prefix
 ```
 
 ### Function (Excerpt)
