@@ -14,6 +14,7 @@ Import-Module -Name @(
 	'notice',
 	'remove-matcher',
 	'save-state',
+	'set-env',
 	'set-output',
 	'stop-commands'
 	'warning'
@@ -30,7 +31,7 @@ function Disable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechoingcommands#Disable-GitHubActionsEchoingCommands')]
 	[OutputType([void])]
 	param ()
-	return Write-GitHubActionsCommand -Command 'echo' -Message 'off'
+	return Write-GitHubActionsCommand -Command 'echo' -Value 'off'
 }
 Set-Alias -Name 'Disable-CommandEcho' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Disable-CommandEchoing' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -65,7 +66,7 @@ function Disable-ProcessingCommands {
 			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
 		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
 	)
-	Write-GitHubActionsCommand -Command 'stop-commands' -Message $EndToken
+	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
 	return $EndToken
 }
 Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -95,7 +96,7 @@ function Enable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechoingcommands#Enable-GitHubActionsEchoingCommands')]
 	[OutputType([void])]
 	param ()
-	return Write-GitHubActionsCommand -Command 'echo' -Message 'on'
+	return Write-GitHubActionsCommand -Command 'echo' -Value 'on'
 }
 Set-Alias -Name 'Enable-CommandEcho' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-CommandEchoing' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'

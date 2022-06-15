@@ -59,7 +59,7 @@ function Get-StepSummary {
 			return Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM'
 		}
 		'sizes' {
-			return (Get-ChildItem -LiteralPath $env:GITHUB_STEP_SUMMARY).Length
+			return (Get-Item -LiteralPath $env:GITHUB_STEP_SUMMARY).Length
 		}
 	}
 }

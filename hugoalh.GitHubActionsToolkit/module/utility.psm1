@@ -26,12 +26,12 @@ function Add-SecretMask {
 	begin {}
 	process {
 		if ($Value.Length -gt 0) {
-			Write-GitHubActionsCommand -Command 'add-mask' -Message $Value
+			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 		}
 		if ($WithChunks) {
 			foreach ($Item in [string[]]($Value -split '[\b\n\r\s\t_-]+')) {
 				if ($Item -ne $Value -and $Item.Length -gt 2) {
-					Write-GitHubActionsCommand -Command 'add-mask' -Message $Item
+					Write-GitHubActionsCommand -Command 'add-mask' -Value $Item
 				}
 			}
 		}
@@ -91,15 +91,15 @@ Set-Alias -Name 'Get-WebhookPayload' -Value 'Get-WebhookEventPayload' -Option 'R
 .SYNOPSIS
 GitHub Actions - Test Environment
 .DESCRIPTION
-Test the current process is executing inside the GitHub Actions environment.
-.PARAMETER Require
-Whether the requirement is require; If required and not fulfill, will throw an error.
+Test the current process whether is executing inside the GitHub Actions environment.
+.PARAMETER Mandatory
+Whether the requirement is mandatory; If mandatory but not fulfill, will throw an error.
 #>
 function Test-Environment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
 	[OutputType([bool])]
 	param (
-		[Alias('Force', 'Forced', 'Required')][switch]$Require
+		[Alias('Force', 'Forced', 'Require', 'Required')][switch]$Mandatory
 	)
 	if (
 		$env:CI -ne 'true' -or
@@ -134,7 +134,7 @@ function Test-Environment {
 		$null -eq $env:RUNNER_TEMP -or
 		$null -eq $env:RUNNER_TOOL_CACHE
 	) {
-		if ($Require) {
+		if ($Mandatory) {
 			return Write-GitHubActionsFail -Message 'This process require to execute inside the GitHub Actions environment!'
 		}
 		return $false

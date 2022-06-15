@@ -62,14 +62,14 @@ function Get-Input {
 				break
 			}
 			'one' {
-				$InputValueRaw = Get-ChildItem -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
+				$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				if ($null -eq $InputValueRaw) {
 					if ($Mandatory) {
 						return Write-GitHubActionsFail -Message ($MandatoryNotExistMessage -f $Name)
 					}
 					return $null
 				}
-				[string]$InputValue = $Trim ? $InputValueRaw.Value.Trim() : $InputValueRaw.Value
+				[string]$InputValue = $Trim ? $InputValueRaw.Trim() : $InputValueRaw
 				if ($EmptyStringAsNull -and $InputValue.Length -eq 0) {
 					if ($Mandatory) {
 						return Write-GitHubActionsFail -Message ($MandatoryNotExistMessage -f $Name)
@@ -166,11 +166,11 @@ function Get-State {
 				break
 			}
 			'one' {
-				$StateValueRaw = Get-ChildItem -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
+				$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				if ($null -eq $StateValueRaw) {
 					return $null
 				}
-				[string]$StateValue = $Trim ? $StateValueRaw.Value.Trim() : $StateValueRaw.Value
+				[string]$StateValue = $Trim ? $StateValueRaw.Trim() : $StateValueRaw
 				if ($EmptyStringAsNull -and $StateValue.Length -eq 0) {
 					return $null
 				}
@@ -240,7 +240,7 @@ function Set-Output {
 		switch ($PSCmdlet.ParameterSetName) {
 			'multiple' {
 				foreach ($Item in $InputObject.GetEnumerator()) {
-					if ($Item.Name.GetType().Name -ne 'string') {
+					if ($Item.Name.GetType().Name -ne 'String') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
 						continue
 					}
@@ -248,16 +248,16 @@ function Set-Output {
 						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
 						continue
 					}
-					if ($Item.Value.GetType().Name -ne 'string') {
+					if ($Item.Value.GetType().Name -ne 'String') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
 						continue
 					}
-					Write-GitHubActionsCommand -Command 'set-output' -Message $Item.Value -Property @{ 'name' = $Item.Name }
+					Write-GitHubActionsCommand -Command 'set-output' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
 				}
 				break
 			}
 			'single' {
-				Write-GitHubActionsCommand -Command 'set-output' -Message $Value -Property @{ 'name' = $Name }
+				Write-GitHubActionsCommand -Command 'set-output' -Value $Value -Parameter @{ 'name' = $Name }
 				break
 			}
 		}
@@ -293,7 +293,7 @@ function Set-State {
 		switch ($PSCmdlet.ParameterSetName) {
 			'multiple' {
 				foreach ($Item in $InputObject.GetEnumerator()) {
-					if ($Item.Name.GetType().Name -ne 'string') {
+					if ($Item.Name.GetType().Name -ne 'String') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
 						continue
 					}
@@ -301,16 +301,16 @@ function Set-State {
 						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
 						continue
 					}
-					if ($Item.Value.GetType().Name -ne 'string') {
+					if ($Item.Value.GetType().Name -ne 'String') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
 						continue
 					}
-					Write-GitHubActionsCommand -Command 'save-state' -Message $Item.Value -Property @{ 'name' = $Item.Name }
+					Write-GitHubActionsCommand -Command 'save-state' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
 				}
 				break
 			}
 			'single' {
-				Write-GitHubActionsCommand -Command 'save-state' -Message $Value -Property @{ 'name' = $Name }
+				Write-GitHubActionsCommand -Command 'save-state' -Value $Value -Parameter @{ 'name' = $Name }
 				break
 			}
 		}

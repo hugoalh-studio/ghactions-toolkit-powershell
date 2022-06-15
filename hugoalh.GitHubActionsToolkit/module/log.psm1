@@ -29,7 +29,7 @@ function Enter-LogGroup {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header', 'Message')][string]$Title
 	)
-	return Write-GitHubActionsCommand -Command 'group' -Message $Title
+	return Write-GitHubActionsCommand -Command 'group' -Value $Title
 }
 Set-Alias -Name 'Enter-Group' -Value 'Enter-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -120,7 +120,7 @@ function Write-Annotation {
 		if ($Title.Length -gt 0) {
 			$Property.'title' = $Title
 		}
-		Write-GitHubActionsCommand -Command $TypeRaw -Message $Message -Property $Property
+		Write-GitHubActionsCommand -Command $TypeRaw -Value $Message -Parameter $Property
 	}
 	end {
 		return
@@ -144,7 +144,7 @@ function Write-Debug {
 	)
 	begin {}
 	process {
-		Write-GitHubActionsCommand -Command 'debug' -Message $Message
+		Write-GitHubActionsCommand -Command 'debug' -Value $Message
 	}
 	end {
 		return

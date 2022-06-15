@@ -27,13 +27,13 @@ function Add-ProblemMatcher {
 		switch ($PSCmdlet.ParameterSetName) {
 			'path' {
 				foreach ($Item in [string[]](Resolve-Path -Path $Path -Relative)) {
-					Write-GitHubActionsCommand -Command 'add-matcher' -Message ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
+					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
 				}
 				break
 			}
 			'literal-path' {
 				foreach ($Item in $LiteralPath) {
-					Write-GitHubActionsCommand -Command 'add-matcher' -Message ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
+					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
 				}
 				break
 			}
@@ -62,7 +62,7 @@ function Remove-ProblemMatcher {
 	begin {}
 	process {
 		foreach ($Item in $Owner) {
-			Write-GitHubActionsCommand -Command 'remove-matcher' -Property @{ 'owner' = $Item }
+			Write-GitHubActionsCommand -Command 'remove-matcher' -Parameter @{ 'owner' = $Item }
 		}
 	}
 	end {

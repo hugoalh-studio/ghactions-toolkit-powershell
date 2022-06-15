@@ -19,7 +19,9 @@ function Add-EnvironmentVariable {
 	[OutputType([void])]
 	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][string]$Name,
+		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidateScript({
+			return ($_ -match '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $_ -notmatch '^PATH$')
+		}, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][string]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'single', Position = 1, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][string]$Value
 	)
 	begin {
@@ -29,15 +31,18 @@ function Add-EnvironmentVariable {
 		switch ($PSCmdlet.ParameterSetName) {
 			'multiple' {
 				foreach ($Item in $InputObject.GetEnumerator()) {
-					if ($Item.Name.GetType().Name -ne 'string') {
+					if ($Item.Name.GetType().Name -ne 'String') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
 						continue
 					}
-					if ($Item.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+					if (
+						$Item.Name -notmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -or
+						$Item.Name -match '^PATH$'
+					) {
 						Write-Error -Message "``$($Item.Name)`` is not a valid environment variable name!" -Category 'SyntaxError'
 						continue
 					}
-					if ($Item.Value.GetType().Name -ne 'string') {
+					if ($Item.Value.GetType().Name -ne 'String') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
 						continue
 					}
