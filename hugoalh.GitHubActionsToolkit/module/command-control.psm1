@@ -3,7 +3,7 @@
 Import-Module -Name @(
 	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[string[]]$GitHubActionsCommands = @(
+[String[]]$GitHubActionsCommands = @(
 	'add-mask',
 	'add-matcher',
 	'debug',
@@ -29,7 +29,7 @@ Void
 #>
 function Disable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechoingcommands#Disable-GitHubActionsEchoingCommands')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param ()
 	return Write-GitHubActionsCommand -Command 'echo' -Value 'off'
 }
@@ -60,11 +60,11 @@ String
 #>
 function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
-	[OutputType([string])]
+	[OutputType([String])]
 	param (
 		[Parameter(Position = 0)][ValidateScript({
-			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
-		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken = ((New-Guid).Guid -replace '-', '')
+			return ($_ -imatch '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
+		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = ((New-Guid).Guid -ireplace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
 	return $EndToken
@@ -94,7 +94,7 @@ Void
 #>
 function Enable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechoingcommands#Enable-GitHubActionsEchoingCommands')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param ()
 	return Write-GitHubActionsCommand -Command 'echo' -Value 'on'
 }
@@ -125,11 +125,11 @@ Void
 #>
 function Enable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommands#Enable-GitHubActionsProcessingCommands')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
-			return ($_ -match '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
-		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][string]$EndToken
+			return ($_ -imatch '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
+		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	return Write-GitHubActionsCommand -Command $EndToken
 }

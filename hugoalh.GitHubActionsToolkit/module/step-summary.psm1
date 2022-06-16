@@ -14,13 +14,13 @@ Void
 #>
 function Add-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][string[]]$Value,
-		[switch]$NoNewLine
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
+		[Switch]$NoNewLine
 	)
 	begin {
-		[string[]]$Result = @()
+		[String[]]$Result = @()
 	}
 	process {
 		if ($Value.Count -gt 0) {
@@ -44,21 +44,21 @@ Ignore newline characters and return the entire contents of a file in one string
 .PARAMETER Sizes
 Get step summary sizes instead of the content.
 .OUTPUTS
-String | String[] | UInt
+String | String[] | UInt32
 #>
 function Get-StepSummary {
-	[CmdletBinding(DefaultParameterSetName = 'content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
-	[OutputType(([string], [string[]]), ParameterSetName = 'content')]
-	[OutputType([uint], ParameterSetName = 'sizes')]
+	[CmdletBinding(DefaultParameterSetName = 'Content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
+	[OutputType(([String], [String[]]), ParameterSetName = 'Content')]
+	[OutputType([UInt32], ParameterSetName = 'Sizes')]
 	param (
-		[Parameter(ParameterSetName = 'content')][switch]$Raw,
-		[Parameter(Mandatory = $true, ParameterSetName = 'sizes')][Alias('Size')][switch]$Sizes
+		[Parameter(ParameterSetName = 'Content')][Switch]$Raw,
+		[Parameter(Mandatory = $true, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
 	switch ($PSCmdlet.ParameterSetName) {
-		'content' {
+		'Content' {
 			return Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM'
 		}
-		'sizes' {
+		'Sizes' {
 			return (Get-Item -LiteralPath $env:GITHUB_STEP_SUMMARY).Length
 		}
 	}
@@ -73,7 +73,7 @@ Void
 #>
 function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param ()
 	return Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY -Confirm:$false
 }
@@ -91,13 +91,13 @@ Void
 #>
 function Set-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][string[]]$Value,
-		[switch]$NoNewLine
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
+		[Switch]$NoNewLine
 	)
 	begin {
-		[string[]]$Result = @()
+		[String[]]$Result = @()
 	}
 	process {
 		if ($Value.Count -gt 0) {

@@ -16,26 +16,24 @@ Relative literal path to the JSON file problem matcher.
 Void
 #>
 function Add-ProblemMatcher {
-	[CmdletBinding(DefaultParameterSetName = 'path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
-	[OutputType([void])]
+	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, ParameterSetName = 'path', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` must be in single line string!')][Alias('File', 'Files', 'Paths')][string[]]$Path,
-		[Parameter(Mandatory = $true, ParameterSetName = 'literal-path', ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `LiteralPath` must be in single line string!')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][string[]]$LiteralPath
+		[Parameter(Mandatory = $true, ParameterSetName = 'Path', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][SupportsWildcards()][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` must be in single line string!')][Alias('File', 'Files', 'Paths')][String[]]$Path,
+		[Parameter(Mandatory = $true, ParameterSetName = 'LiteralPath', ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `LiteralPath` must be in single line string!')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath
 	)
 	begin {}
 	process {
 		switch ($PSCmdlet.ParameterSetName) {
-			'path' {
-				foreach ($Item in [string[]](Resolve-Path -Path $Path -Relative)) {
-					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
+			'Path' {
+				foreach ($Item in [String[]](Resolve-Path -Path $Path -Relative)) {
+					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
 				}
-				break
 			}
-			'literal-path' {
+			'LiteralPath' {
 				foreach ($Item in $LiteralPath) {
-					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -replace '^\.[\\\/]', '' -replace '\\', '/')
+					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
 				}
-				break
 			}
 		}
 	}
@@ -55,9 +53,9 @@ Void
 #>
 function Remove-ProblemMatcher {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsproblemmatcher#Remove-GitHubActionsProblemMatcher')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Owner` must be in single line string!')][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][string[]]$Owner
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Owner` must be in single line string!')][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][String[]]$Owner
 	)
 	begin {}
 	process {

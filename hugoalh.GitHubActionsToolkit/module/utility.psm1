@@ -18,10 +18,10 @@ Void
 #>
 function Add-SecretMask {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][string]$Value,
-		[Alias('WithChunk')][switch]$WithChunks
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][String]$Value,
+		[Alias('WithChunk')][Switch]$WithChunks
 	)
 	begin {}
 	process {
@@ -29,8 +29,8 @@ function Add-SecretMask {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 		}
 		if ($WithChunks) {
-			foreach ($Item in [string[]]($Value -split '[\b\n\r\s\t_-]+')) {
-				if ($Item -ne $Value -and $Item.Length -gt 2) {
+			foreach ($Item in [String[]]($Value -isplit '[\b\n\r\s\t_-]+')) {
+				if ($Item.Length -ge 4) {
 					Write-GitHubActionsCommand -Command 'add-mask' -Value $Item
 				}
 			}
@@ -52,9 +52,9 @@ Boolean
 #>
 function Get-IsDebug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsisdebug#Get-GitHubActionsIsDebug')]
-	[OutputType([bool])]
+	[OutputType([Boolean])]
 	param ()
-	if ($env:RUNNER_DEBUG -eq 'true') {
+	if ($env:RUNNER_DEBUG -ieq 'true') {
 		return $true
 	}
 	return $false
@@ -75,11 +75,11 @@ Hashtable | PSCustomObject
 #>
 function Get-WebhookEventPayload {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionswebhookeventpayload#Get-GitHubActionsWebhookEventPayload')]
-	[OutputType(([hashtable], [pscustomobject]))]
+	[OutputType(([Hashtable], [PSCustomObject]))]
 	param (
-		[Alias('ToHashtable')][switch]$AsHashtable,
-		[int]$Depth = 1024,
-		[switch]$NoEnumerate
+		[Alias('ToHashtable')][Switch]$AsHashtable,
+		[UInt32]$Depth = 1024,
+		[Switch]$NoEnumerate
 	)
 	return (Get-Content -LiteralPath $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
 }
@@ -97,42 +97,42 @@ Whether the requirement is mandatory; If mandatory but not fulfill, will throw a
 #>
 function Test-Environment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
-	[OutputType([bool])]
+	[OutputType([Boolean])]
 	param (
-		[Alias('Force', 'Forced', 'Require', 'Required')][switch]$Mandatory
+		[Alias('Force', 'Forced', 'Require', 'Required')][Switch]$Mandatory
 	)
 	if (
-		$env:CI -ne 'true' -or
-		$null -eq $env:GITHUB_ACTION_REPOSITORY -or
-		$null -eq $env:GITHUB_ACTION -or
-		$null -eq $env:GITHUB_ACTIONS -or
-		$null -eq $env:GITHUB_ACTOR -or
-		$null -eq $env:GITHUB_API_URL -or
-		$null -eq $env:GITHUB_ENV -or
-		$null -eq $env:GITHUB_EVENT_NAME -or
-		$null -eq $env:GITHUB_EVENT_PATH -or
-		$null -eq $env:GITHUB_GRAPHQL_URL -or
-		$null -eq $env:GITHUB_JOB -or
-		$null -eq $env:GITHUB_PATH -or
-		$null -eq $env:GITHUB_REF_NAME -or
-		$null -eq $env:GITHUB_REF_PROTECTED -or
-		$null -eq $env:GITHUB_REF_TYPE -or
-		$null -eq $env:GITHUB_REPOSITORY_OWNER -or
-		$null -eq $env:GITHUB_REPOSITORY -or
-		$null -eq $env:GITHUB_RETENTION_DAYS -or
-		$null -eq $env:GITHUB_RUN_ATTEMPT -or
-		$null -eq $env:GITHUB_RUN_ID -or
-		$null -eq $env:GITHUB_RUN_NUMBER -or
-		$null -eq $env:GITHUB_SERVER_URL -or
-		$null -eq $env:GITHUB_SHA -or
-		$null -eq $env:GITHUB_STEP_SUMMARY -or
-		$null -eq $env:GITHUB_WORKFLOW -or
-		$null -eq $env:GITHUB_WORKSPACE -or
-		$null -eq $env:RUNNER_ARCH -or
-		$null -eq $env:RUNNER_NAME -or
-		$null -eq $env:RUNNER_OS -or
-		$null -eq $env:RUNNER_TEMP -or
-		$null -eq $env:RUNNER_TOOL_CACHE
+		$env:CI -ine 'true' -or
+		$null -ieq $env:GITHUB_ACTION_REPOSITORY -or
+		$null -ieq $env:GITHUB_ACTION -or
+		$null -ieq $env:GITHUB_ACTIONS -or
+		$null -ieq $env:GITHUB_ACTOR -or
+		$null -ieq $env:GITHUB_API_URL -or
+		$null -ieq $env:GITHUB_ENV -or
+		$null -ieq $env:GITHUB_EVENT_NAME -or
+		$null -ieq $env:GITHUB_EVENT_PATH -or
+		$null -ieq $env:GITHUB_GRAPHQL_URL -or
+		$null -ieq $env:GITHUB_JOB -or
+		$null -ieq $env:GITHUB_PATH -or
+		$null -ieq $env:GITHUB_REF_NAME -or
+		$null -ieq $env:GITHUB_REF_PROTECTED -or
+		$null -ieq $env:GITHUB_REF_TYPE -or
+		$null -ieq $env:GITHUB_REPOSITORY_OWNER -or
+		$null -ieq $env:GITHUB_REPOSITORY -or
+		$null -ieq $env:GITHUB_RETENTION_DAYS -or
+		$null -ieq $env:GITHUB_RUN_ATTEMPT -or
+		$null -ieq $env:GITHUB_RUN_ID -or
+		$null -ieq $env:GITHUB_RUN_NUMBER -or
+		$null -ieq $env:GITHUB_SERVER_URL -or
+		$null -ieq $env:GITHUB_SHA -or
+		$null -ieq $env:GITHUB_STEP_SUMMARY -or
+		$null -ieq $env:GITHUB_WORKFLOW -or
+		$null -ieq $env:GITHUB_WORKSPACE -or
+		$null -ieq $env:RUNNER_ARCH -or
+		$null -ieq $env:RUNNER_NAME -or
+		$null -ieq $env:RUNNER_OS -or
+		$null -ieq $env:RUNNER_TEMP -or
+		$null -ieq $env:RUNNER_TOOL_CACHE
 	) {
 		if ($Mandatory) {
 			return Write-GitHubActionsFail -Message 'This process require to execute inside the GitHub Actions environment!'

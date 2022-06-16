@@ -61,7 +61,6 @@
 
 	# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 	FunctionsToExport = @(
-		'Add-EnvironmentVariable',
 		'Add-PATH',
 		'Add-ProblemMatcher',
 		'Add-SecretMask',
@@ -80,6 +79,7 @@
 		'Get-WebhookEventPayload',
 		'Remove-ProblemMatcher',
 		'Remove-StepSummary',
+		'Set-EnvironmentVariable',
 		'Set-Output',
 		'Set-State',
 		'Set-StepSummary',
@@ -101,8 +101,6 @@
 
 	# Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 	AliasesToExport = @(
-		'Add-Env',
-		'Add-Environment',
 		'Add-Mask',
 		'Add-Secret',
 		'Disable-CommandEcho',
@@ -141,6 +139,8 @@
 		'Get-WebhookPayload',
 		'Restore-State',
 		'Save-State',
+		'Set-Env',
+		'Set-Environment',
 		'Start-CommandEcho',
 		'Start-CommandEchoing',
 		'Start-CommandProcess',

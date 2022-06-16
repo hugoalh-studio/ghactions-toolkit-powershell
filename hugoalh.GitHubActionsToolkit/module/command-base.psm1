@@ -12,11 +12,11 @@ String
 #>
 function Format-CommandParameter {
 	[CmdletBinding()]
-	[OutputType([string])]
+	[OutputType([String])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][string]$InputObject
+		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	return (Format-CommandValue -InputObject $InputObject) -replace ',', '%2C' -replace ':', '%3A' -replace '=', '%3D'
+	return (Format-CommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A'
 }
 Set-Alias -Name 'Format-CommandProperty' -Value 'Format-CommandParameter' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -31,11 +31,11 @@ String
 #>
 function Format-CommandValue {
 	[CmdletBinding()]
-	[OutputType([string])]
+	[OutputType([String])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][string]$InputObject
+		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	return $InputObject -replace '%', '%25' -replace '\n', '%0A' -replace '\r', '%0D'
+	return $InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D'
 }
 Set-Alias -Name 'Format-CommandContent' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
@@ -55,11 +55,11 @@ Void
 #>
 function Write-Command {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionscommand#Write-GitHubActionsCommand')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Command` must be in single line string!')][string]$Command,
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content', 'Message')][string]$Value = '',
-		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $true)][Alias('Parameters', 'Property', 'Properties')][hashtable]$Parameter = @{}
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid command!')][String]$Command,
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content', 'Message')][String]$Value = '',
+		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $true)][Alias('Parameters', 'Property', 'Properties')][Hashtable]$Parameter = @{}
 	)
 	begin {}
 	process {

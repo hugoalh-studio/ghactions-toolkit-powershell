@@ -25,9 +25,9 @@ Void
 #>
 function Enter-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enter-githubactionsloggroup#Enter-GitHubActionsLogGroup')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header', 'Message')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header', 'Message')][String]$Title
 	)
 	return Write-GitHubActionsCommand -Command 'group' -Value $Title
 }
@@ -42,7 +42,7 @@ Void
 #>
 function Exit-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_exit-githubactionsloggroup#Exit-GitHubActionsLogGroup')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param ()
 	return Write-GitHubActionsCommand -Command 'endgroup'
 }
@@ -73,20 +73,20 @@ Void
 #>
 function Write-Annotation {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsannotation#Write-GitHubActionsAnnotation')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][GitHubActionsAnnotationType]$Type,
-		[Parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][string]$File,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content')][String]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][UInt32]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][UInt32]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
 	begin {}
 	process {
-		[string]$TypeRaw = ''
+		[String]$TypeRaw = ''
 		switch ($Type.GetHashCode()) {
 			0 {
 				$TypeRaw = 'notice'
@@ -101,7 +101,7 @@ function Write-Annotation {
 				break
 			}
 		}
-		[hashtable]$Property = @{}
+		[Hashtable]$Property = @{}
 		if ($File.Length -gt 0) {
 			$Property.'file' = $File
 		}
@@ -138,9 +138,9 @@ Void
 #>
 function Write-Debug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsdebug#Write-GitHubActionsDebug')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Content')][string]$Message
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][Alias('Content')][String]$Message
 	)
 	begin {}
 	process {
@@ -174,15 +174,15 @@ Void
 #>
 function Write-Error {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionserror#Write-GitHubActionsError')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][string]$File,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][String]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][UInt32]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][UInt32]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
 	begin {}
 	process {
@@ -216,15 +216,15 @@ Void
 #>
 function Write-Fail {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsfail#Write-GitHubActionsFail')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][string]$Message,
-		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][string]$File,
-		[Alias('LineStart', 'StartLine')][uint]$Line,
-		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Alias('LineEnd')][uint]$EndLine,
-		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0)][Alias('Content')][String]$Message,
+		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][String]$File,
+		[Alias('LineStart', 'StartLine')][UInt32]$Line,
+		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
+		[Alias('LineEnd')][UInt32]$EndLine,
+		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
+		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
 	Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	exit 1
@@ -253,15 +253,15 @@ Void
 #>
 function Write-Notice {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsnotice#Write-GitHubActionsNotice')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][string]$File,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][String]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][UInt32]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][UInt32]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
 	begin {}
 	process {
@@ -296,15 +296,15 @@ Void
 #>
 function Write-Warning {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionswarning#Write-GitHubActionsWarning')]
-	[OutputType([void])]
+	[OutputType([Void])]
 	param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][string]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][string]$File,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][uint]$Line,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][uint]$Column,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][uint]$EndLine,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][uint]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][string]$Title
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][Alias('Content')][String]$Message,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` must be in single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineStart', 'StartLine')][UInt32]$Line,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('LineEnd')][UInt32]$EndLine,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
+		[Parameter(ValueFromPipelineByPropertyName = $true)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
 	begin {}
 	process {

@@ -44,7 +44,6 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 
 ### Function (Excerpt)
 
-- `Add-GitHubActionsEnvironmentVariable`
 - `Add-GitHubActionsPATH`
 - `Add-GitHubActionsProblemMatcher`
 - `Add-GitHubActionsSecretMask`
@@ -63,6 +62,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Get-GitHubActionsWebhookEventPayload`
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
+- `Set-GitHubActionsEnvironmentVariable`
 - `Set-GitHubActionsOutput`
 - `Set-GitHubActionsState`
 - `Set-GitHubActionsStepSummary`
