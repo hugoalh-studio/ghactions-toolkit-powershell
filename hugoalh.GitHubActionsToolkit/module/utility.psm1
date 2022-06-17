@@ -89,6 +89,21 @@ Set-Alias -Name 'Get-WebhookEvent' -Value 'Get-WebhookEventPayload' -Option 'Rea
 Set-Alias -Name 'Get-WebhookPayload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Get Workflow Run URI
+.DESCRIPTION
+Get the workflow run's URI.
+.OUTPUTS
+String
+#>
+function Get-WorkflowRunUri {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
+	[OutputType([String])]
+	param ()
+	return "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+}
+Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Test Environment
 .DESCRIPTION
 Test the current process whether is executing inside the GitHub Actions environment.
@@ -148,6 +163,7 @@ Export-ModuleMember -Function @(
 	'Add-SecretMask',
 	'Get-IsDebug',
 	'Get-WebhookEventPayload',
+	'Get-WorkflowRunUri',
 	'Test-Environment'
 ) -Alias @(
 	'Add-Mask',
@@ -155,5 +171,6 @@ Export-ModuleMember -Function @(
 	'Get-Event',
 	'Get-Payload',
 	'Get-WebhookEvent',
-	'Get-WebhookPayload'
+	'Get-WebhookPayload',
+	'Get-WorkflowRunUrl'
 )

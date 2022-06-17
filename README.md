@@ -60,6 +60,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Get-GitHubActionsState`
 - `Get-GitHubActionsStepSummary`
 - `Get-GitHubActionsWebhookEventPayload`
+- `Get-GitHubActionsWorkflowRunUri`
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
 - `Set-GitHubActionsEnvironmentVariable`
