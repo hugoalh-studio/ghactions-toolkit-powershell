@@ -5,16 +5,16 @@ Import-Module -Name @(
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Get OIDC Token
+GitHub Actions - Get OpenID Connect Token
 .DESCRIPTION
-Interact with the GitHub OIDC provider and get a JWT ID token which would help to get access token from third party cloud providers.
+Interact with the GitHub OpenID Connect (OIDC) provider and get a JSON Web Token (JWT) ID token which would help to get access token from third party cloud providers.
 .PARAMETER Audience
 Audience.
 .OUTPUTS
 String
 #>
-function Get-OidcToken {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsoidctoken#Get-GitHubActionsOidcToken')]
+function Get-OpenIdConnectToken {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsopenidconnecttoken#Get-GitHubActionsOpenIdConnectToken')]
 	[OutputType([String])]
 	param (
 		[Parameter(Position = 0)][String]$Audience
@@ -28,7 +28,7 @@ function Get-OidcToken {
 	if ($OidcTokenRequestURL.Length -ieq 0) {
 		return Write-Error -Message 'Unable to get GitHub Actions OIDC token request URL!' -Category 'ResourceUnavailable'
 	}
-	if ($Audience.Length -gt 0) {
+	if ($Audience.Length -igt 0) {
 		Add-GitHubActionsSecretMask -Value $Audience
 		[String]$AudienceEncode = [System.Web.HttpUtility]::UrlEncode($Audience)
 		Add-GitHubActionsSecretMask -Value $AudienceEncode
@@ -45,6 +45,9 @@ function Get-OidcToken {
 		return Write-Error @_
 	}
 }
+Set-Alias -Name 'Get-OidcToken' -Value 'Get-OpenIdConnectToken' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
+	'Get-OpenIdConnectToken'
+) -Alias @(
 	'Get-OidcToken'
 )

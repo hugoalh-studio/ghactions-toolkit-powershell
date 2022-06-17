@@ -23,12 +23,12 @@ function Add-StepSummary {
 		[String[]]$Result = @()
 	}
 	process {
-		if ($Value.Count -gt 0) {
+		if ($Value.Count -igt 0) {
 			$Result += $Value -join "`n"
 		}
 	}
 	end {
-		if ($Result.Count -gt 0) {
+		if ($Result.Count -igt 0) {
 			Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$false -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
 		return
@@ -100,12 +100,12 @@ function Set-StepSummary {
 		[String[]]$Result = @()
 	}
 	process {
-		if ($Value.Count -gt 0) {
+		if ($Value.Count -igt 0) {
 			$Result += $Value -join "`n"
 		}
 	}
 	end {
-		if ($Result.Count -gt 0) {
+		if ($Result.Count -igt 0) {
 			Set-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$false -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
 		return

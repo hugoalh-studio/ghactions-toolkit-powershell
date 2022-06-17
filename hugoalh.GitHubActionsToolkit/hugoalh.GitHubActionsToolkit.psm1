@@ -1,26 +1,25 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
 [String]$ModuleRoot = Join-Path -Path $PSScriptRoot -ChildPath 'module'
-[String[]]$ModulesName = @(
+[String[]]$ModulesNames = @(
 	'command-base',
 	'command-control',
 	'environment-variable',
 	'log',
-	'oidc',
+	'open-id-connect',
 	'parameter',
 	'problem-matcher',
 	'step-summary',
 	'utility'
 )
-[String[]]$ModulesFullName = $ModulesName | ForEach-Object -Process {
+Import-Module -Name ($ModulesNames | ForEach-Object -Process {
 	return Join-Path -Path $ModuleRoot -ChildPath "$_.psm1"
-}
-Import-Module -Name $ModulesFullName -Scope 'Local'
-[PSCustomObject[]]$ModulesCommands = Get-Command -Module $ModulesName -ListImported
-[String[]]$ModulesCommandsFunctions = ($ModulesCommands | Where-Object -FilterScript {
+}) -Scope 'Local'
+[PSCustomObject[]]$PackageCommands = Get-Command -Module $ModulesNames -ListImported
+[String[]]$PackageCommandsFunctions = ($PackageCommands | Where-Object -FilterScript {
 	return ($_.CommandType -ieq 'Function')
 }).Name
-[String[]]$ModulesCommandsAliases = ($ModulesCommands | Where-Object -FilterScript {
+[String[]]$PackageCommandsAliases = ($PackageCommands | Where-Object -FilterScript {
 	return ($_.CommandType -ieq 'Alias')
 }).Name
-Export-ModuleMember -Function $ModulesCommandsFunctions -Alias $ModulesCommandsAliases
+Export-ModuleMember -Function $PackageCommandsFunctions -Alias $PackageCommandsAliases

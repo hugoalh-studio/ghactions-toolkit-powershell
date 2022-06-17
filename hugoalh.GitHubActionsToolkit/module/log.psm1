@@ -102,22 +102,22 @@ function Write-Annotation {
 			}
 		}
 		[Hashtable]$Property = @{}
-		if ($File.Length -gt 0) {
+		if ($File.Length -igt 0) {
 			$Property.'file' = $File
 		}
-		if ($Line -gt 0) {
+		if ($Line -igt 0) {
 			$Property.'line' = $Line
 		}
-		if ($Column -gt 0) {
+		if ($Column -igt 0) {
 			$Property.'col' = $Column
 		}
-		if ($EndLine -gt 0) {
+		if ($EndLine -igt 0) {
 			$Property.'endLine' = $EndLine
 		}
-		if ($EndColumn -gt 0) {
+		if ($EndColumn -igt 0) {
 			$Property.'endColumn' = $EndColumn
 		}
-		if ($Title.Length -gt 0) {
+		if ($Title.Length -igt 0) {
 			$Property.'title' = $Title
 		}
 		Write-GitHubActionsCommand -Command $TypeRaw -Value $Message -Parameter $Property

@@ -30,7 +30,7 @@ function Add-PATH {
 		[String[]]$Result = @()
 	}
 	process {
-		foreach ($Item in ($Path | Select-Object -Unique)) {
+		foreach ($Item in $Path) {
 			if (!$NoValidator -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				continue
@@ -39,7 +39,7 @@ function Add-PATH {
 		}
 	}
 	end {
-		if ($Result.Count -gt 0) {
+		if ($Result.Count -igt 0) {
 			switch ($Scope -isplit ', ') {
 				{ $_ -icontains 'Current' } {
 					[String[]]$PATHRaw = [System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator
@@ -120,7 +120,7 @@ function Set-EnvironmentVariable {
 		}
 	}
 	end {
-		if ($Result.Count -gt 0) {
+		if ($Result.Count -igt 0) {
 			[PSCustomObject[]]$ResultEnumerator = $Result.GetEnumerator()
 			switch ($Scope -isplit ', ') {
 				{ $_ -icontains 'Current' } {

@@ -25,12 +25,12 @@ function Add-SecretMask {
 	)
 	begin {}
 	process {
-		if ($Value.Length -gt 0) {
+		if ($Value.Length -igt 0) {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 		}
 		if ($WithChunks) {
 			foreach ($Item in [String[]]($Value -isplit '[\b\n\r\s\t_-]+')) {
-				if ($Item.Length -ge 4) {
+				if ($Item.Length -ige 4) {
 					Write-GitHubActionsCommand -Command 'add-mask' -Value $Item
 				}
 			}

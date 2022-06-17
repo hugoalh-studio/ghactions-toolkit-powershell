@@ -63,7 +63,7 @@ function Disable-ProcessingCommands {
 	[OutputType([String])]
 	param (
 		[Parameter(Position = 0)][ValidateScript({
-			return ($_ -imatch '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
+			return ($_ -imatch '^.+$' -and $_.Length -ige 4 -and $_ -inotin $GitHubActionsCommands)
 		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = ((New-Guid).Guid -ireplace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
@@ -128,7 +128,7 @@ function Enable-ProcessingCommands {
 	[OutputType([Void])]
 	param (
 		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
-			return ($_ -imatch '^.+$' -and $_.Length -ge 4 -and $_ -inotin $GitHubActionsCommands)
+			return ($_ -imatch '^.+$' -and $_.Length -ige 4 -and $_ -inotin $GitHubActionsCommands)
 		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	return Write-GitHubActionsCommand -Command $EndToken
