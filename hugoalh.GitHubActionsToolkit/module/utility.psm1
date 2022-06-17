@@ -78,7 +78,7 @@ function Get-WebhookEventPayload {
 	[OutputType(([Hashtable], [PSCustomObject]))]
 	param (
 		[Alias('ToHashtable')][Switch]$AsHashtable,
-		[UInt32]$Depth = 1024,
+		[UInt16]$Depth = 1024,
 		[Switch]$NoEnumerate
 	)
 	return (Get-Content -LiteralPath $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
@@ -94,12 +94,15 @@ GitHub Actions - Test Environment
 Test the current process whether is executing inside the GitHub Actions environment.
 .PARAMETER Mandatory
 Whether the requirement is mandatory; If mandatory but not fulfill, will throw an error.
+.PARAMETER MandatoryMessage
+Message when the requirement is mandatory but not fulfill.
 #>
 function Test-Environment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
 	[OutputType([Boolean])]
 	param (
-		[Alias('Force', 'Forced', 'Require', 'Required')][Switch]$Mandatory
+		[Alias('Force', 'Forced', 'Require', 'Required')][Switch]$Mandatory,
+		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process require to execute inside the GitHub Actions environment!'
 	)
 	if (
 		$env:CI -ine 'true' -or
@@ -135,7 +138,7 @@ function Test-Environment {
 		$null -ieq $env:RUNNER_TOOL_CACHE
 	) {
 		if ($Mandatory) {
-			return Write-GitHubActionsFail -Message 'This process require to execute inside the GitHub Actions environment!'
+			return Write-GitHubActionsFail -Message $MandatoryMessage
 		}
 		return $false
 	}

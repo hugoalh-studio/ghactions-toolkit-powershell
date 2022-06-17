@@ -13,7 +13,7 @@ Get input.
 Name of the input.
 .PARAMETER Mandatory
 Whether the input is mandatory; If mandatory but not exist, will throw an error.
-.PARAMETER MandatoryNotExistMessage
+.PARAMETER MandatoryMessage
 Message when the input is mandatory but not exist.
 .PARAMETER NamePrefix
 Name of the inputs start with.
@@ -35,7 +35,7 @@ function Get-Input {
 	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][String]$Name,
 		[Parameter(ParameterSetName = 'One')][Alias('Require', 'Required')][Switch]$Mandatory,
-		[Parameter(ParameterSetName = 'One')][Alias('RequiredMessage', 'RequiredNotExistMessage', 'RequireMessage', 'RequireNotExistMessage')][String]$MandatoryNotExistMessage = 'Input `{0}` is not defined!',
+		[Parameter(ParameterSetName = 'One')][Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'Input `{0}` is not defined!',
 		[Parameter(Mandatory = $true, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
 		[Parameter(ParameterSetName = 'All')][Switch]$All,
@@ -64,14 +64,14 @@ function Get-Input {
 				$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				if ($null -ieq $InputValueRaw) {
 					if ($Mandatory) {
-						return Write-GitHubActionsFail -Message ($MandatoryNotExistMessage -f $Name)
+						return Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
 					}
 					return $null
 				}
 				[String]$InputValue = $Trim ? $InputValueRaw.Trim() : $InputValueRaw
 				if ($EmptyStringAsNull -and $InputValue.Length -ieq 0) {
 					if ($Mandatory) {
-						return Write-GitHubActionsFail -Message ($MandatoryNotExistMessage -f $Name)
+						return Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
 					}
 					return $null
 				}
