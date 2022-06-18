@@ -19,7 +19,7 @@ Void
 function Add-SecretMask {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
 	[OutputType([Void])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][String]$Value,
 		[Alias('WithChunk')][Switch]$WithChunks
 	)
@@ -53,8 +53,11 @@ Boolean
 function Get-IsDebug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsisdebug#Get-GitHubActionsIsDebug')]
 	[OutputType([Boolean])]
-	param ()
-	if ($env:RUNNER_DEBUG -ieq 'true') {
+	Param ()
+	if (
+		$env:RUNNER_DEBUG -ieq 'true' -or
+		$env:RUNNER_DEBUG -ieq '1'
+	) {
 		return $true
 	}
 	return $false
@@ -76,7 +79,7 @@ Hashtable | PSCustomObject
 function Get-WebhookEventPayload {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionswebhookeventpayload#Get-GitHubActionsWebhookEventPayload')]
 	[OutputType(([Hashtable], [PSCustomObject]))]
-	param (
+	Param (
 		[Alias('ToHashtable')][Switch]$AsHashtable,
 		[UInt16]$Depth = 1024,
 		[Switch]$NoEnumerate
@@ -98,7 +101,7 @@ String
 function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
 	[OutputType([String])]
-	param ()
+	Param ()
 	return "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
 }
 Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'
@@ -107,15 +110,18 @@ Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOn
 GitHub Actions - Test Environment
 .DESCRIPTION
 Test the current process whether is executing inside the GitHub Actions environment.
+.PARAMETER OpenIdConnect
+Also test the current process whether has GitHub Actions OpenID Connect (OIDC) resources.
 .PARAMETER Mandatory
-Whether the requirement is mandatory; If mandatory but not fulfill, will throw an error.
+The requirement whether is mandatory; If mandatory but not fulfill, will throw an error.
 .PARAMETER MandatoryMessage
 Message when the requirement is mandatory but not fulfill.
 #>
 function Test-Environment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
 	[OutputType([Boolean])]
-	param (
+	Param (
+		[Alias('Oidc')][Switch]$OpenIdConnect,
 		[Alias('Force', 'Forced', 'Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process require to execute inside the GitHub Actions environment!'
 	)
@@ -150,7 +156,9 @@ function Test-Environment {
 		$null -ieq $env:RUNNER_NAME -or
 		$null -ieq $env:RUNNER_OS -or
 		$null -ieq $env:RUNNER_TEMP -or
-		$null -ieq $env:RUNNER_TOOL_CACHE
+		$null -ieq $env:RUNNER_TOOL_CACHE -or
+		($OpenIdConnect -and $null -ieq $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN) -or
+		($OpenIdConnect -and $null -ieq $env:ACTIONS_ID_TOKEN_REQUEST_URL)
 	) {
 		if ($Mandatory) {
 			return Write-GitHubActionsFail -Message $MandatoryMessage

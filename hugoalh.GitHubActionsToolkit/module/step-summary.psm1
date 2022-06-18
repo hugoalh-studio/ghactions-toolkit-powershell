@@ -15,7 +15,7 @@ Void
 function Add-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
 	[OutputType([Void])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
 		[Switch]$NoNewLine
 	)
@@ -50,7 +50,7 @@ function Get-StepSummary {
 	[CmdletBinding(DefaultParameterSetName = 'Content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
 	[OutputType(([String], [String[]]), ParameterSetName = 'Content')]
 	[OutputType([UInt32], ParameterSetName = 'Sizes')]
-	param (
+	Param (
 		[Parameter(ParameterSetName = 'Content')][Switch]$Raw,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
@@ -74,7 +74,7 @@ Void
 function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([Void])]
-	param ()
+	Param ()
 	return Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY -Confirm:$false
 }
 <#
@@ -92,7 +92,7 @@ Void
 function Set-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
 	[OutputType([Void])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
 		[Switch]$NoNewLine
 	)

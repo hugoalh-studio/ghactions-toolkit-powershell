@@ -12,7 +12,7 @@ Get input.
 .PARAMETER Name
 Name of the input.
 .PARAMETER Mandatory
-Whether the input is mandatory; If mandatory but not exist, will throw an error.
+The input whether is mandatory; If mandatory but not exist, will throw an error.
 .PARAMETER MandatoryMessage
 Message when the input is mandatory but not exist.
 .PARAMETER NamePrefix
@@ -32,7 +32,7 @@ function Get-Input {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsinput#Get-GitHubActionsInput')]
 	[OutputType([String], ParameterSetName = 'One')]
 	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][String]$Name,
 		[Parameter(ParameterSetName = 'One')][Alias('Require', 'Required')][Switch]$Mandatory,
 		[Parameter(ParameterSetName = 'One')][Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'Input `{0}` is not defined!',
@@ -135,7 +135,7 @@ function Get-State {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstate#Get-GitHubActionsState')]
 	[OutputType([String], ParameterSetName = 'One')]
 	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
@@ -224,7 +224,7 @@ Void
 function Set-Output {
 	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
 	[OutputType([Void])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][Hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][String]$Value
@@ -275,7 +275,7 @@ Void
 function Set-State {
 	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]
 	[OutputType([Void])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][Hashtable]$InputObject,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][String]$Value

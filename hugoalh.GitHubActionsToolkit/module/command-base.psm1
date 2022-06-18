@@ -13,7 +13,7 @@ String
 function Format-CommandParameter {
 	[CmdletBinding()]
 	[OutputType([String])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
 	return (Format-CommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A'
@@ -32,7 +32,7 @@ String
 function Format-CommandValue {
 	[CmdletBinding()]
 	[OutputType([String])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
 	return $InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D'
@@ -56,7 +56,7 @@ Void
 function Write-Command {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionscommand#Write-GitHubActionsCommand')]
 	[OutputType([Void])]
-	param (
+	Param (
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid command!')][String]$Command,
 		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content', 'Message')][String]$Value = '',
 		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $true)][Alias('Parameters', 'Property', 'Properties')][Hashtable]$Parameter = @{}

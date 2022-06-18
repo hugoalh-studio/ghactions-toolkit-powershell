@@ -1,6 +1,7 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
 Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'log.psm1'),
 	(Join-Path -Path $PSScriptRoot -ChildPath 'utility.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
@@ -16,28 +17,21 @@ String
 function Get-OpenIdConnectToken {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsopenidconnecttoken#Get-GitHubActionsOpenIdConnectToken')]
 	[OutputType([String])]
-	param (
+	Param (
 		[Parameter(Position = 0)][String]$Audience
 	)
-	[String]$OidcTokenRequestToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
-	[String]$OidcTokenRequestURL = $env:ACTIONS_ID_TOKEN_REQUEST_URL
-	if ($OidcTokenRequestToken.Length -ieq 0) {
-		return Write-Error -Message 'Unable to get GitHub Actions OIDC token request token!' -Category 'ResourceUnavailable'
+	if (!(Test-GitHubActionsEnvironment -OpenIDConnect)) {
+		return Write-Error -Message 'Unable to get GitHub Actions OpenID Connect (OIDC) resources!' -Category 'ResourceUnavailable'
 	}
-	Add-GitHubActionsSecretMask -Value $OidcTokenRequestToken
-	if ($OidcTokenRequestURL.Length -ieq 0) {
-		return Write-Error -Message 'Unable to get GitHub Actions OIDC token request URL!' -Category 'ResourceUnavailable'
-	}
+	[String]$RequestToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
+	[String]$RequestUri = $env:ACTIONS_ID_TOKEN_REQUEST_URL
+	Add-GitHubActionsSecretMask -Value $RequestToken
 	if ($Audience.Length -igt 0) {
-		Add-GitHubActionsSecretMask -Value $Audience
-		[String]$AudienceEncode = [System.Web.HttpUtility]::UrlEncode($Audience)
-		Add-GitHubActionsSecretMask -Value $AudienceEncode
-		$OidcTokenRequestURL += "&audience=$AudienceEncode"
+		$RequestUri += "&audience=$([System.Web.HttpUtility]::UrlEncode($Audience))"
 	}
+	Write-GitHubActionsDebug -Message "OpenID Connect Token Request URI: $RequestUri"
 	try {
-		[PSCustomObject]$Response = Invoke-WebRequest -Uri $OidcTokenRequestURL -UseBasicParsing -UserAgent 'actions/oidc-client' -Headers @{
-			Authorization = "Bearer $OidcTokenRequestToken"
-		} -MaximumRedirection 1 -MaximumRetryCount 10 -RetryIntervalSec 10 -Method 'Get'
+		[PSCustomObject]$Response = Invoke-WebRequest -Uri $RequestUri -UseBasicParsing -UserAgent 'actions/oidc-client' -Headers @{ Authorization = "Bearer $RequestToken" } -MaximumRedirection 1 -MaximumRetryCount 10 -RetryIntervalSec 10 -Method 'Get'
 		[ValidateNotNullOrEmpty()][String]$OidcToken = (ConvertFrom-Json -InputObject $Response.Content -Depth 100).value
 		Add-GitHubActionsSecretMask -Value $OidcToken
 		return $OidcToken
