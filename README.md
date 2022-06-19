@@ -42,7 +42,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local' # Recommend
 Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scope 'Local' # (>= v0.5.0) Changeable Prefix
 ```
 
-### Function (Excerpt)
+### API (Excerpt)
+
+#### Function
 
 - `Add-GitHubActionsPATH`
 - `Add-GitHubActionsProblemMatcher`
