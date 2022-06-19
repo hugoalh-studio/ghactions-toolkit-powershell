@@ -50,7 +50,7 @@ Function Add-StepSummaryHeader {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidateRange(1, 6)][UInt16]$Level,
-		[Parameter(Mandatory = $True, Position = 1)][Alias('Title', 'Value')][String]$Header
+		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` must be in single line string!')][Alias('Title', 'Value')][String]$Header
 	)
 	Return (Add-StepSummary -Value "$('#' * $Level) $Header")
 }
@@ -88,12 +88,12 @@ Function Add-StepSummaryImage {
 		$Width -igt -1 -or
 		$Height -igt -1
 	) {
-		[String]$ResultHtml = "<img src=`"$Uri`""
+		[String]$ResultHtml = "<img src=`"$([Uri]::EscapeUriString($Uri))`""
 		If ($Title.Length -igt 0) {
-			$ResultHtml += " title=`"$Title`""
+			$ResultHtml += " title=`"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 		}
 		If ($AlternativeText.Length -igt 0) {
-			$ResultHtml += " alt=`"$AlternativeText`""
+			$ResultHtml += " alt=`"$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))`""
 		}
 		If ($Width -igt -1) {
 			$ResultHtml += " width=`"$Width`""
@@ -101,12 +101,12 @@ Function Add-StepSummaryImage {
 		If ($Height -igt -1) {
 			$ResultHtml += " height=`"$Height`""
 		}
-		$ResultHtml += '>'
+		$ResultHtml += ' />'
 		Return (Add-StepSummary -Value $ResultHtml -NoNewLine:$NoNewLine)
 	}
-	[String]$ResultMarkdown = "![$AlternativeText]($Uri"
+	[String]$ResultMarkdown = "![$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))]($([Uri]::EscapeUriString($Uri))"
 	If ($Title.Length -igt 0) {
-		$ResultMarkdown += " `"$Title`""
+		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
 	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine)
@@ -136,9 +136,9 @@ Function Add-StepSummaryLink {
 		[String]$Title,
 		[Switch]$NoNewLine
 	)
-	[String]$ResultMarkdown = "[$Text]($Uri"
+	[String]$ResultMarkdown = "[$([System.Web.HttpUtility]::HtmlAttributeEncode($Text))]($([Uri]::EscapeUriString($Uri))"
 	If ($Title.Length -igt 0) {
-		$ResultMarkdown += " `"$Title`""
+		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
 	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine)
@@ -161,7 +161,7 @@ Function Add-StepSummarySubscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Return (Add-StepSummary -Value "<sub>$Text</sub>" -NoNewLine:$NoNewLine)
+	Return (Add-StepSummary -Value "<sub>$([System.Web.HttpUtility]::HtmlEncode($Text))</sub>" -NoNewLine:$NoNewLine)
 }
 Set-Alias -Name 'Add-StepSummarySubscript' -Value 'Add-StepSummarySubscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -181,7 +181,7 @@ Function Add-StepSummarySuperscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Return (Add-StepSummary -Value "<sup>$Text</sup>" -NoNewLine:$NoNewLine)
+	Return (Add-StepSummary -Value "<sup>$([System.Web.HttpUtility]::HtmlEncode($Text))</sup>" -NoNewLine:$NoNewLine)
 }
 Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
