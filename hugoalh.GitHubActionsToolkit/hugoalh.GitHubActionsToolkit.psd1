@@ -65,6 +65,8 @@
 		'Add-ProblemMatcher',
 		'Add-SecretMask',
 		'Add-StepSummary',
+		'Add-StepSummaryImage',
+		'Add-StepSummaryLink',
 		'Disable-EchoingCommands',
 		'Disable-ProcessingCommands',
 		'Enable-EchoingCommands',
@@ -104,6 +106,9 @@
 	AliasesToExport = @(
 		'Add-Mask',
 		'Add-Secret',
+		'Add-StepSummaryHyperlink',
+		'Add-StepSummaryPicture',
+		'Add-StepSummaryRaw',
 		'Disable-CommandEcho',
 		'Disable-CommandEchoing',
 		'Disable-CommandProcess',

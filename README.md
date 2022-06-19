@@ -48,6 +48,8 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Add-GitHubActionsProblemMatcher`
 - `Add-GitHubActionsSecretMask`
 - `Add-GitHubActionsStepSummary`
+- `Add-GitHubActionsStepSummaryImage`
+- `Add-GitHubActionsStepSummaryLink`
 - `Disable-GitHubActionsEchoingCommands`
 - `Disable-GitHubActionsProcessingCommands`
 - `Enable-GitHubActionsEchoingCommands`
