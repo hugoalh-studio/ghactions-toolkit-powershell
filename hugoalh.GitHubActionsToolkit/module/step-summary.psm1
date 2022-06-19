@@ -37,9 +37,28 @@ Function Add-StepSummary {
 Set-Alias -Name 'Add-StepSummaryRaw' -Value 'Add-StepSummary' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Add Step Summary Header
+.DESCRIPTION
+Add header for step so that it will display on the summary page of a run.
+.PARAMETER Level
+Header level
+.PARAMETER Header
+Header title.
+#>
+Function Add-StepSummaryHeader {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummaryheader#Add-GitHubActionsStepSummaryHeader')]
+	[OutputType([Void])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0)][ValidateRange(1, 6)][UInt16]$Level,
+		[Parameter(Mandatory = $True, Position = 1)][Alias('Title', 'Value')][String]$Header
+	)
+	Return (Add-StepSummary -Value "$('#' * $Level) $Header")
+}
+<#
+.SYNOPSIS
 GitHub Actions - Add Step Summary Image
 .DESCRIPTION
-Add some GitHub flavored Markdown image for step so that it will display on the summary page of a run.
+Add image for step so that it will display on the summary page of a run.
 IMPORTANT: No support reference image!
 .PARAMETER Uri
 Image URI.
@@ -97,18 +116,14 @@ Set-Alias -Name 'Add-StepSummaryPicture' -Value 'Add-StepSummaryImage' -Option '
 .SYNOPSIS
 GitHub Actions - Add Step Summary Link
 .DESCRIPTION
-Add some GitHub flavored Markdown link for step so that it will display on the summary page of a run.
+Add link for step so that it will display on the summary page of a run.
 IMPORTANT: No support reference link!
+.PARAMETER Text
+Link text.
 .PARAMETER Uri
-Image URI.
+Link URI.
 .PARAMETER Title
-Image title.
-.PARAMETER AlternativeText
-Image alternative text.
-.PARAMETER Width
-Image width.
-.PARAMETER Height
-Image height.
+Link title.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 #>
@@ -118,7 +133,8 @@ Function Add-StepSummaryLink {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Text,
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Url')][String]$Uri,
-		[String]$Title
+		[String]$Title,
+		[Switch]$NoNewLine
 	)
 	[String]$ResultMarkdown = "[$Text]($Uri"
 	If ($Title.Length -igt 0) {
@@ -128,6 +144,46 @@ Function Add-StepSummaryLink {
 	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine)
 }
 Set-Alias -Name 'Add-StepSummaryHyperlink' -Value 'Add-StepSummaryLink' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
+GitHub Actions - Add Step Summary Subscript Text
+.DESCRIPTION
+Add subscript text for step so that it will display on the summary page of a run.
+.PARAMETER Text
+Text that need to subscript.
+.PARAMETER NoNewLine
+Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+#>
+Function Add-StepSummarySubscriptText {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummarysubscripttext#Add-GitHubActionsStepSummarySubscriptText')]
+	[OutputType([Void])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
+		[Switch]$NoNewLine
+	)
+	Return (Add-StepSummary -Value "<sub>$Text</sub>" -NoNewLine:$NoNewLine)
+}
+Set-Alias -Name 'Add-StepSummarySubscript' -Value 'Add-StepSummarySubscriptText' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
+GitHub Actions - Add Step Summary Superscript Text
+.DESCRIPTION
+Add superscript text for step so that it will display on the summary page of a run.
+.PARAMETER Text
+Text that need to superscript.
+.PARAMETER NoNewLine
+Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+#>
+Function Add-StepSummarySuperscriptText {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummarysuperscripttext#Add-GitHubActionsStepSummarySuperscriptText')]
+	[OutputType([Void])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
+		[Switch]$NoNewLine
+	)
+	Return (Add-StepSummary -Value "<sup>$Text</sup>" -NoNewLine:$NoNewLine)
+}
+Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Step Summary
@@ -207,13 +263,18 @@ Function Set-StepSummary {
 }
 Export-ModuleMember -Function @(
 	'Add-StepSummary',
+	'Add-StepSummaryHeader',
 	'Add-StepSummaryImage',
 	'Add-StepSummaryLink',
+	'Add-StepSummarySubscriptText'
+	'Add-StepSummarySuperscriptText'
 	'Get-StepSummary',
 	'Remove-StepSummary',
 	'Set-StepSummary'
 ) -Alias @(
 	'Add-StepSummaryHyperlink',
 	'Add-StepSummaryPicture',
-	'Add-StepSummaryRaw'
+	'Add-StepSummaryRaw',
+	'Add-StepSummarySubscript',
+	'Add-StepSummarySuperscript'
 )
