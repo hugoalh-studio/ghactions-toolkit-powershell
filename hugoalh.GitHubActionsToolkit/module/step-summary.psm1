@@ -12,26 +12,26 @@ Do not add a new line or carriage return to the content, the string representati
 .OUTPUTS
 Void
 #>
-function Add-StepSummary {
+Function Add-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
 		[Switch]$NoNewLine
 	)
-	begin {
+	Begin {
 		[String[]]$Result = @()
 	}
-	process {
-		if ($Value.Count -igt 0) {
+	Process {
+		If ($Value.Count -igt 0) {
 			$Result += $Value -join "`n"
 		}
 	}
-	end {
-		if ($Result.Count -igt 0) {
-			Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$false -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
+	End {
+		If ($Result.Count -igt 0) {
+			Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
-		return
+		Return
 	}
 }
 <#
@@ -46,20 +46,20 @@ Get step summary sizes instead of the content.
 .OUTPUTS
 String | String[] | UInt32
 #>
-function Get-StepSummary {
+Function Get-StepSummary {
 	[CmdletBinding(DefaultParameterSetName = 'Content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
 	[OutputType(([String], [String[]]), ParameterSetName = 'Content')]
 	[OutputType([UInt32], ParameterSetName = 'Sizes')]
 	Param (
 		[Parameter(ParameterSetName = 'Content')][Switch]$Raw,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
+		[Parameter(Mandatory = $True, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
-	switch ($PSCmdlet.ParameterSetName) {
+	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
-			return Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM'
+			Return (Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM')
 		}
 		'Sizes' {
-			return (Get-Item -LiteralPath $env:GITHUB_STEP_SUMMARY).Length
+			Return (Get-Item -LiteralPath $env:GITHUB_STEP_SUMMARY).Length
 		}
 	}
 }
@@ -71,11 +71,11 @@ Remove step summary that previously added/setted from functions `Add-GitHubActio
 .OUTPUTS
 Void
 #>
-function Remove-StepSummary {
+Function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param ()
-	return Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY -Confirm:$false
+	Return (Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY -Confirm:$False)
 }
 <#
 .SYNOPSIS
@@ -89,26 +89,26 @@ Do not add a new line or carriage return to the content, the string representati
 .OUTPUTS
 Void
 #>
-function Set-StepSummary {
+Function Set-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
 		[Switch]$NoNewLine
 	)
-	begin {
+	Begin {
 		[String[]]$Result = @()
 	}
-	process {
-		if ($Value.Count -igt 0) {
+	Process {
+		If ($Value.Count -igt 0) {
 			$Result += $Value -join "`n"
 		}
 	}
-	end {
-		if ($Result.Count -igt 0) {
-			Set-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$false -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
+	End {
+		If ($Result.Count -igt 0) {
+			Set-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
-		return
+		Return
 	}
 }
 Export-ModuleMember -Function @(

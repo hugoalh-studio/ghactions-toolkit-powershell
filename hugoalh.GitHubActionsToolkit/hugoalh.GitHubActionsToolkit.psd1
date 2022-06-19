@@ -217,7 +217,7 @@
 			# Prerelease = ''
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
-			RequireLicenseAcceptance = $false
+			RequireLicenseAcceptance = $False
 
 			# External dependent modules of this module
 			# ExternalModuleDependencies = @()

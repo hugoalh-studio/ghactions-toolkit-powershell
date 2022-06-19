@@ -28,11 +28,11 @@ Disable echoing most of the commands, the log will not show the command itself; 
 .OUTPUTS
 Void
 #>
-function Disable-EchoingCommands {
+Function Disable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechoingcommands#Disable-GitHubActionsEchoingCommands')]
 	[OutputType([Void])]
 	Param ()
-	return Write-GitHubActionsCommand -Command 'echo' -Value 'off'
+	Return (Write-GitHubActionsCommand -Command 'echo' -Value 'off')
 }
 Set-Alias -Name 'Disable-CommandEcho' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Disable-CommandEchoing' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -59,16 +59,16 @@ An end token for function `Enable-GitHubActionsProcessingCommands`.
 .OUTPUTS
 String
 #>
-function Disable-ProcessingCommands {
+Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
 	[OutputType([String])]
 	Param (
 		[Parameter(Position = 0)][ValidateScript({
-			return (Test-ProcessingCommandsEndToken -InputObject $_)
+			Return (Test-ProcessingCommandsEndToken -InputObject $_)
 		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = ((New-Guid).Guid -ireplace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
-	return $EndToken
+	Return $EndToken
 }
 Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Disable-CommandProcessing' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -93,11 +93,11 @@ Enable echoing most of the commands, the log will show the command itself; Secre
 .OUTPUTS
 Void
 #>
-function Enable-EchoingCommands {
+Function Enable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechoingcommands#Enable-GitHubActionsEchoingCommands')]
 	[OutputType([Void])]
 	Param ()
-	return Write-GitHubActionsCommand -Command 'echo' -Value 'on'
+	Return (Write-GitHubActionsCommand -Command 'echo' -Value 'on')
 }
 Set-Alias -Name 'Enable-CommandEcho' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-CommandEchoing' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -124,15 +124,15 @@ An end token from function `Disable-GitHubActionsProcessingCommands`.
 .OUTPUTS
 Void
 #>
-function Enable-ProcessingCommands {
+Function Enable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommands#Enable-GitHubActionsProcessingCommands')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0)][ValidateScript({
-			return (Test-ProcessingCommandsEndToken -InputObject $_)
+		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({
+			Return (Test-ProcessingCommandsEndToken -InputObject $_)
 		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
-	return Write-GitHubActionsCommand -Command $EndToken
+	Return (Write-GitHubActionsCommand -Command $EndToken)
 }
 Set-Alias -Name 'Enable-CommandProcess' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-CommandProcessing' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -159,13 +159,13 @@ Processing commands end token that need to test.
 .OUTPUTS
 Boolean
 #>
-function Test-ProcessingCommandsEndToken {
+Function Test-ProcessingCommandsEndToken {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0)][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'Object')][String]$InputObject
 	)
-	return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands)
+	Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands)
 }
 Export-ModuleMember -Function @(
 	'Disable-EchoingCommands',

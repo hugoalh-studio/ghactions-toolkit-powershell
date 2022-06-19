@@ -16,28 +16,28 @@ Split the secret to chunks to well make a secret will get masked from the log.
 .OUTPUTS
 Void
 #>
-function Add-SecretMask {
+Function Add-SecretMask {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][String]$Value,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][String]$Value,
 		[Alias('WithChunk')][Switch]$WithChunks
 	)
-	begin {}
-	process {
-		if ($Value.Length -igt 0) {
+	Begin {}
+	Process {
+		If ($Value.Length -igt 0) {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 		}
-		if ($WithChunks) {
-			foreach ($Item in [String[]]($Value -isplit '[\b\n\r\s\t_-]+')) {
-				if ($Item.Length -ige 4) {
+		If ($WithChunks) {
+			ForEach ($Item In [String[]]($Value -isplit '[\b\n\r\s\t_-]+')) {
+				If ($Item.Length -ige 4) {
 					Write-GitHubActionsCommand -Command 'add-mask' -Value $Item
 				}
 			}
 		}
 	}
-	end {
-		return
+	End {
+		Return
 	}
 }
 Set-Alias -Name 'Add-Mask' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
@@ -50,17 +50,17 @@ Get debug status.
 .OUTPUTS
 Boolean
 #>
-function Get-IsDebug {
+Function Get-IsDebug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsisdebug#Get-GitHubActionsIsDebug')]
 	[OutputType([Boolean])]
 	Param ()
-	if (
+	If (
 		$env:RUNNER_DEBUG -ieq 'true' -or
 		$env:RUNNER_DEBUG -ieq '1'
 	) {
-		return $true
+		Return $True
 	}
-	return $false
+	Return $False
 }
 <#
 .SYNOPSIS
@@ -76,7 +76,7 @@ Specify that output is not enumerated; Setting this parameter causes arrays to b
 .OUTPUTS
 Hashtable | PSCustomObject
 #>
-function Get-WebhookEventPayload {
+Function Get-WebhookEventPayload {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionswebhookeventpayload#Get-GitHubActionsWebhookEventPayload')]
 	[OutputType(([Hashtable], [PSCustomObject]))]
 	Param (
@@ -84,7 +84,7 @@ function Get-WebhookEventPayload {
 		[UInt16]$Depth = 1024,
 		[Switch]$NoEnumerate
 	)
-	return (Get-Content -LiteralPath $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
+	Return (Get-Content -LiteralPath $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
 }
 Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-Payload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
@@ -98,11 +98,11 @@ Get the workflow run's URI.
 .OUTPUTS
 String
 #>
-function Get-WorkflowRunUri {
+Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
 	[OutputType([String])]
 	Param ()
-	return "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+	Return "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
 }
 Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -117,7 +117,7 @@ The requirement whether is mandatory; If mandatory but not fulfill, will throw a
 .PARAMETER MandatoryMessage
 Message when the requirement is mandatory but not fulfill.
 #>
-function Test-Environment {
+Function Test-Environment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
 	[OutputType([Boolean])]
 	Param (
@@ -125,7 +125,7 @@ function Test-Environment {
 		[Alias('Force', 'Forced', 'Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process require to execute inside the GitHub Actions environment!'
 	)
-	if (
+	If (
 		$env:CI -ine 'true' -or
 		$null -ieq $env:GITHUB_ACTION_REPOSITORY -or
 		$null -ieq $env:GITHUB_ACTION -or
@@ -160,12 +160,12 @@ function Test-Environment {
 		($OpenIdConnect -and $null -ieq $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN) -or
 		($OpenIdConnect -and $null -ieq $env:ACTIONS_ID_TOKEN_REQUEST_URL)
 	) {
-		if ($Mandatory) {
-			return Write-GitHubActionsFail -Message $MandatoryMessage
+		If ($Mandatory) {
+			Return (Write-GitHubActionsFail -Message $MandatoryMessage)
 		}
-		return $false
+		Return $False
 	}
-	return $true
+	Return $True
 }
 Export-ModuleMember -Function @(
 	'Add-SecretMask',

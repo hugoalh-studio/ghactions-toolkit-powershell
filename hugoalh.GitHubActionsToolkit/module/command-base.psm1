@@ -10,13 +10,13 @@ String that need to format command parameter characters.
 .OUTPUTS
 String
 #>
-function Format-CommandParameter {
+Function Format-CommandParameter {
 	[CmdletBinding()]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	return (Format-CommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A'
+	Return ((Format-CommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A')
 }
 Set-Alias -Name 'Format-CommandProperty' -Value 'Format-CommandParameter' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -29,13 +29,13 @@ String that need to format command value characters.
 .OUTPUTS
 String
 #>
-function Format-CommandValue {
+Function Format-CommandValue {
 	[CmdletBinding()]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	return $InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D'
+	Return ($InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D')
 }
 Set-Alias -Name 'Format-CommandContent' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
@@ -53,22 +53,22 @@ Command parameter.
 .OUTPUTS
 Void
 #>
-function Write-Command {
+Function Write-Command {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionscommand#Write-GitHubActionsCommand')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid command!')][String]$Command,
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $true)][Alias('Content', 'Message')][String]$Value = '',
-		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $true)][Alias('Parameters', 'Property', 'Properties')][Hashtable]$Parameter = @{}
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid command!')][String]$Command,
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Value = '',
+		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('Parameters', 'Property', 'Properties')][Hashtable]$Parameter = @{}
 	)
-	begin {}
-	process {
+	Begin {}
+	Process {
 		Write-Host -Object "::$Command$(($Parameter.Count -igt 0) ? " $(($Parameter.GetEnumerator() | Sort-Object -Property 'Name' | ForEach-Object -Process {
-			return "$($_.Name)=$(Format-CommandParameter -InputObject $_.Value)"
+			Return "$($_.Name)=$(Format-CommandParameter -InputObject $_.Value)"
 		}) -join ',')" : '')::$(Format-CommandValue -InputObject $Value)"
 	}
-	end {
-		return
+	End {
+		Return
 	}
 }
 Export-ModuleMember -Function @(

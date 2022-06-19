@@ -28,33 +28,33 @@ Trim the input's value.
 .OUTPUTS
 Hashtable | String
 #>
-function Get-Input {
+Function Get-Input {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsinput#Get-GitHubActionsInput')]
 	[OutputType([String], ParameterSetName = 'One')]
 	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
 	Param (
-		[Parameter(Mandatory = $true, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][String]$Name,
 		[Parameter(ParameterSetName = 'One')][Alias('Require', 'Required')][Switch]$Mandatory,
 		[Parameter(ParameterSetName = 'One')][Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'Input `{0}` is not defined!',
-		[Parameter(Mandatory = $true, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
 		[Parameter(ParameterSetName = 'All')][Switch]$All,
 		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
 		[Switch]$Trim
 	)
-	begin {
+	Begin {
 		[Hashtable]$OutputObject = @{}
 	}
-	process {
-		switch ($PSCmdlet.ParameterSetName) {
+	Process {
+		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
-				foreach ($Item in (Get-ChildItem -Path 'Env:\INPUT_*')) {
-					if ($null -ieq $Item.Value) {
-						continue
+				ForEach ($Item In (Get-ChildItem -Path 'Env:\INPUT_*')) {
+					If ($null -ieq $Item.Value) {
+						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					if ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
-						continue
+					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace '^INPUT_', ''
 					$OutputObject[$ItemName] = $ItemValue
@@ -62,42 +62,42 @@ function Get-Input {
 			}
 			'One' {
 				$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-				if ($null -ieq $InputValueRaw) {
-					if ($Mandatory) {
-						return Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
+				If ($null -ieq $InputValueRaw) {
+					If ($Mandatory) {
+						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
 					}
-					return $null
+					Return $null
 				}
 				[String]$InputValue = $Trim ? $InputValueRaw.Trim() : $InputValueRaw
-				if ($EmptyStringAsNull -and $InputValue.Length -ieq 0) {
-					if ($Mandatory) {
-						return Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
+				If ($EmptyStringAsNull -and $InputValue.Length -ieq 0) {
+					If ($Mandatory) {
+						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
 					}
-					return $null
+					Return $null
 				}
-				return $InputValue
+				Return $InputValue
 			}
 			'Prefix' {
-				foreach ($Item in (Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*")) {
-					if ($null -ieq $Item.Value) {
-						continue
+				ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*")) {
+					If ($null -ieq $Item.Value) {
+						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					if ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
-						continue
+					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^INPUT_$([RegEx]::Escape($NamePrefix))", ''
 					$OutputObject[$ItemName] = $ItemValue
 				}
 			}
 			'Suffix' {
-				foreach ($Item in (Get-ChildItem -Path "Env:\INPUT_*$($NameSuffix.ToUpper())")) {
-					if ($null -ieq $Item.Value) {
-						continue
+				ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_*$($NameSuffix.ToUpper())")) {
+					If ($null -ieq $Item.Value) {
+						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					if ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
-						continue
+					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^INPUT_|$([RegEx]::Escape($NameSuffix))$", ''
 					$OutputObject[$ItemName] = $ItemValue
@@ -105,9 +105,9 @@ function Get-Input {
 			}
 		}
 	}
-	end {
-		if ($PSCmdlet.ParameterSetName -iin @('All', 'Prefix', 'Suffix')) {
-			return $OutputObject
+	End {
+		If ($PSCmdlet.ParameterSetName -iin @('All', 'Prefix', 'Suffix')) {
+			Return $OutputObject
 		}
 	}
 }
@@ -131,31 +131,31 @@ Trim the state's value.
 .OUTPUTS
 Hashtable | String
 #>
-function Get-State {
+Function Get-State {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstate#Get-GitHubActionsState')]
 	[OutputType([String], ParameterSetName = 'One')]
 	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
 	Param (
-		[Parameter(Mandatory = $true, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
+		[Parameter(Mandatory = $True, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
 		[Parameter(ParameterSetName = 'All')][Switch]$All,
 		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
 		[Switch]$Trim
 	)
-	begin {
+	Begin {
 		[Hashtable]$OutputObject = @{}
 	}
-	process {
-		switch ($PSCmdlet.ParameterSetName) {
+	Process {
+		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
-				foreach ($Item in (Get-ChildItem -Path 'Env:\STATE_*')) {
-					if ($null -ieq $Item.Value) {
-						continue
+				ForEach ($Item In (Get-ChildItem -Path 'Env:\STATE_*')) {
+					If ($null -ieq $Item.Value) {
+						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					if ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
-						continue
+					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace '^STATE_', ''
 					$OutputObject[$ItemName] = $ItemValue
@@ -163,36 +163,36 @@ function Get-State {
 			}
 			'One' {
 				$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-				if ($null -ieq $StateValueRaw) {
-					return $null
+				If ($null -ieq $StateValueRaw) {
+					Return $null
 				}
 				[String]$StateValue = $Trim ? $StateValueRaw.Trim() : $StateValueRaw
-				if ($EmptyStringAsNull -and $StateValue.Length -ieq 0) {
-					return $null
+				If ($EmptyStringAsNull -and $StateValue.Length -ieq 0) {
+					Return $null
 				}
-				return $StateValue
+				Return $StateValue
 			}
 			'Prefix' {
-				foreach ($Item in (Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*")) {
-					if ($null -ieq $Item.Value) {
-						continue
+				ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*")) {
+					If ($null -ieq $Item.Value) {
+						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					if ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
-						continue
+					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^STATE_$([RegEx]::Escape($NamePrefix))", ''
 					$OutputObject[$ItemName] = $ItemValue
 				}
 			}
 			'Suffix' {
-				foreach ($Item in (Get-ChildItem -Path "Env:\STATE_*$($NameSuffix.ToUpper())")) {
-					if ($null -ieq $Item.Value) {
-						continue
+				ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_*$($NameSuffix.ToUpper())")) {
+					If ($null -ieq $Item.Value) {
+						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					if ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
-						continue
+					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^STATE_|$([RegEx]::Escape($NameSuffix))$", ''
 					$OutputObject[$ItemName] = $ItemValue
@@ -200,9 +200,9 @@ function Get-State {
 			}
 		}
 	}
-	end {
-		if ($PSCmdlet.ParameterSetName -iin @('All', 'Prefix', 'Suffix')) {
-			return $OutputObject
+	End {
+		If ($PSCmdlet.ParameterSetName -iin @('All', 'Prefix', 'Suffix')) {
+			Return $OutputObject
 		}
 	}
 }
@@ -221,30 +221,30 @@ Value of the output.
 .OUTPUTS
 Void
 #>
-function Set-Output {
+Function Set-Output {
 	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $true, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][Hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][String]$Value
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
-	begin {}
-	process {
-		switch ($PSCmdlet.ParameterSetName) {
+	Begin {}
+	Process {
+		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				foreach ($Item in $InputObject.GetEnumerator()) {
-					if ($Item.Name.GetType().Name -ine 'String') {
+				ForEach ($Item In $InputObject.GetEnumerator()) {
+					If ($Item.Name.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						continue
+						Continue
 					}
-					if ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
 						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
-						continue
+						Continue
 					}
-					if ($Item.Value.GetType().Name -ine 'String') {
+					If ($Item.Value.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						continue
+						Continue
 					}
 					Write-GitHubActionsCommand -Command 'set-output' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
 				}
@@ -254,8 +254,8 @@ function Set-Output {
 			}
 		}
 	}
-	end {
-		return
+	End {
+		Return
 	}
 }
 <#
@@ -272,30 +272,30 @@ Value of the state.
 .OUTPUTS
 Void
 #>
-function Set-State {
+Function Set-State {
 	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $true, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $true)][Alias('Input', 'Object')][Hashtable]$InputObject,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $true)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $true, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $true)][AllowEmptyString()][String]$Value
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
-	begin {}
-	process {
-		switch ($PSCmdlet.ParameterSetName) {
+	Begin {}
+	Process {
+		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				foreach ($Item in $InputObject.GetEnumerator()) {
-					if ($Item.Name.GetType().Name -ine 'String') {
+				ForEach ($Item In $InputObject.GetEnumerator()) {
+					If ($Item.Name.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						continue
+						Continue
 					}
-					if ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
 						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
-						continue
+						Continue
 					}
-					if ($Item.Value.GetType().Name -ine 'String') {
+					If ($Item.Value.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						continue
+						Continue
 					}
 					Write-GitHubActionsCommand -Command 'save-state' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
 				}
@@ -305,8 +305,8 @@ function Set-State {
 			}
 		}
 	}
-	end {
-		return
+	End {
+		Return
 	}
 }
 Set-Alias -Name 'Save-State' -Value 'Set-State' -Option 'ReadOnly' -Scope 'Local'

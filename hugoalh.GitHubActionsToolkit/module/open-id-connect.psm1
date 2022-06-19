@@ -14,29 +14,29 @@ Audience.
 .OUTPUTS
 String
 #>
-function Get-OpenIdConnectToken {
+Function Get-OpenIdConnectToken {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsopenidconnecttoken#Get-GitHubActionsOpenIdConnectToken')]
 	[OutputType([String])]
 	Param (
 		[Parameter(Position = 0)][String]$Audience
 	)
-	if (!(Test-GitHubActionsEnvironment -OpenIDConnect)) {
-		return Write-Error -Message 'Unable to get GitHub Actions OpenID Connect (OIDC) resources!' -Category 'ResourceUnavailable'
+	If (!(Test-GitHubActionsEnvironment -OpenIDConnect)) {
+		Return (Write-Error -Message 'Unable to get GitHub Actions OpenID Connect (OIDC) resources!' -Category 'ResourceUnavailable')
 	}
 	[String]$RequestToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
 	[String]$RequestUri = $env:ACTIONS_ID_TOKEN_REQUEST_URL
 	Add-GitHubActionsSecretMask -Value $RequestToken
-	if ($Audience.Length -igt 0) {
+	If ($Audience.Length -igt 0) {
 		$RequestUri += "&audience=$([System.Web.HttpUtility]::UrlEncode($Audience))"
 	}
 	Write-GitHubActionsDebug -Message "OpenID Connect Token Request URI: $RequestUri"
-	try {
+	Try {
 		[PSCustomObject]$Response = Invoke-WebRequest -Uri $RequestUri -UseBasicParsing -UserAgent 'actions/oidc-client' -Headers @{ Authorization = "Bearer $RequestToken" } -MaximumRedirection 1 -MaximumRetryCount 10 -RetryIntervalSec 10 -Method 'Get'
 		[ValidateNotNullOrEmpty()][String]$OidcToken = (ConvertFrom-Json -InputObject $Response.Content -Depth 100).value
 		Add-GitHubActionsSecretMask -Value $OidcToken
-		return $OidcToken
-	} catch {
-		return Write-Error @_
+		Return $OidcToken
+	} Catch {
+		Return (Write-Error @_)
 	}
 }
 Set-Alias -Name 'Get-OidcToken' -Value 'Get-OpenIdConnectToken' -Option 'ReadOnly' -Scope 'Local'
