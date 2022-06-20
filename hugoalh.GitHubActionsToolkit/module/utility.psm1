@@ -110,8 +110,16 @@ Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOn
 GitHub Actions - Test Environment
 .DESCRIPTION
 Test the current process whether is executing inside the GitHub Actions environment.
+.PARAMETER Artifact
+Also test the current process whether has GitHub Actions artifact resources.
+.PARAMETER Cache
+Also test the current process whether has GitHub Actions cache resources.
 .PARAMETER OpenIdConnect
 Also test the current process whether has GitHub Actions OpenID Connect (OIDC) resources.
+.PARAMETER StepSummary
+Also test the current process whether has GitHub Actions step summary resources.
+.PARAMETER ToolCache
+Also test the current process whether has GitHub Actions tool cache resources.
 .PARAMETER Mandatory
 The requirement whether is mandatory; If mandatory but not fulfill, will throw an error.
 .PARAMETER MandatoryMessage
@@ -121,14 +129,18 @@ Function Test-Environment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
 	[OutputType([Boolean])]
 	Param (
+		[Switch]$Artifact,
+		[Switch]$Cache,
 		[Alias('Oidc')][Switch]$OpenIdConnect,
+		[Alias('Summary')][Switch]$StepSummary,
+		[Switch]$ToolCache,
 		[Alias('Force', 'Forced', 'Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process require to execute inside the GitHub Actions environment!'
 	)
 	If (
 		$Env:CI -ine 'true' -or
-		$Null -ieq $Env:GITHUB_ACTION_REPOSITORY -or
 		$Null -ieq $Env:GITHUB_ACTION -or
+		$Null -ieq $Env:GITHUB_ACTION_REPOSITORY -or
 		$Null -ieq $Env:GITHUB_ACTIONS -or
 		$Null -ieq $Env:GITHUB_ACTOR -or
 		$Null -ieq $Env:GITHUB_API_URL -or
@@ -141,24 +153,30 @@ Function Test-Environment {
 		$Null -ieq $Env:GITHUB_REF_NAME -or
 		$Null -ieq $Env:GITHUB_REF_PROTECTED -or
 		$Null -ieq $Env:GITHUB_REF_TYPE -or
-		$Null -ieq $Env:GITHUB_REPOSITORY_OWNER -or
 		$Null -ieq $Env:GITHUB_REPOSITORY -or
-		$Null -ieq $Env:GITHUB_RETENTION_DAYS -or
+		$Null -ieq $Env:GITHUB_REPOSITORY_OWNER -or
 		$Null -ieq $Env:GITHUB_RUN_ATTEMPT -or
 		$Null -ieq $Env:GITHUB_RUN_ID -or
 		$Null -ieq $Env:GITHUB_RUN_NUMBER -or
 		$Null -ieq $Env:GITHUB_SERVER_URL -or
 		$Null -ieq $Env:GITHUB_SHA -or
-		$Null -ieq $Env:GITHUB_STEP_SUMMARY -or
 		$Null -ieq $Env:GITHUB_WORKFLOW -or
 		$Null -ieq $Env:GITHUB_WORKSPACE -or
 		$Null -ieq $Env:RUNNER_ARCH -or
 		$Null -ieq $Env:RUNNER_NAME -or
 		$Null -ieq $Env:RUNNER_OS -or
 		$Null -ieq $Env:RUNNER_TEMP -or
-		$Null -ieq $Env:RUNNER_TOOL_CACHE -or
+		((
+			$Artifact -or
+			$Cache
+		) -and $Null -ieq $Env:ACTIONS_RUNTIME_TOKEN) -or
+		($Artifact -and $Null -ieq $Env:ACTIONS_RUNTIME_URL) -or
+		($Artifact -and $Null -ieq $Env:GITHUB_RETENTION_DAYS) -or
+		($Cache -and $Null -ieq $Env:ACTIONS_CACHE_URL) -or
 		($OpenIdConnect -and $Null -ieq $Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN) -or
-		($OpenIdConnect -and $Null -ieq $Env:ACTIONS_ID_TOKEN_REQUEST_URL)
+		($OpenIdConnect -and $Null -ieq $Env:ACTIONS_ID_TOKEN_REQUEST_URL) -or
+		($StepSummary -and $Null -ieq $Env:GITHUB_STEP_SUMMARY) -or
+		($ToolCache -and $Null -ieq $Env:RUNNER_TOOL_CACHE)
 	) {
 		If ($Mandatory) {
 			Return (Write-GitHubActionsFail -Message $MandatoryMessage)

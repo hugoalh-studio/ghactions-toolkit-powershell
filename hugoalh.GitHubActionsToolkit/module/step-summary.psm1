@@ -1,5 +1,8 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'utility.psm1')
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
@@ -20,6 +23,9 @@ Function Add-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
+		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+		}
 		[String[]]$Result = @()
 	}
 	Process {
@@ -204,6 +210,9 @@ Function Get-StepSummary {
 		[Parameter(ParameterSetName = 'Content')][Switch]$Raw,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
+	If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+		Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+	}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
 			Return (Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM')
@@ -225,6 +234,9 @@ Function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param ()
+	If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+		Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+	}
 	Return (Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False)
 }
 <#
@@ -247,6 +259,9 @@ Function Set-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
+		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+		}	
 		[String[]]$Result = @()
 	}
 	Process {
