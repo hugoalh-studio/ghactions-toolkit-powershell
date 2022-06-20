@@ -50,12 +50,12 @@ Function Add-PATH {
 					[System.Environment]::SetEnvironmentVariable('PATH', ($PATHRaw -join [System.IO.Path]::PathSeparator))
 				}
 				{ $_ -icontains 'Subsequent' } {
-					If ($null -ieq $env:GITHUB_PATH) {
+					If ($Null -ieq $Env:GITHUB_PATH) {
 						ForEach ($Item In $Result) {
 							Write-GitHubActionsCommand -Command 'add-path' -Value $Item
 						}
 					} Else {
-						Add-Content -LiteralPath $env:GITHUB_PATH -Value ($Result -join "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
+						Add-Content -LiteralPath $Env:GITHUB_PATH -Value ($Result -join "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
 					}
 				}
 			}
@@ -134,12 +134,12 @@ Function Set-EnvironmentVariable {
 					}
 				}
 				{ $_ -icontains 'Subsequent' } {
-					If ($null -ieq $env:GITHUB_ENV) {
+					If ($Null -ieq $Env:GITHUB_ENV) {
 						ForEach ($Item In $ResultEnumerator) {
 							Write-GitHubActionsCommand -Command 'set-env' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
 						}
 					} Else {
-						Add-Content -LiteralPath $env:GITHUB_ENV -Value (($ResultEnumerator | ForEach-Object -Process {
+						Add-Content -LiteralPath $Env:GITHUB_ENV -Value (($ResultEnumerator | ForEach-Object -Process {
 							Return "$($_.Name)=$($_.Value)"
 						}) -join "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
 					}

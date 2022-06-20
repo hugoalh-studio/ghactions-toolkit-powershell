@@ -22,7 +22,7 @@ Name of the inputs end with.
 .PARAMETER All
 Get all of the inputs.
 .PARAMETER EmptyStringAsNull
-Assume empty string of input's string as `$null`.
+Assume empty string of input's string as `$Null`.
 .PARAMETER Trim
 Trim the input's value.
 .OUTPUTS
@@ -49,7 +49,7 @@ Function Get-Input {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
 				ForEach ($Item In (Get-ChildItem -Path 'Env:\INPUT_*')) {
-					If ($null -ieq $Item.Value) {
+					If ($Null -ieq $Item.Value) {
 						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
@@ -62,24 +62,24 @@ Function Get-Input {
 			}
 			'One' {
 				$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-				If ($null -ieq $InputValueRaw) {
+				If ($Null -ieq $InputValueRaw) {
 					If ($Mandatory) {
 						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
 					}
-					Return $null
+					Return $Null
 				}
 				[String]$InputValue = $Trim ? $InputValueRaw.Trim() : $InputValueRaw
 				If ($EmptyStringAsNull -and $InputValue.Length -ieq 0) {
 					If ($Mandatory) {
 						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
 					}
-					Return $null
+					Return $Null
 				}
 				Return $InputValue
 			}
 			'Prefix' {
 				ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*")) {
-					If ($null -ieq $Item.Value) {
+					If ($Null -ieq $Item.Value) {
 						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
@@ -92,7 +92,7 @@ Function Get-Input {
 			}
 			'Suffix' {
 				ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_*$($NameSuffix.ToUpper())")) {
-					If ($null -ieq $Item.Value) {
+					If ($Null -ieq $Item.Value) {
 						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
@@ -125,7 +125,7 @@ Name of the states end with.
 .PARAMETER All
 Get all of the states.
 .PARAMETER EmptyStringAsNull
-Assume empty string of state's value as `$null`.
+Assume empty string of state's value as `$Null`.
 .PARAMETER Trim
 Trim the state's value.
 .OUTPUTS
@@ -150,7 +150,7 @@ Function Get-State {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
 				ForEach ($Item In (Get-ChildItem -Path 'Env:\STATE_*')) {
-					If ($null -ieq $Item.Value) {
+					If ($Null -ieq $Item.Value) {
 						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
@@ -163,18 +163,18 @@ Function Get-State {
 			}
 			'One' {
 				$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-				If ($null -ieq $StateValueRaw) {
-					Return $null
+				If ($Null -ieq $StateValueRaw) {
+					Return $Null
 				}
 				[String]$StateValue = $Trim ? $StateValueRaw.Trim() : $StateValueRaw
 				If ($EmptyStringAsNull -and $StateValue.Length -ieq 0) {
-					Return $null
+					Return $Null
 				}
 				Return $StateValue
 			}
 			'Prefix' {
 				ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*")) {
-					If ($null -ieq $Item.Value) {
+					If ($Null -ieq $Item.Value) {
 						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
@@ -187,7 +187,7 @@ Function Get-State {
 			}
 			'Suffix' {
 				ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_*$($NameSuffix.ToUpper())")) {
-					If ($null -ieq $Item.Value) {
+					If ($Null -ieq $Item.Value) {
 						Continue
 					}
 					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value

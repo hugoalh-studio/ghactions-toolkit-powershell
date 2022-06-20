@@ -55,8 +55,8 @@ Function Get-IsDebug {
 	[OutputType([Boolean])]
 	Param ()
 	If (
-		$env:RUNNER_DEBUG -ieq 'true' -or
-		$env:RUNNER_DEBUG -ieq '1'
+		$Env:RUNNER_DEBUG -ieq 'true' -or
+		$Env:RUNNER_DEBUG -ieq '1'
 	) {
 		Return $True
 	}
@@ -84,7 +84,7 @@ Function Get-WebhookEventPayload {
 		[UInt16]$Depth = 1024,
 		[Switch]$NoEnumerate
 	)
-	Return (Get-Content -LiteralPath $env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
+	Return (Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable -Depth $Depth -NoEnumerate:$NoEnumerate)
 }
 Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-Payload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
@@ -102,7 +102,7 @@ Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
 	[OutputType([String])]
 	Param ()
-	Return "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+	Return "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 }
 Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -126,39 +126,39 @@ Function Test-Environment {
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process require to execute inside the GitHub Actions environment!'
 	)
 	If (
-		$env:CI -ine 'true' -or
-		$null -ieq $env:GITHUB_ACTION_REPOSITORY -or
-		$null -ieq $env:GITHUB_ACTION -or
-		$null -ieq $env:GITHUB_ACTIONS -or
-		$null -ieq $env:GITHUB_ACTOR -or
-		$null -ieq $env:GITHUB_API_URL -or
-		$null -ieq $env:GITHUB_ENV -or
-		$null -ieq $env:GITHUB_EVENT_NAME -or
-		$null -ieq $env:GITHUB_EVENT_PATH -or
-		$null -ieq $env:GITHUB_GRAPHQL_URL -or
-		$null -ieq $env:GITHUB_JOB -or
-		$null -ieq $env:GITHUB_PATH -or
-		$null -ieq $env:GITHUB_REF_NAME -or
-		$null -ieq $env:GITHUB_REF_PROTECTED -or
-		$null -ieq $env:GITHUB_REF_TYPE -or
-		$null -ieq $env:GITHUB_REPOSITORY_OWNER -or
-		$null -ieq $env:GITHUB_REPOSITORY -or
-		$null -ieq $env:GITHUB_RETENTION_DAYS -or
-		$null -ieq $env:GITHUB_RUN_ATTEMPT -or
-		$null -ieq $env:GITHUB_RUN_ID -or
-		$null -ieq $env:GITHUB_RUN_NUMBER -or
-		$null -ieq $env:GITHUB_SERVER_URL -or
-		$null -ieq $env:GITHUB_SHA -or
-		$null -ieq $env:GITHUB_STEP_SUMMARY -or
-		$null -ieq $env:GITHUB_WORKFLOW -or
-		$null -ieq $env:GITHUB_WORKSPACE -or
-		$null -ieq $env:RUNNER_ARCH -or
-		$null -ieq $env:RUNNER_NAME -or
-		$null -ieq $env:RUNNER_OS -or
-		$null -ieq $env:RUNNER_TEMP -or
-		$null -ieq $env:RUNNER_TOOL_CACHE -or
-		($OpenIdConnect -and $null -ieq $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN) -or
-		($OpenIdConnect -and $null -ieq $env:ACTIONS_ID_TOKEN_REQUEST_URL)
+		$Env:CI -ine 'true' -or
+		$Null -ieq $Env:GITHUB_ACTION_REPOSITORY -or
+		$Null -ieq $Env:GITHUB_ACTION -or
+		$Null -ieq $Env:GITHUB_ACTIONS -or
+		$Null -ieq $Env:GITHUB_ACTOR -or
+		$Null -ieq $Env:GITHUB_API_URL -or
+		$Null -ieq $Env:GITHUB_ENV -or
+		$Null -ieq $Env:GITHUB_EVENT_NAME -or
+		$Null -ieq $Env:GITHUB_EVENT_PATH -or
+		$Null -ieq $Env:GITHUB_GRAPHQL_URL -or
+		$Null -ieq $Env:GITHUB_JOB -or
+		$Null -ieq $Env:GITHUB_PATH -or
+		$Null -ieq $Env:GITHUB_REF_NAME -or
+		$Null -ieq $Env:GITHUB_REF_PROTECTED -or
+		$Null -ieq $Env:GITHUB_REF_TYPE -or
+		$Null -ieq $Env:GITHUB_REPOSITORY_OWNER -or
+		$Null -ieq $Env:GITHUB_REPOSITORY -or
+		$Null -ieq $Env:GITHUB_RETENTION_DAYS -or
+		$Null -ieq $Env:GITHUB_RUN_ATTEMPT -or
+		$Null -ieq $Env:GITHUB_RUN_ID -or
+		$Null -ieq $Env:GITHUB_RUN_NUMBER -or
+		$Null -ieq $Env:GITHUB_SERVER_URL -or
+		$Null -ieq $Env:GITHUB_SHA -or
+		$Null -ieq $Env:GITHUB_STEP_SUMMARY -or
+		$Null -ieq $Env:GITHUB_WORKFLOW -or
+		$Null -ieq $Env:GITHUB_WORKSPACE -or
+		$Null -ieq $Env:RUNNER_ARCH -or
+		$Null -ieq $Env:RUNNER_NAME -or
+		$Null -ieq $Env:RUNNER_OS -or
+		$Null -ieq $Env:RUNNER_TEMP -or
+		$Null -ieq $Env:RUNNER_TOOL_CACHE -or
+		($OpenIdConnect -and $Null -ieq $Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN) -or
+		($OpenIdConnect -and $Null -ieq $Env:ACTIONS_ID_TOKEN_REQUEST_URL)
 	) {
 		If ($Mandatory) {
 			Return (Write-GitHubActionsFail -Message $MandatoryMessage)

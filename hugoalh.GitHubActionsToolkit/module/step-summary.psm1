@@ -29,7 +29,7 @@ Function Add-StepSummary {
 	}
 	End {
 		If ($Result.Count -igt 0) {
-			Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
+			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
 		Return
 	}
@@ -206,10 +206,10 @@ Function Get-StepSummary {
 	)
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
-			Return (Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM')
+			Return (Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM')
 		}
 		'Sizes' {
-			Return (Get-Item -LiteralPath $env:GITHUB_STEP_SUMMARY).Length
+			Return (Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY).Length
 		}
 	}
 }
@@ -225,7 +225,7 @@ Function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param ()
-	Return (Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY -Confirm:$False)
+	Return (Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False)
 }
 <#
 .SYNOPSIS
@@ -256,7 +256,7 @@ Function Set-StepSummary {
 	}
 	End {
 		If ($Result.Count -igt 0) {
-			Set-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
+			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
 		}
 		Return
 	}

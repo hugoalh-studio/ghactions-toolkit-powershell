@@ -23,8 +23,8 @@ Function Get-OpenIdConnectToken {
 	If (!(Test-GitHubActionsEnvironment -OpenIDConnect)) {
 		Return (Write-Error -Message 'Unable to get GitHub Actions OpenID Connect (OIDC) resources!' -Category 'ResourceUnavailable')
 	}
-	[String]$RequestToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
-	[String]$RequestUri = $env:ACTIONS_ID_TOKEN_REQUEST_URL
+	[String]$RequestToken = $Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
+	[String]$RequestUri = $Env:ACTIONS_ID_TOKEN_REQUEST_URL
 	Add-GitHubActionsSecretMask -Value $RequestToken
 	If ($Audience.Length -igt 0) {
 		$RequestUri += "&audience=$([System.Web.HttpUtility]::UrlEncode($Audience))"
