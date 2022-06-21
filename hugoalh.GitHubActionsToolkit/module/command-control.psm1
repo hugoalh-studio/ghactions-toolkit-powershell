@@ -6,7 +6,7 @@ Import-Module -Name @(
 [String[]]$GitHubActionsCommands = @(
 	'add-mask',
 	'add-matcher',
-	'add-path',
+	'add-path',# Legacy
 	'debug',
 	'echo',
 	'endgroup',
@@ -15,7 +15,7 @@ Import-Module -Name @(
 	'notice',
 	'remove-matcher',
 	'save-state',
-	'set-env',
+	'set-env',# Legacy
 	'set-output',
 	'stop-commands'
 	'warning'
