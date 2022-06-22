@@ -57,7 +57,7 @@ Function Write-Command {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionscommand#Write-GitHubActionsCommand')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid command!')][String]$Command,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions command!')][String]$Command,
 		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Value = '',
 		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('Parameters', 'Property', 'Properties')][Hashtable]$Parameter = @{}
 	)

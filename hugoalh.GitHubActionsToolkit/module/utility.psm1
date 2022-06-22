@@ -21,7 +21,7 @@ Function Add-SecretMask {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][String]$Value,
-		[Alias('WithChunk')][Switch]$WithChunks
+		[Alias('Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
 	)
 	Begin {}
 	Process {
