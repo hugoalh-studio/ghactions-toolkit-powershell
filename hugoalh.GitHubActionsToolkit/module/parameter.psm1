@@ -37,9 +37,9 @@ Function Get-Input {
 		[Parameter(Mandatory = $True, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][String]$Name,
 		[Parameter(ParameterSetName = 'One')][Alias('Require', 'Required')][Switch]$Mandatory,
 		[Parameter(ParameterSetName = 'One')][Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'Input `{0}` is not defined!',
+		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
-		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
 		[Switch]$Trim
 	)
@@ -139,9 +139,9 @@ Function Get-State {
 	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
-		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
 		[Switch]$Trim
 	)

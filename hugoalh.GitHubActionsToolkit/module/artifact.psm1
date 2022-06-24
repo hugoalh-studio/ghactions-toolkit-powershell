@@ -128,6 +128,7 @@ Function Export-Artifact {
 		Return [PSCustomObject]$Result
 	}
 }
+Set-Alias -Name 'Save-Artifact' -Value 'Export-Artifact' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Import Artifact
@@ -149,9 +150,9 @@ Function Import-Artifact {
 	[OutputType([PSCustomObject[]])]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Select', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][String[]]$Name,
-		[String]$Destination = $Env:GITHUB_WORKSPACE,
 		[Parameter(ParameterSetName = 'Select')][Switch]$CreateSubfolder,
-		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All
+		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
+		[String]$Destination = $Env:GITHUB_WORKSPACE
 	)
 	Begin {
 		If (!(Test-GitHubActionsEnvironment -Artifact)) {
@@ -190,6 +191,7 @@ Function Import-Artifact {
 		Return $OutputObject
 	}
 }
+Set-Alias -Name 'Restore-Artifact' -Value 'Import-Artifact' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions (Internal) - Test Artifact Name
@@ -229,4 +231,7 @@ Function Test-ArtifactPath {
 Export-ModuleMember -Function @(
 	'Export-Artifact',
 	'Import-Artifact'
+) -Alias @(
+	'Restore-Artifact',
+	'Save-Artifact'
 )

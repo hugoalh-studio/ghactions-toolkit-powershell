@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { saveCache as ghactionsCacheSaveCache } from "@actions/cache";
 const input = JSON.parse(process.argv[2]);
-const result = await ghactionsCacheSaveCache(input.Paths, input.Key, {
+const result = await ghactionsCacheSaveCache(input.Path, input.Key, {
 	uploadChunkSize: input.UploadChunkSizes,
 	uploadConcurrency: input.UploadConcurrency
 }).catch((reason) => {
