@@ -61,7 +61,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Enable-GitHubActionsProcessingCommands`
 - `Enter-GitHubActionsLogGroup`
 - `Exit-GitHubActionsLogGroup`
-- `Export-GitHubActionsArtifact`
+- `Export-GitHubActionsArtifact` 🧪
 - `Get-GitHubActionsInput`
 - `Get-GitHubActionsIsDebug`
 - `Get-GitHubActionsOpenIdConnectToken` 🧪
@@ -69,7 +69,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Get-GitHubActionsStepSummary`
 - `Get-GitHubActionsWebhookEventPayload`
 - `Get-GitHubActionsWorkflowRunUri`
-- `Import-GitHubActionsArtifact`
+- `Import-GitHubActionsArtifact` 🧪
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
 - `Set-GitHubActionsEnvironmentVariable`
@@ -77,7 +77,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Set-GitHubActionsState`
 - `Set-GitHubActionsStepSummary`
 - `Test-GitHubActionsEnvironment`
-- `Test-GitHubActionsNodeJsEnvironment`
+- `Test-GitHubActionsNodeJsEnvironment` 🧪
 - `Write-GitHubActionsAnnotation`
 - `Write-GitHubActionsCommand`
 - `Write-GitHubActionsDebug`
