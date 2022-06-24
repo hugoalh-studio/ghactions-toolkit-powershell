@@ -13,7 +13,7 @@ Relative path to the JSON file problem matcher.
 .PARAMETER LiteralPath
 Relative literal path to the JSON file problem matcher.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Add-ProblemMatcher {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsproblemmatcher#Add-GitHubActionsProblemMatcher')]
@@ -26,7 +26,7 @@ Function Add-ProblemMatcher {
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Path' {
-				ForEach ($Item In [String[]](Resolve-Path -Path $Path -Relative)) {
+				ForEach ($Item In [String[]](Resolve-Path -Path $Path)) {
 					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
 				}
 			}
@@ -49,7 +49,7 @@ Remove problem matcher that previously added from function `Add-GitHubActionsPro
 .PARAMETER Owner
 Owner of the problem matcher that previously added from function `Add-GitHubActionsProblemMatcher`.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Remove-ProblemMatcher {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsproblemmatcher#Remove-GitHubActionsProblemMatcher')]

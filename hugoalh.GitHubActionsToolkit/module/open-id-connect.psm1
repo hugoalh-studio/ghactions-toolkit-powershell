@@ -12,7 +12,7 @@ Interact with the GitHub OpenID Connect (OIDC) provider and get a JSON Web Token
 .PARAMETER Audience
 Audience.
 .OUTPUTS
-String
+[String] A JSON Web Token (JWT) ID token.
 #>
 Function Get-OpenIdConnectToken {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsopenidconnecttoken#Get-GitHubActionsOpenIdConnectToken')]

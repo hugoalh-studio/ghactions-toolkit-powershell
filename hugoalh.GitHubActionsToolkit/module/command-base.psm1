@@ -8,7 +8,7 @@ Format command parameter characters that can cause issues.
 .PARAMETER InputObject
 String that need to format command parameter characters.
 .OUTPUTS
-String
+[String] A string that formatted command parameter characters.
 #>
 Function Format-CommandParameter {
 	[CmdletBinding()]
@@ -27,7 +27,7 @@ Format command value characters that can cause issues.
 .PARAMETER InputObject
 String that need to format command value characters.
 .OUTPUTS
-String
+[String] A string that formatted command value characters.
 #>
 Function Format-CommandValue {
 	[CmdletBinding()]
@@ -51,7 +51,7 @@ Command value.
 .PARAMETER Parameter
 Command parameter.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Write-Command {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionscommand#Write-GitHubActionsCommand')]

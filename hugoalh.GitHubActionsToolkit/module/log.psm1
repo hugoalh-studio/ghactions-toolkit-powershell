@@ -21,7 +21,7 @@ Create an expandable group in the log; Anything write to the log between functio
 .PARAMETER Title
 Title of the log group.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Enter-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enter-githubactionsloggroup#Enter-GitHubActionsLogGroup')]
@@ -38,7 +38,7 @@ GitHub Actions - Exit Log Group
 .DESCRIPTION
 End an expandable group in the log.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Exit-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_exit-githubactionsloggroup#Exit-GitHubActionsLogGroup')]
@@ -69,7 +69,7 @@ Issue file column end.
 .PARAMETER Title
 Issue title.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Write-Annotation {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsannotation#Write-GitHubActionsAnnotation')]
@@ -134,7 +134,7 @@ Print a debug message to the log.
 .PARAMETER Message
 Message that need to log at debug level.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Write-Debug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsdebug#Write-GitHubActionsDebug')]
@@ -170,7 +170,7 @@ Issue file column end.
 .PARAMETER Title
 Issue title.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Write-Error {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionserror#Write-GitHubActionsError')]
@@ -212,7 +212,7 @@ Issue file column end.
 .PARAMETER Title
 Issue title.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Write-Fail {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsfail#Write-GitHubActionsFail')]
@@ -249,7 +249,7 @@ Issue file column end.
 .PARAMETER Title
 Issue title.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Write-Notice {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsnotice#Write-GitHubActionsNotice')]
@@ -292,7 +292,7 @@ Issue file column end.
 .PARAMETER Title
 Issue title.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Write-Warning {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionswarning#Write-GitHubActionsWarning')]

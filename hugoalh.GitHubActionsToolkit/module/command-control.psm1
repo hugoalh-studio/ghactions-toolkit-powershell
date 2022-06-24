@@ -26,7 +26,7 @@ GitHub Actions - Disable Echoing Commands
 .DESCRIPTION
 Disable echoing most of the commands, the log will not show the command itself; Secret `ACTIONS_STEP_DEBUG` will ignore this setting; When processing a command, it will still echo if there has any issues.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Disable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechoingcommands#Disable-GitHubActionsEchoingCommands')]
@@ -57,7 +57,7 @@ Disable processing any commands, to allow log anything without accidentally exec
 .PARAMETER EndToken
 An end token for function `Enable-GitHubActionsProcessingCommands`.
 .OUTPUTS
-String
+[String] An end token for function `Enable-GitHubActionsProcessingCommands`.
 #>
 Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
@@ -91,7 +91,7 @@ GitHub Actions - Enable Echoing Commands
 .DESCRIPTION
 Enable echoing most of the commands, the log will show the command itself; Secret `ACTIONS_STEP_DEBUG` will ignore this setting.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Enable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechoingcommands#Enable-GitHubActionsEchoingCommands')]
@@ -122,7 +122,7 @@ Enable processing any commands, to allow execute any commands.
 .PARAMETER EndToken
 An end token from function `Disable-GitHubActionsProcessingCommands`.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Enable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommands#Enable-GitHubActionsProcessingCommands')]
@@ -157,7 +157,7 @@ Test processing commands end token whether is valid.
 .PARAMETER InputObject
 Processing commands end token that need to test.
 .OUTPUTS
-Boolean
+[Boolean] Test result.
 #>
 Function Test-ProcessingCommandsEndToken {
 	[CmdletBinding()]

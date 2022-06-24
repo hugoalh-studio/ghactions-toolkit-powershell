@@ -26,7 +26,8 @@ Assume empty string of input's string as `$Null`.
 .PARAMETER Trim
 Trim the input's value.
 .OUTPUTS
-Hashtable | String
+[Hashtable] Inputs.
+[String] Input value.
 #>
 Function Get-Input {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsinput#Get-GitHubActionsInput')]
@@ -38,7 +39,7 @@ Function Get-Input {
 		[Parameter(ParameterSetName = 'One')][Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'Input `{0}` is not defined!',
 		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
-		[Parameter(ParameterSetName = 'All')][Switch]$All,
+		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
 		[Switch]$Trim
 	)
@@ -52,8 +53,8 @@ Function Get-Input {
 					If ($Null -ieq $Item.Value) {
 						Continue
 					}
-					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+					[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+					If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace '^INPUT_', ''
@@ -63,14 +64,14 @@ Function Get-Input {
 			'One' {
 				$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				If ($Null -ieq $InputValueRaw) {
-					If ($Mandatory) {
+					If ($Mandatory.IsPresent) {
 						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
 					}
 					Return $Null
 				}
-				[String]$InputValue = $Trim ? $InputValueRaw.Trim() : $InputValueRaw
-				If ($EmptyStringAsNull -and $InputValue.Length -ieq 0) {
-					If ($Mandatory) {
+				[String]$InputValue = $Trim.IsPresent ? $InputValueRaw.Trim() : $InputValueRaw
+				If ($EmptyStringAsNull.IsPresent -and $InputValue.Length -ieq 0) {
+					If ($Mandatory.IsPresent) {
 						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
 					}
 					Return $Null
@@ -82,8 +83,8 @@ Function Get-Input {
 					If ($Null -ieq $Item.Value) {
 						Continue
 					}
-					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+					[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+					If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^INPUT_$([RegEx]::Escape($NamePrefix))", ''
@@ -95,8 +96,8 @@ Function Get-Input {
 					If ($Null -ieq $Item.Value) {
 						Continue
 					}
-					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+					[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+					If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^INPUT_|$([RegEx]::Escape($NameSuffix))$", ''
@@ -129,7 +130,8 @@ Assume empty string of state's value as `$Null`.
 .PARAMETER Trim
 Trim the state's value.
 .OUTPUTS
-Hashtable | String
+[Hashtable] States.
+[String] State value.
 #>
 Function Get-State {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstate#Get-GitHubActionsState')]
@@ -139,7 +141,7 @@ Function Get-State {
 		[Parameter(Mandatory = $True, ParameterSetName = 'One', Position = 0, ValueFromPipeline = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
-		[Parameter(ParameterSetName = 'All')][Switch]$All,
+		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
 		[Switch]$Trim
 	)
@@ -153,8 +155,8 @@ Function Get-State {
 					If ($Null -ieq $Item.Value) {
 						Continue
 					}
-					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+					[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+					If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace '^STATE_', ''
@@ -166,8 +168,8 @@ Function Get-State {
 				If ($Null -ieq $StateValueRaw) {
 					Return $Null
 				}
-				[String]$StateValue = $Trim ? $StateValueRaw.Trim() : $StateValueRaw
-				If ($EmptyStringAsNull -and $StateValue.Length -ieq 0) {
+				[String]$StateValue = $Trim.IsPresent ? $StateValueRaw.Trim() : $StateValueRaw
+				If ($EmptyStringAsNull.IsPresent -and $StateValue.Length -ieq 0) {
 					Return $Null
 				}
 				Return $StateValue
@@ -177,8 +179,8 @@ Function Get-State {
 					If ($Null -ieq $Item.Value) {
 						Continue
 					}
-					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+					[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+					If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^STATE_$([RegEx]::Escape($NamePrefix))", ''
@@ -190,8 +192,8 @@ Function Get-State {
 					If ($Null -ieq $Item.Value) {
 						Continue
 					}
-					[String]$ItemValue = $Trim ? $Item.Value.Trim() : $Item.Value
-					If ($EmptyStringAsNull -and $ItemValue.Length -ieq 0) {
+					[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+					If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 						Continue
 					}
 					[String]$ItemName = $Item.Name -ireplace "^STATE_|$([RegEx]::Escape($NameSuffix))$", ''
@@ -219,7 +221,7 @@ Name of the output.
 .PARAMETER Value
 Value of the output.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Set-Output {
 	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
@@ -270,7 +272,7 @@ Name of the state.
 .PARAMETER Value
 Value of the state.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Set-State {
 	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]

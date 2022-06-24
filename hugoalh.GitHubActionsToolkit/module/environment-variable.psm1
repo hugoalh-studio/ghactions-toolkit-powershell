@@ -19,7 +19,7 @@ Do not check the PATH whether is valid.
 .PARAMETER Scope
 Scope of PATH.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Add-PATH {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionspath#Add-GitHubActionsPATH')]
@@ -34,7 +34,7 @@ Function Add-PATH {
 	}
 	Process {
 		ForEach ($Item In $Path) {
-			If (!$NoValidator -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
+			If (!$NoValidator.IsPresent -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				Continue
 			}
@@ -79,7 +79,7 @@ Do not format environment variable name to uppercase.
 .PARAMETER Scope
 Scope of environment variable.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Set-EnvironmentVariable {
 	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsenvironmentvariable#Set-GitHubActionsEnvironmentVariable')]
@@ -116,11 +116,11 @@ Function Set-EnvironmentVariable {
 						Write-Error -Message 'Parameter `Value` must be in single line string!' -Category 'SyntaxError'
 						Continue
 					}
-					$Result[$NoToUpper ? $Item.Name : $Item.Name.ToUpper()] = $Item.Value
+					$Result[$NoToUpper.IsPresent ? $Item.Name : $Item.Name.ToUpper()] = $Item.Value
 				}
 			}
 			'Single' {
-				$Result[$NoToUpper ? $Name : $Name.ToUpper()] = $Value
+				$Result[$NoToUpper.IsPresent ? $Name : $Name.ToUpper()] = $Value
 			}
 		}
 	}
@@ -159,7 +159,7 @@ Test environment variable name whether is valid.
 .PARAMETER InputObject
 Environment variable name that need to test.
 .OUTPUTS
-Boolean
+[Boolean] Test result.
 #>
 Function Test-EnvironmentVariableName {
 	[CmdletBinding()]

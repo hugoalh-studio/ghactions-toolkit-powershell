@@ -13,7 +13,7 @@ Content.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Add-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
@@ -35,7 +35,7 @@ Function Add-StepSummary {
 			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
 		}
 		If ($Result.Count -igt 0) {
-			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
+			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
 		Return
 	}
@@ -50,6 +50,8 @@ Add header for step so that it will display on the summary page of a run.
 Header level
 .PARAMETER Header
 Header title.
+.OUTPUTS
+[Void]
 #>
 Function Add-StepSummaryHeader {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummaryheader#Add-GitHubActionsStepSummaryHeader')]
@@ -78,6 +80,8 @@ Image width.
 Image height.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+.OUTPUTS
+[Void]
 #>
 Function Add-StepSummaryImage {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummaryimage#Add-GitHubActionsStepSummaryImage')]
@@ -108,14 +112,14 @@ Function Add-StepSummaryImage {
 			$ResultHtml += " height=`"$Height`""
 		}
 		$ResultHtml += ' />'
-		Return (Add-StepSummary -Value $ResultHtml -NoNewLine:$NoNewLine)
+		Return (Add-StepSummary -Value $ResultHtml -NoNewLine:$NoNewLine.IsPresent)
 	}
 	[String]$ResultMarkdown = "![$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))]($([Uri]::EscapeUriString($Uri))"
 	If ($Title.Length -igt 0) {
 		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
-	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine)
+	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent)
 }
 Set-Alias -Name 'Add-StepSummaryPicture' -Value 'Add-StepSummaryImage' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -132,6 +136,8 @@ Link URI.
 Link title.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+.OUTPUTS
+[Void]
 #>
 Function Add-StepSummaryLink {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummarylink#Add-GitHubActionsStepSummaryLink')]
@@ -147,7 +153,7 @@ Function Add-StepSummaryLink {
 		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
-	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine)
+	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent)
 }
 Set-Alias -Name 'Add-StepSummaryHyperlink' -Value 'Add-StepSummaryLink' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -159,6 +165,8 @@ Add subscript text for step so that it will display on the summary page of a run
 Text that need to subscript.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+.OUTPUTS
+[Void]
 #>
 Function Add-StepSummarySubscriptText {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummarysubscripttext#Add-GitHubActionsStepSummarySubscriptText')]
@@ -167,7 +175,7 @@ Function Add-StepSummarySubscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Return (Add-StepSummary -Value "<sub>$([System.Web.HttpUtility]::HtmlEncode($Text))</sub>" -NoNewLine:$NoNewLine)
+	Return (Add-StepSummary -Value "<sub>$([System.Web.HttpUtility]::HtmlEncode($Text))</sub>" -NoNewLine:$NoNewLine.IsPresent)
 }
 Set-Alias -Name 'Add-StepSummarySubscript' -Value 'Add-StepSummarySubscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -179,6 +187,8 @@ Add superscript text for step so that it will display on the summary page of a r
 Text that need to superscript.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+.OUTPUTS
+[Void]
 #>
 Function Add-StepSummarySuperscriptText {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummarysuperscripttext#Add-GitHubActionsStepSummarySuperscriptText')]
@@ -187,7 +197,7 @@ Function Add-StepSummarySuperscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Return (Add-StepSummary -Value "<sup>$([System.Web.HttpUtility]::HtmlEncode($Text))</sup>" -NoNewLine:$NoNewLine)
+	Return (Add-StepSummary -Value "<sup>$([System.Web.HttpUtility]::HtmlEncode($Text))</sup>" -NoNewLine:$NoNewLine.IsPresent)
 }
 Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -200,7 +210,9 @@ Ignore newline characters and return the entire contents of a file in one string
 .PARAMETER Sizes
 Get step summary sizes instead of the content.
 .OUTPUTS
-String | String[] | UInt32
+[String] Step summary with the entire contents in one string.
+[String[]] Step summary with separate contents in multiple string by newline characters.
+[UInt32] Step summary sizes.
 #>
 Function Get-StepSummary {
 	[CmdletBinding(DefaultParameterSetName = 'Content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
@@ -215,7 +227,7 @@ Function Get-StepSummary {
 	}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
-			Return (Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw -Encoding 'UTF8NoBOM')
+			Return (Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw.IsPresent -Encoding 'UTF8NoBOM')
 		}
 		'Sizes' {
 			Return (Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY).Length
@@ -228,7 +240,7 @@ GitHub Actions - Remove Step Summary
 .DESCRIPTION
 Remove step summary that previously added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
@@ -249,7 +261,7 @@ Content.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
-Void
+[Void]
 #>
 Function Set-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
@@ -271,7 +283,7 @@ Function Set-StepSummary {
 			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
 		}
 		If ($Result.Count -igt 0) {
-			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine -Encoding 'UTF8NoBOM'
+			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
 		Return
 	}

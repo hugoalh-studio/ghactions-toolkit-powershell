@@ -3,9 +3,11 @@
 [String]$ModuleRoot = Join-Path -Path $PSScriptRoot -ChildPath 'module'
 [String[]]$ModulesNames = @(
 	'command-base',
+	'artifact',
 	'command-control',
 	'environment-variable',
 	'log',
+	'nodejs-test',
 	'open-id-connect',
 	'parameter',
 	'problem-matcher',
