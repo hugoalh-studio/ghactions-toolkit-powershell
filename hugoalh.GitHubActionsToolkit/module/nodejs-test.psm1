@@ -14,7 +14,7 @@ Test the current machine whether has compatible NodeJS and NPM environment, and 
 .PARAMETER ReinstallDependencies
 Force to reinstall dependencies even though available.
 .PARAMETER Retest
-Redo this test by ignore the cached test result.
+Redo this test, ignore the cached test result.
 .OUTPUTS
 [Boolean] Test result.
 #>

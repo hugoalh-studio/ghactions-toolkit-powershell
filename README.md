@@ -72,6 +72,8 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Import-GitHubActionsArtifact` 🧪
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
+- `Restore-GitHubActionsCache` 🧪
+- `Save-GitHubActionsCache` 🧪
 - `Set-GitHubActionsEnvironmentVariable`
 - `Set-GitHubActionsOutput`
 - `Set-GitHubActionsState`

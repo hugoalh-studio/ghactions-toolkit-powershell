@@ -4,6 +4,7 @@
 [String[]]$ModulesNames = @(
 	'command-base',
 	'artifact',
+	'cache',
 	'command-control',
 	'environment-variable',
 	'log',

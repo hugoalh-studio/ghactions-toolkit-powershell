@@ -153,9 +153,9 @@ Set-Alias -Name 'Start-ProcessingCommands' -Value 'Enable-ProcessingCommands' -O
 .SYNOPSIS
 GitHub Actions (Internal) - Test Processing Commands End Token
 .DESCRIPTION
-Test processing commands end token whether is valid.
+Test GitHub Actions processing commands end token whether is valid.
 .PARAMETER InputObject
-Processing commands end token that need to test.
+GitHub Actions processing commands end token that need to test.
 .OUTPUTS
 [Boolean] Test result.
 #>
@@ -163,7 +163,7 @@ Function Test-ProcessingCommandsEndToken {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
 	Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands)
 }

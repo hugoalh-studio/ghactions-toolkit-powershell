@@ -37,12 +37,24 @@ Function Invoke-NodeJsWrapper {
 	[String]$ResultSeparator = "====== $((New-Guid).Guid -ireplace '-', '') ======"
 	Try {
 		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$($WrapperFullName -ireplace '\\', '/')`" `"$($InputObject | ConvertTo-Json -Depth 100 -Compress)`" `"$ResultSeparator`""
+		[UInt32]$ResultSkipIndex = @()
+		for ($ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex++) {
+			[String]$Item = $Result[$ResultIndex]
+			If (
+				$Item -imatch '^::error' -or
+				$Item -imatch '^::notice' -or
+				$Item -imatch '^::warning'
+			) {
+				Write-Host -Object $Item
+				$ResultSkipIndex += $ResultIndex
+			}
+		}
 		If ($LASTEXITCODE -ine 0) {
-			Throw "Unexpected error: $($Result -join "`n")"
+			Throw "Unexpected last exit code ``$LASTEXITCODE``! $(($Result | Select-Object -SkipIndex $ResultSkipIndex) -join "`n")"
 		}
 		Return ($Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] -join "`n" | ConvertFrom-Json -Depth 100)
 	} Catch {
-		Write-Error -Message "Unable to execute wrapper ``$Path``! $_" -Category 'InvalidData'
+		Write-Error -Message "Unable to successfully execute wrapper ``$Path``! $_" -Category 'InvalidData'
 		Return $False
 	}
 }

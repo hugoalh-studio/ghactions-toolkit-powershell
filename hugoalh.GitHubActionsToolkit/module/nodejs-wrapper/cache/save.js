@@ -10,6 +10,6 @@ const result = await ghactionsCacheSaveCache(input.Path, input.Key, {
 });
 console.log(process.argv[3]);
 console.log(JSON.stringify({
-	CacheID: result
+	CacheId: result
 }));
 process.exit(0);

@@ -8,7 +8,7 @@ Import-Module -Name @(
 .SYNOPSIS
 GitHub Actions - Export Artifact
 .DESCRIPTION
-Export artifact to persist data after a job has completed, and share that data with another job in the same workflow.
+Export artifact to persist data and/or share with another job in the same workflow.
 .PARAMETER Name
 Artifact name.
 .PARAMETER Path
@@ -35,10 +35,11 @@ Function Export-Artifact {
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
 		[Alias('ContinueOnError', 'ContinueOnIssue', 'ContinueOnIssues', 'IgnoreIssuePath')][Switch]$IgnoreIssuePaths,
-		[Alias('RetentionDay')][ValidateRange(1, 90)][Byte]$RetentionTime
+		[ValidateRange(1, 90)][AllowNull()][Alias('RetentionDay')][Byte]$RetentionTime = $Null
 	)
 	Begin {
 		If (
+			$Null -ieq $BaseRoot -or
 			![System.IO.Path]::IsPathRooted($BaseRoot) -or
 			!(Test-Path -LiteralPath $BaseRoot -PathType 'Container')
 		) {
@@ -196,9 +197,9 @@ Set-Alias -Name 'Restore-Artifact' -Value 'Import-Artifact' -Option 'ReadOnly' -
 .SYNOPSIS
 GitHub Actions (Internal) - Test Artifact Name
 .DESCRIPTION
-Test artifact name whether is valid.
+Test GitHub Actions artifact name whether is valid.
 .PARAMETER InputObject
-Artifact name that need to test.
+GitHub Actions artifact name that need to test.
 .OUTPUTS
 [Boolean] Test result.
 #>
@@ -206,7 +207,7 @@ Function Test-ArtifactName {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
 	Return ((Test-ArtifactPath -InputObject $InputObject) -and $InputObject -imatch '^[^\\/]+$')
 }
@@ -214,9 +215,9 @@ Function Test-ArtifactName {
 .SYNOPSIS
 GitHub Actions (Internal) - Test Artifact Path
 .DESCRIPTION
-Test artifact path whether is valid.
+Test GitHub Actions artifact path whether is valid.
 .PARAMETER InputObject
-Artifact path that need to test.
+GitHub Actions artifact path that need to test.
 .OUTPUTS
 [Boolean] Test result.
 #>
@@ -224,7 +225,7 @@ Function Test-ArtifactPath {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
 	Return ($InputObject -imatch '^[^":<>|*?\n\r\t]+$')
 }

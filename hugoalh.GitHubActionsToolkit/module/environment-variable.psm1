@@ -33,7 +33,7 @@ Function Add-PATH {
 		[String[]]$Result = @()
 	}
 	Process {
-		ForEach ($Item In $Path) {
+		ForEach ($Item In ($Path | Select-Object -Unique)) {
 			If (!$NoValidator.IsPresent -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				Continue
@@ -43,7 +43,7 @@ Function Add-PATH {
 	}
 	End {
 		If ($Result.Count -igt 0) {
-			Switch ($Scope -isplit ', ') {
+			Switch ($Scope.ToString() -isplit ', ') {
 				{ $_ -icontains 'Current' } {
 					[String[]]$PATHRaw = [System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator
 					$PATHRaw += $Result
@@ -127,7 +127,7 @@ Function Set-EnvironmentVariable {
 	End {
 		If ($Result.Count -igt 0) {
 			[PSCustomObject[]]$ResultEnumerator = $Result.GetEnumerator()
-			Switch ($Scope -isplit ', ') {
+			Switch ($Scope.ToString() -isplit ', ') {
 				{ $_ -icontains 'Current' } {
 					ForEach ($Item In $ResultEnumerator) {
 						[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value)
@@ -165,7 +165,7 @@ Function Test-EnvironmentVariableName {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
 	Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$' -and $InputObject -inotmatch '^(?:ACTIONS|GITHUB|RUNNER)_')
 }
