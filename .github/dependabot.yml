@@ -14,3 +14,18 @@ updates:
     pull-request-branch-name:
       separator: "/"
     rebase-strategy: "disabled"
+  - package-ecosystem: "npm"
+    directory: "/hugoalh.GitHubActionsToolkit/module/nodejs-wrapper"
+    schedule:
+      interval: "daily"
+      time: "00:00"
+      timezone: "Etc/UTC"
+    labels:
+      - "Platform/NodeJS 🔘"
+      - "Status/Pending 🔵"
+      - "Type/Dependency 📦"
+    open-pull-requests-limit: 100
+    pull-request-branch-name:
+      separator: "/"
+    rebase-strategy: "disabled"
+    versioning-strategy: "increase"
