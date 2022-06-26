@@ -120,6 +120,10 @@ Function Save-Cache {
 		[ValidateRange(1, 16)][AllowNull()][Byte]$UploadConcurrency = $Null
 	)
 	Begin {
+		If (!(Test-GitHubActionsEnvironment -Cache)) {
+			Return (Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable')
+			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+		}
 		[String[]]$PathsProceed = @()
 	}
 	Process {
@@ -135,9 +139,6 @@ Function Save-Cache {
 		}
 	}
 	End {
-		If (!(Test-GitHubActionsEnvironment -Cache)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable')
-		}
 		If ($PathsProceed.Count -ieq 0) {
 			Return (Write-Error -Message 'No valid path is defined!' -Category 'NotSpecified')
 		}

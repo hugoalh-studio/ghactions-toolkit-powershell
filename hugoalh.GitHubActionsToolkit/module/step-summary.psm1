@@ -23,6 +23,10 @@ Function Add-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
+		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+		}
 		[String[]]$Result = @()
 	}
 	Process {
@@ -31,9 +35,6 @@ Function Add-StepSummary {
 		}
 	}
 	End {
-		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
-		}
 		If ($Result.Count -igt 0) {
 			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
@@ -271,6 +272,10 @@ Function Set-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
+		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+		}
 		[String[]]$Result = @()
 	}
 	Process {
@@ -279,9 +284,6 @@ Function Set-StepSummary {
 		}
 	}
 	End {
-		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
-		}
 		If ($Result.Count -igt 0) {
 			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}

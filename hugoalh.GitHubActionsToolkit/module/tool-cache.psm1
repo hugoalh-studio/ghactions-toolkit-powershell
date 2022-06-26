@@ -114,6 +114,7 @@ Function Invoke-ToolCacheToolDownloader {
 	Begin {
 		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
 			Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
+			Break# This is the best way to early terminate this function without terminate caller/invoker process.
 		}
 		[String[]]$OutputObject = @()
 	}
