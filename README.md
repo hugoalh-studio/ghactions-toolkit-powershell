@@ -61,7 +61,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Enable-GitHubActionsProcessingCommands`
 - `Enter-GitHubActionsLogGroup`
 - `Exit-GitHubActionsLogGroup`
+- `Expand-GitHubActionsToolCacheCompressedFile` 🧪
 - `Export-GitHubActionsArtifact` 🧪
+- `Find-GitHubActionsToolCache` 🧪
 - `Get-GitHubActionsInput`
 - `Get-GitHubActionsIsDebug`
 - `Get-GitHubActionsOpenIdConnectToken` 🧪
@@ -70,6 +72,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Get-GitHubActionsWebhookEventPayload`
 - `Get-GitHubActionsWorkflowRunUri`
 - `Import-GitHubActionsArtifact` 🧪
+- `Invoke-GitHubActionsToolCacheToolDownloader` 🧪
+- `Register-GitHubActionsToolCacheDirectory` 🧪
+- `Register-GitHubActionsToolCacheFile` 🧪
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
 - `Restore-GitHubActionsCache` 🧪

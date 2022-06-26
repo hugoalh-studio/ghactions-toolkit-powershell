@@ -34,8 +34,8 @@ Function Restore-Cache {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
-		[ValidateRange(1, 16)][AllowNull()][Byte]$DownloadConcurrency = $Null,
-		[ValidateRange(5, 900)][AllowNull()][UInt16]$Timeout = $Null
+		[ValidateRange(1, 16)][Byte]$DownloadConcurrency = 0,
+		[ValidateRange(5, 900)][UInt16]$Timeout = 0
 	)
 	Begin {
 		If (!(Test-GitHubActionsEnvironment -Cache)) {
@@ -74,10 +74,10 @@ Function Restore-Cache {
 			UseAzureSdk = !$NotUseAzureSdk.IsPresent
 		}
 		If (!$NotUseAzureSdk.IsPresent) {
-			If ($Null -ine $DownloadConcurrency) {
+			If ($DownloadConcurrency -igt 0) {
 				$InputObject.DownloadConcurrency = $DownloadConcurrency
 			}
-			If ($Null -ine $Timeout) {
+			If ($Timeout -igt 0) {
 				$InputObject.Timeout = $Timeout * 1000
 			}
 		}
@@ -116,8 +116,8 @@ Function Save-Cache {
 		}, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[ValidateRange(1KB, 1GB)][AllowNull()][UInt32]$UploadChunkSizes = $Null,
-		[ValidateRange(1, 16)][AllowNull()][Byte]$UploadConcurrency = $Null
+		[ValidateRange(1KB, 1GB)][UInt32]$UploadChunkSizes = 0,
+		[ValidateRange(1, 16)][Byte]$UploadConcurrency = 0
 	)
 	Begin {
 		If (!(Test-GitHubActionsEnvironment -Cache)) {
@@ -146,10 +146,10 @@ Function Save-Cache {
 			Key = $Key
 			Path = $PathsProceed
 		}
-		If ($Null -ine $UploadChunkSizes) {
+		If ($UploadChunkSizes -igt 0) {
 			$InputObject.UploadChunkSizes = $UploadChunkSizes
 		}
-		If ($Null -ine $UploadConcurrency) {
+		If ($UploadConcurrency -igt 0) {
 			$InputObject.UploadConcurrency = $UploadConcurrency
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'cache\save.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)

@@ -13,6 +13,7 @@
 	'parameter',
 	'problem-matcher',
 	'step-summary',
+	'tool-cache',
 	'utility'
 )
 Import-Module -Name ($ModulesNames | ForEach-Object -Process {

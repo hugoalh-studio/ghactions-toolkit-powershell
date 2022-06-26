@@ -93,7 +93,7 @@ Tool name.
 .PARAMETER Architecture
 Tool architecture.
 .PARAMETER Version
-Tool version, by Semantic Versioning (SevVer).
+Tool version, by Semantic Versioning (SemVer).
 .OUTPUTS
 [String] Path of a version of a tool.
 [String[]] Paths of all versions of a tool.
@@ -103,8 +103,8 @@ Function Find-ToolCache {
 	[OutputType(([String], [String[]]))]
 	Param (
 		[Alias('ToolName')][String]$Name,
-		[String]$Architecture,
-		[String]$Version = '*'
+		[Alias('Arch')][String]$Architecture,
+		[Alias('Ver')][String]$Version = '*'
 	)
 	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
 		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
@@ -188,10 +188,100 @@ Function Invoke-ToolCacheToolDownloader {
 		Return $OutputObject
 	}
 }
+<#
+.SYNOPSIS
+GitHub Actions - Register Tool Cache Directory
+.DESCRIPTION
+Register a tool directory to cache and install in the tool cache.
+.PARAMETER Source
+Tool directory.
+.PARAMETER Name
+Tool name.
+.PARAMETER Version
+Tool version, by Semantic Versioning (SemVer).
+.PARAMETER Architecture
+Tool architecture.
+.OUTPUTS
+[String] Tool cached path.
+#>
+Function Register-ToolCacheDirectory {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachedirectory#Register-GitHubActionsToolCacheDirectory')]
+	[OutputType([String])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0)][Alias('SourceDirectory')]$Source,
+		[Parameter(Mandatory = $True, Position = 1)][Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 2)][Alias('Ver')][String]$Version,
+		[Alias('Arch')][String]$Architecture
+	)
+	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
+	}
+	[Hashtable]$InputObject = @{
+		Source = $Source
+		Name = $Name
+		Version = $Version
+	}
+	If ($Architecture.Length -igt 0) {
+		$InputObject.Architecture = $Architecture
+	}
+	$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-directory.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+	If ($ResultRaw -ieq $False) {
+		Return
+	}
+	Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+}
+<#
+.SYNOPSIS
+GitHub Actions - Register Tool Cache File
+.DESCRIPTION
+Register a tool file to cache and install in the tool cache.
+.PARAMETER Source
+Tool file.
+.PARAMETER Target
+Tool file in the tool cache.
+.PARAMETER Name
+Tool name.
+.PARAMETER Version
+Tool version, by Semantic Versioning (SemVer).
+.PARAMETER Architecture
+Tool architecture.
+.OUTPUTS
+[String] Tool cached path.
+#>
+Function Register-ToolCacheFile {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachefile#Register-GitHubActionsToolCacheFile')]
+	[OutputType([String])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0)][Alias('SourceFile')]$Source,
+		[Parameter(Mandatory = $True, Position = 0)][Alias('TargetFile')]$Target,
+		[Parameter(Mandatory = $True, Position = 1)][Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 2)][Alias('Ver')][String]$Version,
+		[Alias('Arch')][String]$Architecture
+	)
+	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
+	}
+	[Hashtable]$InputObject = @{
+		Source = $Source
+		Target = $Target
+		Name = $Name
+		Version = $Version
+	}
+	If ($Architecture.Length -igt 0) {
+		$InputObject.Architecture = $Architecture
+	}
+	$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-file.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+	If ($ResultRaw -ieq $False) {
+		Return
+	}
+	Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+}
 Export-ModuleMember -Function @(
 	'Expand-ToolCacheCompressedFile',
 	'Find-ToolCache',
-	'Invoke-ToolCacheToolDownloader'
+	'Invoke-ToolCacheToolDownloader',
+	'Register-ToolCacheDirectory',
+	'Register-ToolCacheFile'
 ) -Alias @(
 	'Expand-ToolCacheArchive',
 	'Expand-ToolCacheCompressedArchive',

@@ -37,7 +37,7 @@ Function Export-Artifact {
 			Return ([System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container'))
 		}, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
 		[Alias('ContinueOnError', 'ContinueOnIssue', 'ContinueOnIssues', 'IgnoreIssuePath')][Switch]$IgnoreIssuePaths,
-		[ValidateRange(1, 90)][AllowNull()][Alias('RetentionDay')][Byte]$RetentionTime = $Null
+		[ValidateRange(1, 90)][Alias('RetentionDay')][Byte]$RetentionTime = 0
 	)
 	Begin {
 		If (!(Test-GitHubActionsEnvironment -Artifact)) {
@@ -130,7 +130,7 @@ Function Export-Artifact {
 			BaseRoot = $BaseRoot
 			IgnoreIssuePaths = $IgnoreIssuePaths.IsPresent
 		}
-		If ($Null -ine $RetentionTime) {
+		If ($RetentionTime -igt 0) {
 			$InputObject.RetentionTIme = $RetentionTime
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\upload.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
