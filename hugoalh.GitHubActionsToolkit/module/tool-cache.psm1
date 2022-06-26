@@ -85,6 +85,51 @@ Set-Alias -Name 'Expand-ToolCacheCompressedArchive' -Value 'Expand-ToolCacheComp
 Set-Alias -Name 'Expand-ToolCacheFile' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Find Tool Cache
+.DESCRIPTION
+Find the path of a tool in the local installed tool cache.
+.PARAMETER Name
+Tool name.
+.PARAMETER Architecture
+Tool architecture.
+.PARAMETER Version
+Tool version, by Semantic Versioning (SevVer).
+.OUTPUTS
+[String] Path of a version of a tool.
+[String[]] Paths of all versions of a tool.
+#>
+Function Find-ToolCache {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_find-githubactionstoolcache#Find-GitHubActionsToolCache')]
+	[OutputType(([String], [String[]]))]
+	Param (
+		[Alias('ToolName')][String]$Name,
+		[String]$Architecture,
+		[String]$Version = '*'
+	)
+	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
+	}
+	[Hashtable]$InputObject = @{
+		Name = $Name
+	}
+	[Boolean]$IsFindAll = $False
+	If ($Version -ieq '*') {
+		$IsFindAll = $True
+	} ElseIf ($Version.Length -igt 0) {
+		$InputObject.Version = $Version
+	}
+	If ($Architecture.Length -igt 0) {
+		$InputObject.Architecture = $Architecture
+	}
+	$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$($IsFindAll ? '-all-versions' : '').js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+	If ($ResultRaw -ieq $False) {
+		Return
+	}
+	[PSCUstomObject]$Result = ($ResultRaw | ConvertFrom-Json -Depth 100)
+	Return ($IsFindAll ? $Result.Paths : $Result.Path)
+}
+<#
+.SYNOPSIS
 GitHub Actions - Invoke Tool Cache Tool Downloader
 .DESCRIPTION
 Download a tool from URI and stream it into a file.
@@ -145,6 +190,7 @@ Function Invoke-ToolCacheToolDownloader {
 }
 Export-ModuleMember -Function @(
 	'Expand-ToolCacheCompressedFile',
+	'Find-ToolCache',
 	'Invoke-ToolCacheToolDownloader'
 ) -Alias @(
 	'Expand-ToolCacheArchive',

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { cacheDir as ghactionsToolCacheCacheDirectory } from "@actions/tool-cache";
 const input = JSON.parse(process.argv[2]);
-const result = await ghactionsToolCacheCacheDirectory(input.SourceDirectory, input.ToolName, input.Version, input.Architecture).catch((reason) => {
+const result = await ghactionsToolCacheCacheDirectory(input.SourceDirectory, input.Name, input.Version, input.Architecture).catch((reason) => {
 	console.error(reason);
 	return process.exit(1);
 });
