@@ -25,13 +25,13 @@ Function Add-ProblemMatcher {
 	Begin {}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
-			'Path' {
-				ForEach ($Item In [String[]](Resolve-Path -Path $Path)) {
+			'LiteralPath' {
+				ForEach ($Item In $LiteralPath) {
 					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
 				}
 			}
-			'LiteralPath' {
-				ForEach ($Item In $LiteralPath) {
+			'Path' {
+				ForEach ($Item In [String[]](Resolve-Path -Path $Path -ErrorAction 'SilentlyContinue')) {
 					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
 				}
 			}

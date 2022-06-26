@@ -41,6 +41,7 @@ Function Invoke-NodeJsWrapper {
 		for ($ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]
 			If (
+				$Item -imatch '^::debug' -or
 				$Item -imatch '^::error' -or
 				$Item -imatch '^::notice' -or
 				$Item -imatch '^::warning'

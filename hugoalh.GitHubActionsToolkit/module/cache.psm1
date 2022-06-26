@@ -38,24 +38,25 @@ Function Restore-Cache {
 		[ValidateRange(5, 900)][AllowNull()][UInt16]$Timeout = $Null
 	)
 	Begin {
+		If (!(Test-GitHubActionsEnvironment -Cache)) {
+			Return (Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable')
+			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+		}
 		[String[]]$PathsProceed = @()
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
-			'Path' {
-				$PathsProceed += $Path
-			}
 			'LiteralPath' {
 				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
 					Return [WildcardPattern]::Escape($_)
 				})
 			}
+			'Path' {
+				$PathsProceed += $Path
+			}
 		}
 	}
 	End {
-		If (!(Test-GitHubActionsEnvironment -Cache)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable')
-		}
 		[String[]]$KeysProceed = @()
 		If ($Key.Count -igt 10) {
 			Write-Warning -Message "Keys are limit to maximum count of 10! Only first 10 keys will use."
@@ -123,13 +124,13 @@ Function Save-Cache {
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
-			'Path' {
-				$PathsProceed += $Path
-			}
 			'LiteralPath' {
 				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
 					Return [WildcardPattern]::Escape($_)
 				})
+			}
+			'Path' {
+				$PathsProceed += $Path
 			}
 		}
 	}

@@ -43,13 +43,13 @@ Function Add-PATH {
 	}
 	End {
 		If ($Result.Count -igt 0) {
-			Switch ($Scope.ToString() -isplit ', ') {
-				{ $_ -icontains 'Current' } {
+			Switch -Exact ($Scope.ToString() -isplit ', ') {
+				'Current' {
 					[String[]]$PATHRaw = [System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator
 					$PATHRaw += $Result
 					[System.Environment]::SetEnvironmentVariable('PATH', ($PATHRaw -join [System.IO.Path]::PathSeparator))
 				}
-				{ $_ -icontains 'Subsequent' } {
+				'Subsequent' {
 					If ($Null -ieq $Env:GITHUB_PATH) {
 						ForEach ($Item In $Result) {
 							Write-GitHubActionsCommand -Command 'add-path' -Value $Item
@@ -127,13 +127,13 @@ Function Set-EnvironmentVariable {
 	End {
 		If ($Result.Count -igt 0) {
 			[PSCustomObject[]]$ResultEnumerator = $Result.GetEnumerator()
-			Switch ($Scope.ToString() -isplit ', ') {
-				{ $_ -icontains 'Current' } {
+			Switch -Exact ($Scope.ToString() -isplit ', ') {
+				'Current' {
 					ForEach ($Item In $ResultEnumerator) {
 						[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value)
 					}
 				}
-				{ $_ -icontains 'Subsequent' } {
+				'Subsequent' {
 					If ($Null -ieq $Env:GITHUB_ENV) {
 						ForEach ($Item In $ResultEnumerator) {
 							Write-GitHubActionsCommand -Command 'set-env' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }

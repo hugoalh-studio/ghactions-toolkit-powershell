@@ -33,29 +33,31 @@ Function Export-Artifact {
 		}, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
+		[ValidateScript({
+			Return ([System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container'))
+		}, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
 		[Alias('ContinueOnError', 'ContinueOnIssue', 'ContinueOnIssues', 'IgnoreIssuePath')][Switch]$IgnoreIssuePaths,
 		[ValidateRange(1, 90)][AllowNull()][Alias('RetentionDay')][Byte]$RetentionTime = $Null
 	)
 	Begin {
-		If (
-			$Null -ieq $BaseRoot -or
-			![System.IO.Path]::IsPathRooted($BaseRoot) -or
-			!(Test-Path -LiteralPath $BaseRoot -PathType 'Container')
-		) {
-			Return (Write-Error -Message "``$BaseRoot`` is not an exist and valid GitHub Actions artifact base root!" -Category 'SyntaxError')
+		If (!(Test-GitHubActionsEnvironment -Artifact)) {
+			Return (Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable')
 			Break# This is the best way to early terminate this function without terminate caller/invoker process.
 		}
+		<# Disable, not a good method.
 		[String]$BaseRootRegularExpression = "^$([RegEx]::Escape((Resolve-Path -LiteralPath $BaseRoot)))"
 		[String[]]$PathsValid = @()
 		[String[]]$PathsInvalid = @()
+		#>
+		[String[]]$PathsProceed = @()
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Path' {
+				<# Disable, not a good method.
 				ForEach ($ItemPath In $Path) {
 					Try {
-						ForEach ($ItemResolve In [String[]](Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath)))) {
+						ForEach ($ItemResolve In [String[]](Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath)) -ErrorAction 'SilentlyContinue')) {
 							If (!(Test-Path -LiteralPath $ItemResolve -PathType 'Leaf')) {
 								Continue
 							}
@@ -72,11 +74,14 @@ Function Export-Artifact {
 						$PathsInvalid += $ItemPath
 					}
 				}
+				#>
+				$PathsProceed += $Path
 			}
 			'LiteralPath' {
+				<# Disable, not a good method
 				ForEach ($ItemLiteralPath In $LiteralPath) {
 					Try {
-						ForEach ($ItemResolve In [String[]](Resolve-Path -LiteralPath ([System.IO.Path]::IsPathRooted($ItemLiteralPath) ? $ItemLiteralPath : (Join-Path -Path $BaseRoot -ChildPath $ItemLiteralPath)))) {
+						ForEach ($ItemResolve In [String[]](Resolve-Path -LiteralPath ([System.IO.Path]::IsPathRooted($ItemLiteralPath) ? $ItemLiteralPath : (Join-Path -Path $BaseRoot -ChildPath $ItemLiteralPath)) -ErrorAction 'SilentlyContinue')) {
 							If (!(Test-Path -LiteralPath $ItemResolve -PathType 'Leaf')) {
 								Continue
 							}
@@ -93,26 +98,35 @@ Function Export-Artifact {
 						$PathsInvalid += $ItemLiteralPath
 					}
 				}
+				#>
+				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
+					Return [WildcardPattern]::Escape($_)
+				})
 			}
 		}
 	}
 	End {
-		If (!(Test-GitHubActionsEnvironment -Artifact)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable')
-		}
+		<# Disable, not a good method.
 		If ($PathsInvalid.Count -igt 0 -and !$IgnoreIssuePaths.IsPresent) {
 			Return ($PathsInvalid | ForEach-Object -Process {
 				Return (Write-Error -Message "``$_`` is not an exist and valid file path!" -Category 'SyntaxError')
 			})
 		}
 		If ($PathsValid.Count -ieq 0) {
-			Return (Write-Error -Message 'No valid path is defined!' -Category 'NotSpecified')
+			Return (Write-Error -Message 'No valid file path is defined!' -Category 'NotSpecified')
+		}
+		#>
+		If ($PathsProceed.Count -ieq 0) {
+			Return (Write-Error -Message 'No path is defined!' -Category 'NotSpecified')
 		}
 		[Hashtable]$InputObject = @{
 			Name = $Name
+			<# Disable, not a good method.
 			Path = ($PathsValid | ForEach-Object -Process {
 				Return ($_ -ireplace $BaseRootRegularExpression, '' -ireplace '\\', '/')
 			})
+			#>
+			Path = $PathsProceed
 			BaseRoot = $BaseRoot
 			IgnoreIssuePaths = $IgnoreIssuePaths.IsPresent
 		}
@@ -123,10 +137,13 @@ Function Export-Artifact {
 		If ($ResultRaw -ieq $False) {
 			Return
 		}
+		<# Disable, not a good method.
 		[Hashtable]$Result = ($ResultRaw | ConvertFrom-Json -AsHashtable -Depth 100)
 		$Result.FailedItem += $PathsInvalid
 		$Result.FailedItems += $PathsInvalid
 		Return [PSCustomObject]$Result
+		#>
+		Return ($ResultRaw | ConvertFrom-Json -Depth 100)
 	}
 }
 Set-Alias -Name 'Save-Artifact' -Value 'Export-Artifact' -Option 'ReadOnly' -Scope 'Local'
@@ -150,7 +167,9 @@ Function Import-Artifact {
 	[CmdletBinding(DefaultParameterSetName = 'Select', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_import-githubactionsartifact#Import-GitHubActionsArtifact')]
 	[OutputType([PSCustomObject[]])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Select', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][String[]]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Select', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({
+			Return (Test-ArtifactName -InputObject $_)
+		}, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String[]]$Name,
 		[Parameter(ParameterSetName = 'Select')][Switch]$CreateSubfolder,
 		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[String]$Destination = $Env:GITHUB_WORKSPACE
