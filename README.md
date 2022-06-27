@@ -29,6 +29,8 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 #### Install
 
 - PowerShell >= v7.2.0
+- NodeJS >= v14.15.0 (only for NodeJS wrapper API)
+- NPM >= v6.14.8 (only for NodeJS wrapper API)
 
 ```ps1
 Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
@@ -43,6 +45,11 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 ```
 
 ### API (Excerpt)
+
+| **Legend** | **Description** |
+|:-:|:--|
+| 🧪 | **Experimental:** Experimental API. |
+| 🔘 | **NodeJS Wrapper:** Wrapper API, require NodeJS as dependency. |
 
 #### Function
 
@@ -61,9 +68,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Enable-GitHubActionsProcessingCommands`
 - `Enter-GitHubActionsLogGroup`
 - `Exit-GitHubActionsLogGroup`
-- `Expand-GitHubActionsToolCacheCompressedFile` 🧪
-- `Export-GitHubActionsArtifact` 🧪
-- `Find-GitHubActionsToolCache` 🧪
+- `Expand-GitHubActionsToolCacheCompressedFile` 🧪🔘
+- `Export-GitHubActionsArtifact` 🧪🔘
+- `Find-GitHubActionsToolCache` 🧪🔘
 - `Get-GitHubActionsInput`
 - `Get-GitHubActionsIsDebug`
 - `Get-GitHubActionsOpenIdConnectToken` 🧪
@@ -71,14 +78,14 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Get-GitHubActionsStepSummary`
 - `Get-GitHubActionsWebhookEventPayload`
 - `Get-GitHubActionsWorkflowRunUri`
-- `Import-GitHubActionsArtifact` 🧪
-- `Invoke-GitHubActionsToolCacheToolDownloader` 🧪
-- `Register-GitHubActionsToolCacheDirectory` 🧪
-- `Register-GitHubActionsToolCacheFile` 🧪
+- `Import-GitHubActionsArtifact` 🧪🔘
+- `Invoke-GitHubActionsToolCacheToolDownloader` 🧪🔘
+- `Register-GitHubActionsToolCacheDirectory` 🧪🔘
+- `Register-GitHubActionsToolCacheFile` 🧪🔘
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
-- `Restore-GitHubActionsCache` 🧪
-- `Save-GitHubActionsCache` 🧪
+- `Restore-GitHubActionsCache` 🧪🔘
+- `Save-GitHubActionsCache` 🧪🔘
 - `Set-GitHubActionsEnvironmentVariable`
 - `Set-GitHubActionsOutput`
 - `Set-GitHubActionsState`
