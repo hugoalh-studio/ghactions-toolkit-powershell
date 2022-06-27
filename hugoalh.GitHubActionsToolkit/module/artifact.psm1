@@ -53,30 +53,6 @@ Function Export-Artifact {
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
-			'Path' {
-				<# Disable, not a good method.
-				ForEach ($ItemPath In $Path) {
-					Try {
-						ForEach ($ItemResolve In [String[]](Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath)) -ErrorAction 'SilentlyContinue')) {
-							If (!(Test-Path -LiteralPath $ItemResolve -PathType 'Leaf')) {
-								Continue
-							}
-							If (
-								$ItemResolve -inotmatch $BaseRootRegularExpression -or
-								!(Test-ArtifactPath -InputObject $ItemResolve)
-							) {
-								$PathsInvalid += $ItemResolve
-								Continue
-							}
-							$PathsValid += $ItemResolve
-						}
-					} Catch {
-						$PathsInvalid += $ItemPath
-					}
-				}
-				#>
-				$PathsProceed += $Path
-			}
 			'LiteralPath' {
 				<# Disable, not a good method
 				ForEach ($ItemLiteralPath In $LiteralPath) {
@@ -102,6 +78,30 @@ Function Export-Artifact {
 				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
 					Return [WildcardPattern]::Escape($_)
 				})
+			}
+			'Path' {
+				<# Disable, not a good method.
+				ForEach ($ItemPath In $Path) {
+					Try {
+						ForEach ($ItemResolve In [String[]](Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath)) -ErrorAction 'SilentlyContinue')) {
+							If (!(Test-Path -LiteralPath $ItemResolve -PathType 'Leaf')) {
+								Continue
+							}
+							If (
+								$ItemResolve -inotmatch $BaseRootRegularExpression -or
+								!(Test-ArtifactPath -InputObject $ItemResolve)
+							) {
+								$PathsInvalid += $ItemResolve
+								Continue
+							}
+							$PathsValid += $ItemResolve
+						}
+					} Catch {
+						$PathsInvalid += $ItemPath
+					}
+				}
+				#>
+				$PathsProceed += $Path
 			}
 		}
 	}
