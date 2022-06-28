@@ -135,7 +135,7 @@ Function Test-Environment {
 		[Switch]$Artifact,
 		[Switch]$Cache,
 		[Alias('Oidc')][Switch]$OpenIdConnect,
-		[Alias('Summary')][Switch]$StepSummary,
+		[Switch]$StepSummary,
 		[Switch]$ToolCache,
 		[Alias('Force', 'Forced', 'Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process require to execute inside the GitHub Actions environment!'

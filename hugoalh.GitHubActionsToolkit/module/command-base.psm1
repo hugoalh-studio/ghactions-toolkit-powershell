@@ -44,6 +44,8 @@ Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'Re
 GitHub Actions - Write Command
 .DESCRIPTION
 Write command to communicate with the runner machine.
+
+This is a major function that services most of the functions; This function also will be useful when GitHub Actions has new commands but this module has not include yet.
 .PARAMETER Command
 Command.
 .PARAMETER Value
@@ -59,7 +61,7 @@ Function Write-Command {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions command!')][String]$Command,
 		[Parameter(Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Value = '',
-		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('Parameters', 'Property', 'Properties')][Hashtable]$Parameter = @{}
+		[Parameter(Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('Parameters', 'Properties', 'Property')][Hashtable]$Parameter = @{}
 	)
 	Begin {}
 	Process {
