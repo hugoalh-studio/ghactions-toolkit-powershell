@@ -22,7 +22,7 @@ Name of the inputs end with.
 .PARAMETER All
 Get all of the inputs.
 .PARAMETER EmptyStringAsNull
-Assume empty string of input's string as `$Null`.
+Assume empty string of input's value as `$Null`.
 .PARAMETER Trim
 Trim the input's value.
 .OUTPUTS

@@ -7,7 +7,9 @@ Import-Module -Name @(
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
 .DESCRIPTION
-Add some GitHub flavored Markdown for step so that it will display on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures. When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
+Add some GitHub flavored Markdown for step so that it will display on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures.
+
+When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
 .PARAMETER Value
 Content.
 .PARAMETER NoNewLine
@@ -68,7 +70,8 @@ Function Add-StepSummaryHeader {
 GitHub Actions - Add Step Summary Image
 .DESCRIPTION
 Add image for step so that it will display on the summary page of a run.
-IMPORTANT: No support reference image!
+
+IMPORTANT: Not support reference image!
 .PARAMETER Uri
 Image URI.
 .PARAMETER Title
@@ -128,7 +131,8 @@ Set-Alias -Name 'Add-StepSummaryPicture' -Value 'Add-StepSummaryImage' -Option '
 GitHub Actions - Add Step Summary Link
 .DESCRIPTION
 Add link for step so that it will display on the summary page of a run.
-IMPORTANT: No support reference link!
+
+IMPORTANT: Not support reference link!
 .PARAMETER Text
 Link text.
 .PARAMETER Uri
