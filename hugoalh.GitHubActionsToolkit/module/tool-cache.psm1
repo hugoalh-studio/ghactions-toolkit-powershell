@@ -149,8 +149,12 @@ Function Invoke-ToolCacheToolDownloader {
 	[OutputType([String[]])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({
-			$URIObject = $_ -as [System.URI]
-			Return (($Null -ine $URIObject.AbsoluteURI) -and ($_ -imatch '^https?:\/\/'))
+			Try {
+				$UriObject = $_ -as [System.Uri]
+			} Catch {
+				Return $False
+			}
+			Return (($Null -ine $UriObject.AbsoluteUri) -and ($_.Scheme -imatch '^https?$'))
 		}, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Url')][String[]]$Uri,
 		[Alias('Target')][String]$Destination,
 		[Alias('Auth')][String]$Authorization,
