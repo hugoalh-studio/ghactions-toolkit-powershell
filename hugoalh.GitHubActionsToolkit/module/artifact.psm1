@@ -44,89 +44,32 @@ Function Export-Artifact {
 			Return (Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable')
 			Break# This is the best way to early terminate this function without terminate caller/invoker process.
 		}
-		<# Disable, not a good method.
 		[String]$BaseRootRegularExpression = "^$([RegEx]::Escape((Resolve-Path -LiteralPath $BaseRoot)))"
-		[String[]]$PathsValid = @()
-		[String[]]$PathsInvalid = @()
-		#>
 		[String[]]$PathsProceed = @()
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'LiteralPath' {
-				<# Disable, not a good method
-				ForEach ($ItemLiteralPath In $LiteralPath) {
-					Try {
-						ForEach ($ItemResolve In [String[]](Resolve-Path -LiteralPath ([System.IO.Path]::IsPathRooted($ItemLiteralPath) ? $ItemLiteralPath : (Join-Path -Path $BaseRoot -ChildPath $ItemLiteralPath)) -ErrorAction 'SilentlyContinue')) {
-							If (!(Test-Path -LiteralPath $ItemResolve -PathType 'Leaf')) {
-								Continue
-							}
-							If (
-								$ItemResolve -inotmatch $BaseRootRegularExpression -or
-								!(Test-ArtifactPath -InputObject $ItemResolve)
-							) {
-								$PathsInvalid += $ItemResolve
-								Continue
-							}
-							$PathsValid += $ItemResolve
-						}
-					} Catch {
-						$PathsInvalid += $ItemLiteralPath
-					}
-				}
-				#>
 				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
-					Return [WildcardPattern]::Escape($_)
+					Return ([System.IO.Path]::IsPathRooted($_) ? $_ : (Join-Path -Path $BaseRoot -ChildPath $_))
 				})
 			}
 			'Path' {
-				<# Disable, not a good method.
 				ForEach ($ItemPath In $Path) {
-					Try {
-						ForEach ($ItemResolve In [String[]](Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath)) -ErrorAction 'SilentlyContinue')) {
-							If (!(Test-Path -LiteralPath $ItemResolve -PathType 'Leaf')) {
-								Continue
-							}
-							If (
-								$ItemResolve -inotmatch $BaseRootRegularExpression -or
-								!(Test-ArtifactPath -InputObject $ItemResolve)
-							) {
-								$PathsInvalid += $ItemResolve
-								Continue
-							}
-							$PathsValid += $ItemResolve
-						}
-					} Catch {
-						$PathsInvalid += $ItemPath
-					}
+					$PathsProceed +=  [String[]](Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath)) -ErrorAction 'SilentlyContinue')
 				}
-				#>
-				$PathsProceed += $Path
 			}
 		}
 	}
 	End {
-		<# Disable, not a good method.
-		If ($PathsInvalid.Count -igt 0 -and !$IgnoreIssuePaths.IsPresent) {
-			Return ($PathsInvalid | ForEach-Object -Process {
-				Return (Write-Error -Message "``$_`` is not an exist and valid file path!" -Category 'SyntaxError')
-			})
-		}
-		If ($PathsValid.Count -ieq 0) {
-			Return (Write-Error -Message 'No valid file path is defined!' -Category 'NotSpecified')
-		}
-		#>
 		If ($PathsProceed.Count -ieq 0) {
 			Return (Write-Error -Message 'No path is defined!' -Category 'NotSpecified')
 		}
 		[Hashtable]$InputObject = @{
 			Name = $Name
-			<# Disable, not a good method.
-			Path = ($PathsValid | ForEach-Object -Process {
+			Path = ($PathsProceed | ForEach-Object -Process {
 				Return ($_ -ireplace $BaseRootRegularExpression, '' -ireplace '\\', '/')
 			})
-			#>
-			Path = $PathsProceed
 			BaseRoot = $BaseRoot
 			IgnoreIssuePaths = $IgnoreIssuePaths.IsPresent
 		}
@@ -137,12 +80,6 @@ Function Export-Artifact {
 		If ($ResultRaw -ieq $False) {
 			Return
 		}
-		<# Disable, not a good method.
-		[Hashtable]$Result = ($ResultRaw | ConvertFrom-Json -AsHashtable -Depth 100)
-		$Result.FailedItem += $PathsInvalid
-		$Result.FailedItems += $PathsInvalid
-		Return [PSCustomObject]$Result
-		#>
 		Return ($ResultRaw | ConvertFrom-Json -Depth 100)
 	}
 }
