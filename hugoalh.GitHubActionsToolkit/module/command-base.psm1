@@ -44,8 +44,6 @@ Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'Re
 GitHub Actions - Write Command
 .DESCRIPTION
 Write command to communicate with the runner machine.
-
-This is a major function that services most of the functions; This function also will be useful when GitHub Actions has new commands but this module has not include yet.
 .PARAMETER Command
 Command.
 .PARAMETER Value
