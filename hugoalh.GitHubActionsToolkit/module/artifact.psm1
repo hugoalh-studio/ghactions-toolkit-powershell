@@ -56,7 +56,11 @@ Function Export-Artifact {
 			}
 			'Path' {
 				ForEach ($ItemPath In $Path) {
-					$PathsProceed +=  [String[]](Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath)) -ErrorAction 'SilentlyContinue')
+					Try {
+						$PathsProceed +=  Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath))
+					} Catch {
+						Write-Error -Message "``$ItemPath`` is not an exist and resolvable path!" -Category 'SyntaxError'
+					}
 				}
 			}
 		}
