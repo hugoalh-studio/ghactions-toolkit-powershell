@@ -31,7 +31,7 @@ Function Add-ProblemMatcher {
 				}
 			}
 			'Path' {
-				ForEach ($Item In [String[]](Resolve-Path -Path $Path -ErrorAction 'SilentlyContinue')) {
+				ForEach ($Item In [String[]](Resolve-Path -Path $Path)) {
 					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
 				}
 			}
