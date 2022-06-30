@@ -105,8 +105,8 @@ Function Find-ToolCache {
 	[OutputType(([String], [String[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('ToolName')][String]$Name,
-		[Alias('Ver')][String]$Version = '*',
-		[Alias('Arch')][String]$Architecture
+		[Parameter(Position = 1)][Alias('Ver')][String]$Version = '*',
+		[Parameter(Position = 2)][Alias('Arch')][String]$Architecture
 	)
 	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
 		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
