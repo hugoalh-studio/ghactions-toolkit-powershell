@@ -16,9 +16,11 @@ Expand destination path.
 .PARAMETER Method
 Method to expand compressed archive/file; Define this value will enforce to use defined method.
 .PARAMETER 7zrPath
-`7zr` path, for long path support (only for expand method is `7z`); Most `.7z` archives do not have this problem, if `.7z` archive contains very long path, pass the path to `7zr` which will gracefully handle long paths, by default `7zdec` is used because it is a very small program and is bundled with the GitHub Actions NodeJS toolkit, however it does not support long paths, `7zr` is the reduced command line interface, it is smaller than the full command line interface, and it does support long paths, at the time of this writing, it is freely available from the LZMA SDK that is available on the 7-Zip website, be sure to check the current license agreement, if `7zr` is bundled with your action, then the path to `7zr` can be pass to this function.
+`7zr` path, for long path support (only when parameter `Method` is `7z`).
+
+Most `.7z` archives do not have this problem, if `.7z` archive contains very long path, pass the path to `7zr` which will gracefully handle long paths, by default `7zdec` is used because it is a very small program and is bundled with the GitHub Actions NodeJS toolkit, however it does not support long paths, `7zr` is the reduced command line interface, it is smaller than the full command line interface, and it does support long paths, at the time of this writing, it is freely available from the LZMA SDK that is available on the 7-Zip website, be sure to check the current license agreement, if `7zr` is bundled with your action, then the path to `7zr` can be pass to this function.
 .PARAMETER Flag
-Flag for expand method is `Tar` or `Xar`, to use for extraction.
+Flag to use for expand (only when parameter `Method` is `Tar` or `Xar`).
 .OUTPUTS
 [String] Expand destination path.
 #>
