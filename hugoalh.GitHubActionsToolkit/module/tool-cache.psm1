@@ -92,10 +92,10 @@ GitHub Actions - Find Tool Cache
 Find the path of a tool in the local installed tool cache.
 .PARAMETER Name
 Tool name.
-.PARAMETER Architecture
-Tool architecture.
 .PARAMETER Version
 Tool version, by Semantic Versioning (SemVer).
+.PARAMETER Architecture
+Tool architecture.
 .OUTPUTS
 [String] Path of a version of a tool.
 [String[]] Paths of all versions of a tool.
@@ -105,8 +105,8 @@ Function Find-ToolCache {
 	[OutputType(([String], [String[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('ToolName')][String]$Name,
-		[Alias('Arch')][String]$Architecture,
-		[Alias('Ver')][String]$Version = '*'
+		[Alias('Ver')][String]$Version = '*',
+		[Alias('Arch')][String]$Architecture
 	)
 	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
 		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')

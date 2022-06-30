@@ -36,7 +36,7 @@ Function Export-Artifact {
 		[ValidateScript({
 			Return ([System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container'))
 		}, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
-		[Alias('ContinueOnError', 'ContinueOnIssue', 'ContinueOnIssues', 'IgnoreIssuePath')][Switch]$IgnoreIssuePaths,
+		[Alias('ContinueOnError', 'ContinueOnIssue', 'IgnoreIssuePath')][Switch]$IgnoreIssuePaths,
 		[ValidateRange(1, 90)][Alias('RetentionDay')][Byte]$RetentionTime = 0
 	)
 	Begin {
