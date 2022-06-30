@@ -28,9 +28,7 @@ Function Restore-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_restore-githubactionscache#Restore-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({
-			Return (Test-CacheKey -InputObject $_)
-		}, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
+		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
@@ -111,9 +109,7 @@ Function Save-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_save-githubactionscache#Save-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({
-			Return (Test-CacheKey -InputObject $_)
-		}, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
+		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[ValidateRange(1KB, 1GB)][UInt32]$UploadChunkSizes = 0,

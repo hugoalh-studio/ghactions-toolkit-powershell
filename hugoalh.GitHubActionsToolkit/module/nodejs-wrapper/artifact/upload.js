@@ -2,7 +2,7 @@
 import { create as ghactionsArtifact } from "@actions/artifact";
 const input = JSON.parse(process.argv[2]);
 const result = await ghactionsArtifact().uploadArtifact(input.Name, input.Path, input.BaseRoot, {
-	continueOnError: input.IgnoreIssuePaths,
+	continueOnError: input.ContinueOnIssue,
 	retentionDays: input.RetentionTime
 }).catch((reason) => {
 	console.error(reason);

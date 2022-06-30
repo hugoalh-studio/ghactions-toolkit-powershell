@@ -11,6 +11,6 @@ const result = await ghactionsCacheRestoreCache(input.Path, input.PrimaryKey, in
 });
 console.log(process.argv[3]);
 console.log(JSON.stringify({
-	CacheKey: result ?? null
+	CacheKey: result
 }));
 process.exit(0);

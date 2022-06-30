@@ -86,9 +86,7 @@ Function Set-EnvironmentVariable {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({
-			Return (Test-EnvironmentVariableName -InputObject $_)
-		}, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-EnvironmentVariableName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][String]$Value,
 		[Alias('NoToUppercase')][Switch]$NoToUpper,
 		[GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3

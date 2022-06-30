@@ -63,9 +63,7 @@ Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateScript({
-			Return (Test-ProcessingCommandsEndToken -InputObject $_)
-		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = ((New-Guid).Guid -ireplace '-', '')
+		[Parameter(Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = ((New-Guid).Guid -ireplace '-', '')
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
 	Return $EndToken
@@ -128,9 +126,7 @@ Function Enable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommands#Enable-GitHubActionsProcessingCommands')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({
-			Return (Test-ProcessingCommandsEndToken -InputObject $_)
-		}, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
+		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	Return (Write-GitHubActionsCommand -Command $EndToken)
 }

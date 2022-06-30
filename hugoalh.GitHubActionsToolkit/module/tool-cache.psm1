@@ -150,14 +150,7 @@ Function Invoke-ToolCacheToolDownloader {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invoke-githubactionstoolcachetooldownloader#Invoke-GitHubActionsToolCacheToolDownloader')]
 	[OutputType([String[]])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({
-			Try {
-				$UriObject = $_ -as [System.Uri]
-			} Catch {
-				Return $False
-			}
-			Return (($Null -ine $UriObject.AbsoluteUri) -and ($_.Scheme -imatch '^https?$'))
-		}, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Url')][String[]]$Uri,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$')) }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Url')][Uri]$Uri,
 		[Alias('Target')][String]$Destination,
 		[Alias('Auth')][String]$Authorization,
 		[Alias('Headers')][Hashtable]$Header
