@@ -104,7 +104,7 @@ Function Find-ToolCache {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_find-githubactionstoolcache#Find-GitHubActionsToolCache')]
 	[OutputType(([String], [String[]]))]
 	Param (
-		[Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 0)][Alias('ToolName')][String]$Name,
 		[Alias('Arch')][String]$Architecture,
 		[Alias('Ver')][String]$Version = '*'
 	)
