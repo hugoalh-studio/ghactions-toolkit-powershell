@@ -67,9 +67,7 @@ Function Export-Artifact {
 		}
 		[Hashtable]$InputObject = @{
 			Name = $Name
-			Path = ($PathsProceed | ForEach-Object -Process {
-				Return ($_ -ireplace $BaseRootRegularExpression, '' -ireplace '\\', '/')
-			})
+			Path = $PathsProceed
 			BaseRoot = $BaseRoot
 			ContinueOnIssue = $ContinueOnIssue.IsPresent
 		}
@@ -92,20 +90,22 @@ Import artifact that shared data from previous job in the same workflow.
 .PARAMETER Name
 Artifact name.
 .PARAMETER CreateSubfolder
-Create a subfolder with artifact name and put data into here; When parameter `Name` has multiple values, this parameter will ignore.
+Create a subfolder with artifact name and put data into here.
 .PARAMETER All
 Import all artifacts that shared data from previous job in the same workflow; Always create subfolder.
 .PARAMETER Destination
 Artifact destination.
 .OUTPUTS
+[PSCustomObject] Imported artifact's metadata.
 [PSCustomObject[]] Imported artifacts' metadata.
 #>
 Function Import-Artifact {
-	[CmdletBinding(DefaultParameterSetName = 'Select', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_import-githubactionsartifact#Import-GitHubActionsArtifact')]
-	[OutputType([PSCustomObject[]])]
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_import-githubactionsartifact#Import-GitHubActionsArtifact')]
+	[OutputType([PSCustomObject[]], ParameterSetName = 'All')]
+	[OutputType([PSCustomObject], ParameterSetName = 'Single')]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Select', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-ArtifactName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String[]]$Name,
-		[Parameter(ParameterSetName = 'Select')][Switch]$CreateSubfolder,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-ArtifactName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
+		[Parameter(ParameterSetName = 'Single')][Switch]$CreateSubfolder,
 		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Alias('Dest', 'Target')][String]$Destination = $Env:GITHUB_WORKSPACE
 	)
@@ -114,7 +114,6 @@ Function Import-Artifact {
 			Return (Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable')
 			Break# This is the best way to early terminate this function without terminate caller/invoker process.
 		}
-		[PSCustomObject[]]$OutputObject = @()
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
@@ -125,26 +124,22 @@ Function Import-Artifact {
 				If ($ResultRaw -ieq $False) {
 					Continue
 				}
-				$OutputObject = ($ResultRaw | ConvertFrom-Json -Depth 100)
+				Return ($ResultRaw | ConvertFrom-Json -Depth 100)
 			}
-			'Select' {
-				ForEach ($Item In $Name) {
-					$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download.js' -InputObject ([PSCustomObject]@{
-						Name = $Item
-						Destination = $Destination
-						CreateSubfolder = ($Name.Count -igt 1) ? $True : $CreateSubfolder.IsPresent
-					} | ConvertTo-Json -Depth 100 -Compress)
-					If ($ResultRaw -ieq $False) {
-						Continue
-					}
-					$OutputObject += ($ResultRaw | ConvertFrom-Json -Depth 100)
+			'Single' {
+				$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download.js' -InputObject ([PSCustomObject]@{
+					Name = $Name
+					Destination = $Destination
+					CreateSubfolder = $CreateSubfolder.IsPresent
+				} | ConvertTo-Json -Depth 100 -Compress)
+				If ($ResultRaw -ieq $False) {
+					Return
 				}
+				Return ($ResultRaw | ConvertFrom-Json -Depth 100)
 			}
 		}
 	}
-	End {
-		Return $OutputObject
-	}
+	End {}
 }
 Set-Alias -Name 'Restore-Artifact' -Value 'Import-Artifact' -Option 'ReadOnly' -Scope 'Local'
 <#
