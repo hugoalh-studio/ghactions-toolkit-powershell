@@ -48,8 +48,8 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 
 | **Legend** | **Description** |
 |:-:|:--|
-| 🧪 | **Experimental:** Experimental API. |
-| 🔘 | **NodeJS Wrapper:** Wrapper API, require NodeJS as dependency. |
+| 🧪 | **Experimental:** This is in testing, maybe available in the latest version and/or future version. |
+| 🔘 | **NodeJS Wrapper:** This dependents and requires NodeJS to execute. |
 
 #### Function
 
