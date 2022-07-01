@@ -106,6 +106,7 @@
 		'Write-Error',
 		'Write-Fail',
 		'Write-Notice',
+		'Write-Raw',
 		'Write-Warning'
 	)
 

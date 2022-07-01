@@ -45,9 +45,7 @@ Function Add-PATH {
 		If ($Result.Count -igt 0) {
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					[String[]]$PATHRaw = [System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator
-					$PATHRaw += $Result
-					[System.Environment]::SetEnvironmentVariable('PATH', ($PATHRaw -join [System.IO.Path]::PathSeparator))
+					[System.Environment]::SetEnvironmentVariable('PATH', (([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator + $Result) -join [System.IO.Path]::PathSeparator)) | Out-Null
 				}
 				'Subsequent' {
 					If ($Null -ieq $Env:GITHUB_PATH) {
@@ -60,7 +58,6 @@ Function Add-PATH {
 				}
 			}
 		}
-		Return
 	}
 }
 <#
@@ -128,13 +125,13 @@ Function Set-EnvironmentVariable {
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
 					ForEach ($Item In $ResultEnumerator) {
-						[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value)
+						[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value) | Out-Null
 					}
 				}
 				'Subsequent' {
 					If ($Null -ieq $Env:GITHUB_ENV) {
 						ForEach ($Item In $ResultEnumerator) {
-							Write-GitHubActionsCommand -Command 'set-env' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
+							Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Item.Name } -Value $Item.Value
 						}
 					} Else {
 						Add-Content -LiteralPath $Env:GITHUB_ENV -Value (($ResultEnumerator | ForEach-Object -Process {
@@ -144,7 +141,6 @@ Function Set-EnvironmentVariable {
 				}
 			}
 		}
-		Return
 	}
 }
 Set-Alias -Name 'Set-Env' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
@@ -163,9 +159,13 @@ Function Test-EnvironmentVariableName {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$' -and $InputObject -inotmatch '^(?:ACTIONS|GITHUB|RUNNER)_')
+	Begin {}
+	Process {
+		Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$' -and $InputObject -inotmatch '^(?:ACTIONS|GITHUB|RUNNER)_')
+	}
+	End {}
 }
 Export-ModuleMember -Function @(
 	'Add-PATH',

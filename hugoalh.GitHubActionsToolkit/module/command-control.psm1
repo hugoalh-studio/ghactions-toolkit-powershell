@@ -159,9 +159,13 @@ Function Test-ProcessingCommandsEndToken {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands)
+	Begin {}
+	Process {
+		Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands)
+	}
+	End {}
 }
 Export-ModuleMember -Function @(
 	'Disable-EchoingCommands',

@@ -98,6 +98,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Write-GitHubActionsError`
 - `Write-GitHubActionsFail`
 - `Write-GitHubActionsNotice`
+- `Write-GitHubActionsRaw`
 - `Write-GitHubActionsWarning`
 
 ### Example (Excerpt)
