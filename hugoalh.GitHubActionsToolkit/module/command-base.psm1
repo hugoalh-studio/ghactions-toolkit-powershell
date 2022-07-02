@@ -71,9 +71,9 @@ Function Write-Command {
 	)
 	Begin {}
 	Process {
-		Return (Write-Host -Object "::$Command$(($Parameter.Count -igt 0) ? " $(($Parameter.GetEnumerator() | Sort-Object -Property 'Name' | ForEach-Object -Process {
+		Write-Host -Object "::$Command$(($Parameter.Count -igt 0) ? " $(($Parameter.GetEnumerator() | Sort-Object -Property 'Name' | ForEach-Object -Process {
 			Return "$($_.Name)=$(Format-CommandParameterValue -InputObject $_.Value)"
-		}) -join ',')" : '')::$(Format-CommandValue -InputObject $Value)")
+		}) -join ',')" : '')::$(Format-CommandValue -InputObject $Value)"
 	}
 	End {}
 }

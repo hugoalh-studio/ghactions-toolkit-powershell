@@ -24,22 +24,11 @@ Function Add-ProblemMatcher {
 	)
 	Begin {}
 	Process {
-		Switch ($PSCmdlet.ParameterSetName) {
-			'LiteralPath' {
-				ForEach ($Item In $LiteralPath) {
-					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
-				}
-			}
-			'Path' {
-				ForEach ($Item In [String[]](Resolve-Path -Path $Path)) {
-					Write-GitHubActionsCommand -Command 'add-matcher' -Value ($Item -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
-				}
-			}
+		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? $LiteralPath : [String[]](Resolve-Path -Path $Path) | ForEach-Object -Process {
+			Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\\/]', '' -ireplace '\\', '/')
 		}
 	}
-	End {
-		Return
-	}
+	End {}
 }
 <#
 .SYNOPSIS
@@ -59,13 +48,11 @@ Function Remove-ProblemMatcher {
 	)
 	Begin {}
 	Process {
-		ForEach ($Item In $Owner) {
-			Write-GitHubActionsCommand -Command 'remove-matcher' -Parameter @{ 'owner' = $Item }
+		$Owner | ForEach-Object -Process {
+			Write-GitHubActionsCommand -Command 'remove-matcher' -Parameter @{ 'owner' = $_ }
 		}
 	}
-	End {
-		Return
-	}
+	End {}
 }
 Export-ModuleMember -Function @(
 	'Add-ProblemMatcher',

@@ -45,12 +45,12 @@ Function Add-PATH {
 		If ($Result.Count -igt 0) {
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					[System.Environment]::SetEnvironmentVariable('PATH', (([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator + $Result) -join [System.IO.Path]::PathSeparator)) | Out-Null
+					[System.Environment]::SetEnvironmentVariable('PATH', ((([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result) -join [System.IO.Path]::PathSeparator)) | Out-Null
 				}
 				'Subsequent' {
 					If ($Null -ieq $Env:GITHUB_PATH) {
-						ForEach ($Item In $Result) {
-							Write-GitHubActionsCommand -Command 'add-path' -Value $Item
+						$Result | ForEach-Object -Process {
+							Write-GitHubActionsCommand -Command 'add-path' -Value $_
 						}
 					} Else {
 						Add-Content -LiteralPath $Env:GITHUB_PATH -Value ($Result -join "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
@@ -124,13 +124,13 @@ Function Set-EnvironmentVariable {
 			[PSCustomObject[]]$ResultEnumerator = $Result.GetEnumerator()
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					ForEach ($Item In $ResultEnumerator) {
-						[System.Environment]::SetEnvironmentVariable($Item.Name, $Item.Value) | Out-Null
+					$ResultEnumerator | ForEach-Object -Process {
+						[System.Environment]::SetEnvironmentVariable($_.Name, $_.Value) | Out-Null
 					}
 				}
 				'Subsequent' {
 					If ($Null -ieq $Env:GITHUB_ENV) {
-						ForEach ($Item In $ResultEnumerator) {
+						$ResultEnumerator | ForEach-Object -Process {
 							Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Item.Name } -Value $Item.Value
 						}
 					} Else {

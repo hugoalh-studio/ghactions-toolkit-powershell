@@ -30,7 +30,7 @@ Function Enter-LogGroup {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header', 'Message')][String]$Title
 	)
-	Return (Write-GitHubActionsCommand -Command 'group' -Value $Title)
+	Write-GitHubActionsCommand -Command 'group' -Value $Title
 }
 Set-Alias -Name 'Enter-Group' -Value 'Enter-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -45,7 +45,7 @@ Function Exit-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_exit-githubactionsloggroup#Exit-GitHubActionsLogGroup')]
 	[OutputType([Void])]
 	Param ()
-	Return (Write-GitHubActionsCommand -Command 'endgroup')
+	Write-GitHubActionsCommand -Command 'endgroup'
 }
 Set-Alias -Name 'Exit-Group' -Value 'Exit-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -121,7 +121,7 @@ Function Write-Annotation {
 		If ($Title.Length -igt 0) {
 			$Property['title'] = $Title
 		}
-		Return (Write-GitHubActionsCommand -Command $TypeRaw -Parameter $Property -Value $Message)
+		Write-GitHubActionsCommand -Command $TypeRaw -Parameter $Property -Value $Message
 	}
 	End {}
 }
@@ -143,7 +143,7 @@ Function Write-Debug {
 	)
 	Begin {}
 	Process {
-		Return (Write-GitHubActionsCommand -Command 'debug' -Value $Message)
+		Write-GitHubActionsCommand -Command 'debug' -Value $Message
 	}
 	End {}
 }
@@ -183,7 +183,7 @@ Function Write-Error {
 	)
 	Begin {}
 	Process {
-		Return (Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title)
+		Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
 	End {}
 }
@@ -260,7 +260,7 @@ Function Write-Notice {
 	)
 	Begin {}
 	Process {
-		Return (Write-Annotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title)
+		Write-Annotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
 	End {}
 }
@@ -270,20 +270,8 @@ Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Lo
 GitHub Actions - Write Raw
 .DESCRIPTION
 Print anything to the log without accidentally execute any commands.
-.PARAMETER Message
-Message that need to log at notice level.
-.PARAMETER File
-Issue file path.
-.PARAMETER Line
-Issue file line start.
-.PARAMETER Col
-Issue file column start.
-.PARAMETER EndLine
-Issue file line end.
-.PARAMETER EndColumn
-Issue file column end.
-.PARAMETER Title
-Issue title.
+.PARAMETER InputObject
+Object that need to log.
 .OUTPUTS
 [Void]
 #>
@@ -291,13 +279,13 @@ Function Write-Raw {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsraw#Write-GitHubActionsRaw')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Content', 'Input', 'Message', 'Object')]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content', 'Input', 'Message', 'Object')]$InputObject
 	)
 	Begin {
 		[String]$EndToken = Disable-GitHubActionsProcessingCommands
 	}
 	Process {
-		Return (Write-Host -Object $InputObject)
+		Write-Host -Object $InputObject
 	}
 	End {
 		Enable-GitHubActionsProcessingCommands -EndToken $EndToken
@@ -339,7 +327,7 @@ Function Write-Warning {
 	)
 	Begin {}
 	Process {
-		Return (Write-Annotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title)
+		Write-Annotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
 	End {}
 }

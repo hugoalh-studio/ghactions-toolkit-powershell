@@ -65,14 +65,16 @@ Function Get-Input {
 				$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 				If ($Null -ieq $InputValueRaw) {
 					If ($Mandatory.IsPresent) {
-						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
+						Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
+						Return
 					}
 					Return $Null
 				}
 				[String]$InputValue = $Trim.IsPresent ? $InputValueRaw.Trim() : $InputValueRaw
 				If ($EmptyStringAsNull.IsPresent -and $InputValue.Length -ieq 0) {
 					If ($Mandatory.IsPresent) {
-						Return (Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name))
+						Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
+						Return
 					}
 					Return $Null
 				}
@@ -235,30 +237,28 @@ Function Set-Output {
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				ForEach ($Item In $InputObject.GetEnumerator()) {
-					If ($Item.Name.GetType().Name -ine 'String') {
+				$InputObject.GetEnumerator() | ForEach-Object -Process {
+					If ($_.Name.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						Continue
+						Return
 					}
-					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
-						Continue
+					If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+						Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
+						Return
 					}
-					If ($Item.Value.GetType().Name -ine 'String') {
+					If ($_.Value.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						Continue
+						Return
 					}
-					Write-GitHubActionsCommand -Command 'set-output' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
+					Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $_.Name } -Value $_.Value
 				}
 			}
 			'Single' {
-				Write-GitHubActionsCommand -Command 'set-output' -Value $Value -Parameter @{ 'name' = $Name }
+				Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
 			}
 		}
 	}
-	End {
-		Return
-	}
+	End {}
 }
 <#
 .SYNOPSIS
@@ -286,30 +286,28 @@ Function Set-State {
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				ForEach ($Item In $InputObject.GetEnumerator()) {
-					If ($Item.Name.GetType().Name -ine 'String') {
+				$InputObject.GetEnumerator() | ForEach-Object -Process {
+					If ($_.Name.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						Continue
+						Return
 					}
-					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
-						Continue
+					If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+						Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
+						Return
 					}
-					If ($Item.Value.GetType().Name -ine 'String') {
+					If ($_.Value.GetType().Name -ine 'String') {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						Continue
+						Return
 					}
-					Write-GitHubActionsCommand -Command 'save-state' -Value $Item.Value -Parameter @{ 'name' = $Item.Name }
+					Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $_.Name } -Value $_.Value
 				}
 			}
 			'Single' {
-				Write-GitHubActionsCommand -Command 'save-state' -Value $Value -Parameter @{ 'name' = $Name }
+				Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
 			}
 		}
 	}
-	End {
-		Return
-	}
+	End {}
 }
 Set-Alias -Name 'Save-State' -Value 'Set-State' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(

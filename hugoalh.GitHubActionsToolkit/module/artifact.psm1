@@ -28,42 +28,40 @@ Function Export-Artifact {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_export-githubactionsartifact#Export-GitHubActionsArtifact')]
 	[OutputType([PSCustomObject])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-ArtifactName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-ArtifactName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[ValidateScript({ Return ([System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container')) }, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
-		[Alias('ContinueOnError')][Switch]$ContinueOnIssue,
-		[ValidateRange(1, 90)][Alias('RetentionDay')][Byte]$RetentionTime = 0
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return ([System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container')) }, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ContinueOnError')][Switch]$ContinueOnIssue,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 90)][Alias('RetentionDay')][Byte]$RetentionTime = 0
 	)
 	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
 		If (!(Test-GitHubActionsEnvironment -Artifact)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable')
-			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
-		[String]$BaseRootRegularExpression = "^$([RegEx]::Escape((Resolve-Path -LiteralPath $BaseRoot)))"
-		[String[]]$PathsProceed = @()
 	}
 	Process {
+		If ($NoOperation) {
+			Return
+		}
 		Switch ($PSCmdlet.ParameterSetName) {
 			'LiteralPath' {
-				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
+				[String[]]$PathsProceed = ($LiteralPath | ForEach-Object -Process {
 					Return ([System.IO.Path]::IsPathRooted($_) ? $_ : (Join-Path -Path $BaseRoot -ChildPath $_))
 				})
 			}
 			'Path' {
-				ForEach ($ItemPath In $Path) {
+				[String[]]$PathsProceed = @()
+				ForEach ($Item In $Path) {
 					Try {
-						$PathsProceed +=  Resolve-Path -Path ([System.IO.Path]::IsPathRooted($ItemPath) ? $ItemPath : (Join-Path -Path $BaseRoot -ChildPath $ItemPath))
+						$PathsProceed += Resolve-Path -Path ([System.IO.Path]::IsPathRooted($Item) ? $Item : (Join-Path -Path $BaseRoot -ChildPath $Item))
 					} Catch {
-						Write-Error -Message "``$ItemPath`` is not an exist and resolvable path!" -Category 'SyntaxError'
+						$PathsProceed += $Item
 					}
 				}
 			}
-		}
-	}
-	End {
-		If ($PathsProceed.Count -ieq 0) {
-			Return (Write-Error -Message 'No path is defined!' -Category 'NotSpecified')
 		}
 		[Hashtable]$InputObject = @{
 			Name = $Name
@@ -75,11 +73,12 @@ Function Export-Artifact {
 			$InputObject.RetentionTIme = $RetentionTime
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\upload.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($ResultRaw -ieq $False) {
+		If ($Null -ieq $ResultRaw) {
 			Return
 		}
 		Return ($ResultRaw | ConvertFrom-Json -Depth 100)
 	}
+	End {}
 }
 Set-Alias -Name 'Save-Artifact' -Value 'Export-Artifact' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -105,24 +104,28 @@ Function Import-Artifact {
 	[OutputType([PSCustomObject], ParameterSetName = 'Single')]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-ArtifactName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
-		[Parameter(ParameterSetName = 'Single')][Switch]$CreateSubfolder,
+		[Parameter(ParameterSetName = 'Single', ValueFromPipelineByPropertyName = $True)][Switch]$CreateSubfolder,
 		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
-		[Alias('Dest', 'Target')][String]$Destination = $Env:GITHUB_WORKSPACE
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Dest', 'Target')][String]$Destination = $Env:GITHUB_WORKSPACE
 	)
 	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
 		If (!(Test-GitHubActionsEnvironment -Artifact)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable')
-			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
 	}
 	Process {
+		If ($NoOperation) {
+			Return
+		}
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
 				$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download-all.js' -InputObject ([PSCustomObject]@{
 					Destination = $Destination
 				} | ConvertTo-Json -Depth 100 -Compress)
-				If ($ResultRaw -ieq $False) {
-					Continue
+				If ($Null -ieq $ResultRaw) {
+					Return
 				}
 				Return ($ResultRaw | ConvertFrom-Json -Depth 100)
 			}
@@ -132,7 +135,7 @@ Function Import-Artifact {
 					Destination = $Destination
 					CreateSubfolder = $CreateSubfolder.IsPresent
 				} | ConvertTo-Json -Depth 100 -Compress)
-				If ($ResultRaw -ieq $False) {
+				If ($Null -ieq $ResultRaw) {
 					Return
 				}
 				Return ($ResultRaw | ConvertFrom-Json -Depth 100)
@@ -156,9 +159,13 @@ Function Test-ArtifactName {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	Return ((Test-ArtifactPath -InputObject $InputObject) -and $InputObject -imatch '^[^\\/]+$')
+	Begin {}
+	Process {
+		Return ((Test-ArtifactPath -InputObject $InputObject) -and $InputObject -imatch '^[^\\/]+$')
+	}
+	End {}
 }
 <#
 .SYNOPSIS
@@ -174,9 +181,13 @@ Function Test-ArtifactPath {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	Return ($InputObject -imatch '^[^":<>|*?\n\r\t]+$')
+	Begin {}
+	Process {
+		Return ($InputObject -imatch '^[^":<>|*?\n\r\t]+$')
+	}
+	End {}
 }
 Export-ModuleMember -Function @(
 	'Export-Artifact',

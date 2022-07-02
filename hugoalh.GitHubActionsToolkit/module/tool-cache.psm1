@@ -28,59 +28,70 @@ Function Expand-ToolCacheCompressedFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_expand-githubactionstoolcachecompressedfile#Expand-GitHubActionsToolCacheCompressedFile')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Source')][String]$File,
-		[Alias('Target')][String]$Destination,
-		[ValidateSet('7z', 'Auto', 'Automatic', 'Automatically', 'Tar', 'Xar', 'Zip')][String]$Method = 'Automatically',
-		[String]$7zrPath,
-		[Alias('Flags')][String]$Flag
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Source')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateSet('7z', 'Auto', 'Automatic', 'Automatically', 'Tar', 'Xar', 'Zip')][String]$Method = 'Automatically',
+		[String]$7zrPath = '',
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag = ''
 	)
-	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
-		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
-	}
-	If (!(Test-Path -LiteralPath $File -PathType 'Leaf')) {
-		Return (Write-Error -Message "``$File`` is not a valid file path!" -Category 'SyntaxError')
-	}
-	If ($Method -imatch '^Auto(?:matic(?:ally)?)?$') {
-		Switch -RegEx ($File) {
-			'\.7z$' {
-				$Method = '7z'
-				Break
-			}
-			'\.pkg$' {
-				$Method = 'Xar'
-				Break
-			}
-			'\.tar(?:\.gz)?$' {
-				$Method = 'Tar'
-				Break
-			}
-			'\.zip$' {
-				$Method = 'Zip'
-				Break
-			}
-			Default {
-				$Method = '7z'
-				Break
-			}
+	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
+		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
 	}
-	[Hashtable]$InputObject = @{
-		File = $File
+	Process {
+		If ($NoOperation) {
+			Return
+		}
+		If (!(Test-Path -LiteralPath $File -PathType 'Leaf')) {
+			Write-Error -Message "``$File`` is not a valid file path!" -Category 'SyntaxError'
+			Return
+		}
+		If ($Method -imatch '^Auto(?:matic(?:ally)?)?$') {
+			Switch -RegEx ($File) {
+				'\.7z$' {
+					$Method = '7z'
+					Break
+				}
+				'\.pkg$' {
+					$Method = 'Xar'
+					Break
+				}
+				'\.tar(?:\.gz)?$' {
+					$Method = 'Tar'
+					Break
+				}
+				'\.zip$' {
+					$Method = 'Zip'
+					Break
+				}
+				Default {
+					$Method = '7z'
+					Break
+				}
+			}
+		}
+		[Hashtable]$InputObject = @{
+			File = $File
+		}
+		If ($Destination.Length -igt 0) {
+			$InputObject.Destination = $Destination
+		}
+		If ($7zrPath.Length -igt 0) {
+			$InputObject['7zrPath'] = $7zrPath
+		}
+		If ($Flag.Length -igt 0) {
+			$InputObject.Flag = $Flag
+		}
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\extract-$($Method.ToLower()).js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+		If ($Null -ieq $ResultRaw) {
+			Return
+		}
+		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
 	}
-	If ($Destination.Length -igt 0) {
-		$InputObject.Destination = $Destination
-	}
-	If ($7zrPath.Length -igt 0) {
-		$InputObject['7zrPath'] = $7zrPath
-	}
-	If ($Flag.Length -igt 0) {
-		$InputObject.Flag = $Flag
-	}
-	$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\extract-$($Method.ToLower()).js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-	If ($ResultRaw -ieq $False) {
-		Return
-	}
-	Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+	End {}
 }
 Set-Alias -Name 'Expand-ToolCacheArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Expand-ToolCacheCompressedArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
@@ -104,31 +115,41 @@ Function Find-ToolCache {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_find-githubactionstoolcache#Find-GitHubActionsToolCache')]
 	[OutputType(([String], [String[]]))]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('ToolName')][String]$Name,
-		[Parameter(Position = 1)][Alias('Ver')][String]$Version = '*',
-		[Parameter(Position = 2)][Alias('Arch')][String]$Architecture
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version = '*',
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture = ''
 	)
-	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
-		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
+	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
+		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
+		}
 	}
-	[Hashtable]$InputObject = @{
-		Name = $Name
+	Process {
+		If ($NoOperation) {
+			Return
+		}
+		[Hashtable]$InputObject = @{
+			Name = $Name
+		}
+		[Boolean]$IsFindAll = $False
+		If ($Version -ieq '*') {
+			$IsFindAll = $True
+		} ElseIf ($Version.Length -igt 0) {
+			$InputObject.Version = $Version
+		}
+		If ($Architecture.Length -igt 0) {
+			$InputObject.Architecture = $Architecture
+		}
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$($IsFindAll ? '-all-versions' : '').js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+		If ($Null -ieq $ResultRaw) {
+			Return
+		}
+		[PSCUstomObject]$Result = ($ResultRaw | ConvertFrom-Json -Depth 100)
+		Return ($IsFindAll ? $Result.Paths : $Result.Path)
 	}
-	[Boolean]$IsFindAll = $False
-	If ($Version -ieq '*') {
-		$IsFindAll = $True
-	} ElseIf ($Version.Length -igt 0) {
-		$InputObject.Version = $Version
-	}
-	If ($Architecture.Length -igt 0) {
-		$InputObject.Architecture = $Architecture
-	}
-	$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$($IsFindAll ? '-all-versions' : '').js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-	If ($ResultRaw -ieq $False) {
-		Return
-	}
-	[PSCUstomObject]$Result = ($ResultRaw | ConvertFrom-Json -Depth 100)
-	Return ($IsFindAll ? $Result.Paths : $Result.Path)
+	End {}
 }
 <#
 .SYNOPSIS
@@ -144,48 +165,47 @@ Tool URI request authorization.
 .PARAMETER Header
 Tool URI request header.
 .OUTPUTS
-[String[]] Path of the downloaded tool.
+[String] Path of the downloaded tool.
 #>
 Function Invoke-ToolCacheToolDownloader {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invoke-githubactionstoolcachetooldownloader#Invoke-GitHubActionsToolCacheToolDownloader')]
-	[OutputType([String[]])]
+	[OutputType([String])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$')) }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Url')][Uri]$Uri,
-		[Alias('Target')][String]$Destination,
-		[Alias('Auth')][String]$Authorization,
-		[Alias('Headers')][Hashtable]$Header
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination = '',
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Auth')][String]$Authorization = '',
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header = @{}
 	)
 	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
 		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
-			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
-		[String[]]$OutputObject = @()
 	}
 	Process {
-		ForEach ($Item In $Uri) {
-			[Hashtable]$InputObject = @{
-				Uri = $Item
-			}
-			If ($Destination.Length -igt 0) {
-				$InputObject.Destination = $Destination
-			}
-			If ($Authorization.Length -igt 0) {
-				$InputObject.Authorization = $Authorization
-			}
-			If ($Header.Count -igt 0) {
-				$InputObject.Header = ([PSCustomObject]$Header | ConvertTo-Json -Depth 100 -Compress)
-			}
-			$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\download-tool.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-			If ($ResultRaw -ieq $False) {
-				Continue
-			}
-			$OutputObject += ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+		If ($NoOperation) {
+			Return
 		}
+		[Hashtable]$InputObject = @{
+			Uri = $Uri
+		}
+		If ($Destination.Length -igt 0) {
+			$InputObject.Destination = $Destination
+		}
+		If ($Authorization.Length -igt 0) {
+			$InputObject.Authorization = $Authorization
+		}
+		If ($Header.Count -igt 0) {
+			$InputObject.Header = ([PSCustomObject]$Header | ConvertTo-Json -Depth 100 -Compress)
+		}
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\download-tool.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+		If ($Null -ieq $ResultRaw) {
+			Return
+		}
+		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
 	}
-	End {
-		Return $OutputObject
-	}
+	End {}
 }
 <#
 .SYNOPSIS
@@ -207,27 +227,37 @@ Function Register-ToolCacheDirectory {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachedirectory#Register-GitHubActionsToolCacheDirectory')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('SourceDirectory')]$Source,
-		[Parameter(Mandatory = $True, Position = 1)][Alias('ToolName')][String]$Name,
-		[Parameter(Mandatory = $True, Position = 2)][Alias('Ver')][String]$Version,
-		[Alias('Arch')][String]$Architecture
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceDirectory')][String]$Source,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture = ''
 	)
-	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
-		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
+	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
+		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
+		}
 	}
-	[Hashtable]$InputObject = @{
-		Source = $Source
-		Name = $Name
-		Version = $Version
+	Process {
+		If ($NoOperation) {
+			Return
+		}
+		[Hashtable]$InputObject = @{
+			Source = $Source
+			Name = $Name
+			Version = $Version
+		}
+		If ($Architecture.Length -igt 0) {
+			$InputObject.Architecture = $Architecture
+		}
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-directory.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+		If ($Null -ieq $ResultRaw) {
+			Return
+		}
+		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
 	}
-	If ($Architecture.Length -igt 0) {
-		$InputObject.Architecture = $Architecture
-	}
-	$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-directory.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-	If ($ResultRaw -ieq $False) {
-		Return
-	}
-	Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+	End {}
 }
 <#
 .SYNOPSIS
@@ -251,29 +281,39 @@ Function Register-ToolCacheFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachefile#Register-GitHubActionsToolCacheFile')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('SourceFile')]$Source,
-		[Parameter(Mandatory = $True, Position = 0)][Alias('TargetFile')]$Target,
-		[Parameter(Mandatory = $True, Position = 1)][Alias('ToolName')][String]$Name,
-		[Parameter(Mandatory = $True, Position = 2)][Alias('Ver')][String]$Version,
-		[Alias('Arch')][String]$Architecture
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceFile')][String]$Source,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('TargetFile')][String]$Target,
+		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 3, ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture = ''
 	)
-	If (!(Test-GitHubActionsEnvironment -ToolCache)) {
-		Return (Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable')
+	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
+		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
+		}
 	}
-	[Hashtable]$InputObject = @{
-		Source = $Source
-		Target = $Target
-		Name = $Name
-		Version = $Version
+	Process {
+		If ($NoOperation) {
+			Return
+		}
+		[Hashtable]$InputObject = @{
+			Source = $Source
+			Target = $Target
+			Name = $Name
+			Version = $Version
+		}
+		If ($Architecture.Length -igt 0) {
+			$InputObject.Architecture = $Architecture
+		}
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-file.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+		If ($Null -ieq $ResultRaw) {
+			Return
+		}
+		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
 	}
-	If ($Architecture.Length -igt 0) {
-		$InputObject.Architecture = $Architecture
-	}
-	$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-file.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-	If ($ResultRaw -ieq $False) {
-		Return
-	}
-	Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+	End {}
 }
 Export-ModuleMember -Function @(
 	'Expand-ToolCacheCompressedFile',

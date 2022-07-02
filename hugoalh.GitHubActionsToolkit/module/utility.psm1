@@ -29,16 +29,14 @@ Function Add-SecretMask {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 		}
 		If ($WithChunks.IsPresent) {
-			ForEach ($Item In [String[]]($Value -isplit '[\b\n\r\s\t_-]+')) {
-				If ($Item.Length -ige 4) {
-					Write-GitHubActionsCommand -Command 'add-mask' -Value $Item
+			[String[]]($Value -isplit '[\b\n\r\s\t_-]+') | ForEach-Object -Process {
+				If ($_ -ine $Value -and $_.Length -ige 4) {
+					Write-GitHubActionsCommand -Command 'add-mask' -Value $_
 				}
 			}
 		}
 	}
-	End {
-		Return
-	}
+	End {}
 }
 Set-Alias -Name 'Add-Mask' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Add-Secret' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
@@ -104,7 +102,8 @@ Function Get-WorkflowRunUri {
 	[OutputType([String])]
 	Param ()
 	If (!(Test-Environment)) {
-		Return (Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable')
+		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
+		Return
 	}
 	Return "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 }
@@ -185,7 +184,8 @@ Function Test-Environment {
 		($ToolCache.IsPresent -and $Null -ieq $Env:RUNNER_TOOL_CACHE)
 	) {
 		If ($Mandatory.IsPresent) {
-			Return (Write-GitHubActionsFail -Message $MandatoryMessage)
+			Write-GitHubActionsFail -Message $MandatoryMessage
+			Return
 		}
 		Return $False
 	}

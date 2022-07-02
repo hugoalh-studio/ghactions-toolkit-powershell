@@ -25,22 +25,28 @@ Function Add-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
 		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
-			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
 		[String[]]$Result = @()
 	}
 	Process {
+		If ($NoOperation) {
+			Return
+		}
 		If ($Value.Count -igt 0) {
 			$Result += $Value -join "`n"
 		}
 	}
 	End {
+		If ($NoOperation) {
+			Return
+		}
 		If ($Result.Count -igt 0) {
 			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
-		Return
 	}
 }
 Set-Alias -Name 'Add-StepSummaryRaw' -Value 'Add-StepSummary' -Option 'ReadOnly' -Scope 'Local'
@@ -63,7 +69,7 @@ Function Add-StepSummaryHeader {
 		[Parameter(Mandatory = $True, Position = 0)][ValidateRange(1, 6)][Byte]$Level,
 		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` must be in single line string!')][Alias('Title', 'Value')][String]$Header
 	)
-	Return (Add-StepSummary -Value "$('#' * $Level) $Header")
+	Add-StepSummary -Value "$('#' * $Level) $Header"
 }
 <#
 .SYNOPSIS
@@ -92,8 +98,8 @@ Function Add-StepSummaryImage {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Url')][String]$Uri,
-		[String]$Title,
-		[Alias('AltText')][String]$AlternativeText,
+		[String]$Title = '',
+		[Alias('AltText')][String]$AlternativeText = '',
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Width = -1,
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Height = -1,
 		[Switch]$NoNewLine
@@ -123,7 +129,7 @@ Function Add-StepSummaryImage {
 		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
-	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent)
+	Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent
 }
 Set-Alias -Name 'Add-StepSummaryPicture' -Value 'Add-StepSummaryImage' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -150,7 +156,7 @@ Function Add-StepSummaryLink {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Text,
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Url')][String]$Uri,
-		[String]$Title,
+		[String]$Title = '',
 		[Switch]$NoNewLine
 	)
 	[String]$ResultMarkdown = "[$([System.Web.HttpUtility]::HtmlAttributeEncode($Text))]($([Uri]::EscapeUriString($Uri))"
@@ -158,7 +164,7 @@ Function Add-StepSummaryLink {
 		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
-	Return (Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent)
+	Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent
 }
 Set-Alias -Name 'Add-StepSummaryHyperlink' -Value 'Add-StepSummaryLink' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -180,7 +186,7 @@ Function Add-StepSummarySubscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Return (Add-StepSummary -Value "<sub>$([System.Web.HttpUtility]::HtmlEncode($Text))</sub>" -NoNewLine:$NoNewLine.IsPresent)
+	Add-StepSummary -Value "<sub>$([System.Web.HttpUtility]::HtmlEncode($Text))</sub>" -NoNewLine:$NoNewLine.IsPresent
 }
 Set-Alias -Name 'Add-StepSummarySubscript' -Value 'Add-StepSummarySubscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -202,7 +208,7 @@ Function Add-StepSummarySuperscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Return (Add-StepSummary -Value "<sup>$([System.Web.HttpUtility]::HtmlEncode($Text))</sup>" -NoNewLine:$NoNewLine.IsPresent)
+	Add-StepSummary -Value "<sup>$([System.Web.HttpUtility]::HtmlEncode($Text))</sup>" -NoNewLine:$NoNewLine.IsPresent
 }
 Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -228,7 +234,8 @@ Function Get-StepSummary {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
 	If (!(Test-GitHubActionsEnvironment -StepSummary)) {
-		Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+		Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
+		Return
 	}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
@@ -252,9 +259,10 @@ Function Remove-StepSummary {
 	[OutputType([Void])]
 	Param ()
 	If (!(Test-GitHubActionsEnvironment -StepSummary)) {
-		Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
+		Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
+		Return
 	}
-	Return (Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False)
+	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False
 }
 <#
 .SYNOPSIS
@@ -278,22 +286,28 @@ Function Set-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
 		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable')
-			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
 		[String[]]$Result = @()
 	}
 	Process {
+		If ($NoOperation) {
+			Return
+		}
 		If ($Value.Count -igt 0) {
 			$Result += $Value -join "`n"
 		}
 	}
 	End {
+		If ($NoOperation) {
+			Return
+		}
 		If ($Result.Count -igt 0) {
 			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
-		Return
 	}
 }
 Export-ModuleMember -Function @(

@@ -32,7 +32,7 @@ Function Disable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsechoingcommands#Disable-GitHubActionsEchoingCommands')]
 	[OutputType([Void])]
 	Param ()
-	Return (Write-GitHubActionsCommand -Command 'echo' -Value 'off')
+	Write-GitHubActionsCommand -Command 'echo' -Value 'off'
 }
 Set-Alias -Name 'Disable-CommandEcho' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Disable-CommandEchoing' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -95,7 +95,7 @@ Function Enable-EchoingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsechoingcommands#Enable-GitHubActionsEchoingCommands')]
 	[OutputType([Void])]
 	Param ()
-	Return (Write-GitHubActionsCommand -Command 'echo' -Value 'on')
+	Write-GitHubActionsCommand -Command 'echo' -Value 'on'
 }
 Set-Alias -Name 'Enable-CommandEcho' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-CommandEchoing' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -128,7 +128,7 @@ Function Enable-ProcessingCommands {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
-	Return (Write-GitHubActionsCommand -Command $EndToken)
+	Write-GitHubActionsCommand -Command $EndToken
 }
 Set-Alias -Name 'Enable-CommandProcess' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Enable-CommandProcessing' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'

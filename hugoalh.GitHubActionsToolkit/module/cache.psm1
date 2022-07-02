@@ -28,33 +28,24 @@ Function Restore-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_restore-githubactionscache#Restore-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
-		[ValidateRange(1, 16)][Byte]$DownloadConcurrency = 0,
-		[ValidateRange(5, 900)][UInt16]$Timeout = 0
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Byte]$DownloadConcurrency = 0,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 900)][UInt16]$Timeout = 0
 	)
 	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
 		If (!(Test-GitHubActionsEnvironment -Cache)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable')
-			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
-		[String[]]$PathsProceed = @()
 	}
 	Process {
-		Switch ($PSCmdlet.ParameterSetName) {
-			'LiteralPath' {
-				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
-					Return [WildcardPattern]::Escape($_)
-				})
-			}
-			'Path' {
-				$PathsProceed += $Path
-			}
+		If ($NoOperation) {
+			Return
 		}
-	}
-	End {
 		[String[]]$KeysProceed = @()
 		If ($Key.Count -igt 10) {
 			Write-Warning -Message "Keys are limit to maximum count of 10! Only first 10 keys will use."
@@ -62,13 +53,12 @@ Function Restore-Cache {
 		} Else {
 			$KeysProceed += $Key
 		}
-		If ($PathsProceed.Count -ieq 0) {
-			Return (Write-Error -Message 'No valid path is defined!' -Category 'NotSpecified')
-		}
 		[Hashtable]$InputObject = @{
-			Path = $PathsProceed
 			PrimaryKey = $KeysProceed[0]
 			RestoreKey = ($KeysProceed | Select-Object -SkipIndex 0)
+			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? ($LiteralPath | ForEach-Object -Process {
+				Return [WildcardPattern]::Escape($_)
+			}) : $Path
 			UseAzureSdk = !$NotUseAzureSdk.IsPresent
 		}
 		If (!$NotUseAzureSdk.IsPresent) {
@@ -80,11 +70,12 @@ Function Restore-Cache {
 			}
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'cache\restore.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($ResultRaw -ieq $False) {
+		If ($Null -ieq $ResultRaw) {
 			Return
 		}
 		Return ($ResultRaw | ConvertFrom-Json -Depth 100).CacheKey
 	}
+	End {}
 }
 Set-Alias -Name 'Import-Cache' -Value 'Restore-Cache' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -109,38 +100,28 @@ Function Save-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_save-githubactionscache#Save-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[ValidateRange(1KB, 1GB)][UInt32]$UploadChunkSizes = 0,
-		[ValidateRange(1, 16)][Byte]$UploadConcurrency = 0
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1KB, 1GB)][UInt32]$UploadChunkSizes = 0,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Byte]$UploadConcurrency = 0
 	)
 	Begin {
+		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
 		If (!(Test-GitHubActionsEnvironment -Cache)) {
-			Return (Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable')
-			Break# This is the best way to early terminate this function without terminate caller/invoker process.
+			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
+			$NoOperation = $True
 		}
-		[String[]]$PathsProceed = @()
 	}
 	Process {
-		Switch ($PSCmdlet.ParameterSetName) {
-			'LiteralPath' {
-				$PathsProceed += ($LiteralPath | ForEach-Object -Process {
-					Return [WildcardPattern]::Escape($_)
-				})
-			}
-			'Path' {
-				$PathsProceed += $Path
-			}
-		}
-	}
-	End {
-		If ($PathsProceed.Count -ieq 0) {
-			Return (Write-Error -Message 'No valid path is defined!' -Category 'NotSpecified')
+		If ($NoOperation) {
+			Return
 		}
 		[Hashtable]$InputObject = @{
 			Key = $Key
-			Path = $PathsProceed
+			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? ($LiteralPath | ForEach-Object -Process {
+				Return [WildcardPattern]::Escape($_)
+			}) : $Path
 		}
 		If ($UploadChunkSizes -igt 0) {
 			$InputObject.UploadChunkSizes = $UploadChunkSizes
@@ -149,11 +130,12 @@ Function Save-Cache {
 			$InputObject.UploadConcurrency = $UploadConcurrency
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'cache\save.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($ResultRaw -ieq $False) {
+		If ($Null -ieq $ResultRaw) {
 			Return
 		}
 		Return ($ResultRaw | ConvertFrom-Json -Depth 100).CacheId
 	}
+	End {}
 }
 Set-Alias -Name 'Export-Cache' -Value 'Save-Cache' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -170,9 +152,13 @@ Function Test-CacheKey {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	Return ($InputObject.Length -ile 512 -and $InputObject -imatch '^[^,\n\r]+$')
+	Begin {}
+	Process {
+		Return ($InputObject.Length -ile 512 -and $InputObject -imatch '^[^,\n\r]+$')
+	}
+	End {}
 }
 Export-ModuleMember -Function @(
 	'Restore-Cache',

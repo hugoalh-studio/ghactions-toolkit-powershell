@@ -14,31 +14,30 @@ NodeJS wrapper path.
 .PARAMETER InputObject
 NodeJS wrapper parameters.
 .OUTPUTS
-[Boolean] When wrapper has issue.
 [PSCustomObject] Wrapper result.
 [PSCustomObject[]] Wrapper result.
 #>
 Function Invoke-NodeJsWrapper {
 	[CmdletBinding()]
-	[OutputType(([Boolean], [PSCustomObject], [PSCustomObject[]]))]
+	[OutputType(([PSCustomObject], [PSCustomObject[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Path,
-		[Parameter(Mandatory = $True, Position = 1)][Alias('Parameter', 'Parameters')][PSCustomObject]$InputObject
+		[Parameter(Mandatory = $True, Position = 1)][Alias('Input', 'Object', 'Parameter', 'Parameters')][PSCustomObject]$InputObject
 	)
 	If (!(Test-GitHubActionsNodeJsEnvironment)) {
 		Write-Error -Message 'This function require to execute with compatible NodeJS and NPM environment!' -Category 'ResourceUnavailable'
-		Return $False
+		Return
 	}
 	[String]$WrapperFullName = Join-Path -Path $WrapperRoot -ChildPath $Path
 	If (!(Test-Path -LiteralPath $WrapperFullName -PathType 'Leaf')) {
 		Write-Error -Message "``$Path`` is not an exist and valid NodeJS wrapper path! Most likely some of the files are missing." -Category 'ResourceUnavailable'
-		Return $False
+		Return
 	}
 	[String]$ResultSeparator = "====== $((New-Guid).Guid -ireplace '-', '') ======"
 	Try {
 		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$($WrapperFullName -ireplace '\\', '/')`" `"$($InputObject | ConvertTo-Json -Depth 100 -Compress)`" `"$ResultSeparator`""
 		[UInt32]$ResultSkipIndex = @()
-		for ($ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex++) {
+		For ($ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]
 			If (
 				$Item -imatch '^::debug' -or
@@ -51,12 +50,12 @@ Function Invoke-NodeJsWrapper {
 			}
 		}
 		If ($LASTEXITCODE -ine 0) {
-			Throw "Unexpected last exit code ``$LASTEXITCODE``! $(($Result | Select-Object -SkipIndex $ResultSkipIndex) -join "`n")"
+			Throw "Unexpected exit code ``$LASTEXITCODE``! $(($Result | Select-Object -SkipIndex $ResultSkipIndex) -join "`n")"
 		}
 		Return ($Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] -join "`n" | ConvertFrom-Json -Depth 100)
 	} Catch {
-		Write-Error -Message "Unable to successfully execute wrapper ``$Path``! $_" -Category 'InvalidData'
-		Return $False
+		Write-Error -Message "Unable to successfully execute NodeJS wrapper ``$Path``! $_" -Category 'InvalidData'
+		Return
 	}
 }
 Export-ModuleMember -Function @(
