@@ -28,7 +28,7 @@ Function Enter-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enter-githubactionsloggroup#Enter-GitHubActionsLogGroup')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header', 'Message')][String]$Title
+		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
 	Write-GitHubActionsCommand -Command 'group' -Value $Title
 }
@@ -272,6 +272,8 @@ GitHub Actions - Write Raw
 Print anything to the log without accidentally execute any commands.
 .PARAMETER InputObject
 Object that need to log.
+.PARAMETER GroupTitle
+Title of the log group; This creates an expandable group in the log, and anything are inside an expandable group in the log.
 .OUTPUTS
 [Void]
 #>
@@ -279,9 +281,13 @@ Function Write-Raw {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsraw#Write-GitHubActionsRaw')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content', 'Input', 'Message', 'Object')]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content', 'Input', 'Message', 'Object')]$InputObject,
+		[Alias('GroupHeader', 'Header', 'Title')][String]$GroupTitle = ''
 	)
 	Begin {
+		If ($GroupTitle.Length -igt 0) {
+			Enter-LogGroup -Title $GroupTitle
+		}
 		[String]$EndToken = Disable-GitHubActionsProcessingCommands
 	}
 	Process {
@@ -289,6 +295,9 @@ Function Write-Raw {
 	}
 	End {
 		Enable-GitHubActionsProcessingCommands -EndToken $EndToken
+		If ($GroupTitle.Length -igt 0) {
+			Exit-LogGroup
+		}
 	}
 }
 <#
