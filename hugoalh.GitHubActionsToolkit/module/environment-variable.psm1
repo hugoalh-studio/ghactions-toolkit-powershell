@@ -121,20 +121,19 @@ Function Set-EnvironmentVariable {
 	}
 	End {
 		If ($Result.Count -igt 0) {
-			[PSCustomObject[]]$ResultEnumerator = $Result.GetEnumerator()
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					$ResultEnumerator | ForEach-Object -Process {
+					$Result.GetEnumerator() | ForEach-Object -Process {
 						[System.Environment]::SetEnvironmentVariable($_.Name, $_.Value) | Out-Null
 					}
 				}
 				'Subsequent' {
 					If ($Null -ieq $Env:GITHUB_ENV) {
-						$ResultEnumerator | ForEach-Object -Process {
-							Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Item.Name } -Value $Item.Value
+						$Result.GetEnumerator() | ForEach-Object -Process {
+							Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $_.Name } -Value $_.Value
 						}
 					} Else {
-						Add-Content -LiteralPath $Env:GITHUB_ENV -Value (($ResultEnumerator | ForEach-Object -Process {
+						Add-Content -LiteralPath $Env:GITHUB_ENV -Value (($Result.GetEnumerator() | ForEach-Object -Process {
 							Return "$($_.Name)=$($_.Value)"
 						}) -join "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
 					}
