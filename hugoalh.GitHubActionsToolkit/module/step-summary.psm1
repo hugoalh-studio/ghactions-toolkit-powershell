@@ -85,9 +85,9 @@ Image title.
 .PARAMETER AlternativeText
 Image alternative text.
 .PARAMETER Width
-Image width.
+Image width, by pixels.
 .PARAMETER Height
-Image height.
+Image height, by pixels.
 .PARAMETER NoNewLine
 Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
