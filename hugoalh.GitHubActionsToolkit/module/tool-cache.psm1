@@ -104,9 +104,9 @@ Find the path of a tool in the local installed tool cache.
 .PARAMETER Name
 Tool name.
 .PARAMETER Version
-Tool version, by Semantic Versioning (SemVer).
+Tool version, by Semantic Versioning (SemVer); Default to all versions.
 .PARAMETER Architecture
-Tool architecture.
+Tool architecture; Default to current machine architecture.
 .OUTPUTS
 [String] Path of a version of a tool.
 [String[]] Paths of all versions of a tool.
@@ -219,7 +219,7 @@ Tool name.
 .PARAMETER Version
 Tool version, by Semantic Versioning (SemVer).
 .PARAMETER Architecture
-Tool architecture.
+Tool architecture; Default to current machine architecture.
 .OUTPUTS
 [String] Tool cached path.
 #>
@@ -273,7 +273,7 @@ Tool name.
 .PARAMETER Version
 Tool version, by Semantic Versioning (SemVer).
 .PARAMETER Architecture
-Tool architecture.
+Tool architecture; Default to current machine architecture.
 .OUTPUTS
 [String] Tool cached path.
 #>

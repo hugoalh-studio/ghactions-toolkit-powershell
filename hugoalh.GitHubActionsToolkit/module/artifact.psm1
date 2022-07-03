@@ -20,7 +20,7 @@ A (literal) path that denote the base root directory of the files for control fi
 .PARAMETER ContinueOnIssue
 Whether the export should continue in the event of files fail to export; If not set and issue is encountered, export will stop and queued files will not export; The partial artifact availables which include files up until the issue; If set and issue is encountered, the issue file will ignore and skip, and queued files will still export; The partial artifact availables which include everything but exclude issue files.
 .PARAMETER RetentionTime
-Duration of artifact expire by days.
+Duration of artifact expire, by days.
 .OUTPUTS
 [PSCustomObject] Exported artifact's metadata.
 #>

@@ -20,7 +20,7 @@ Do not use Azure Blob SDK to download caches that are stored on Azure Blob Stora
 .PARAMETER DownloadConcurrency
 Number of parallel downloads (only for Azure SDK).
 .PARAMETER Timeout
-Maximum time for each download request by seconds (only for Azure SDK).
+Maximum time for each download request, by seconds (only for Azure SDK).
 .OUTPUTS
 [String] The key of the cache hit.
 #>
@@ -32,7 +32,7 @@ Function Restore-Cache {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Byte]$DownloadConcurrency = 0,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$DownloadConcurrency = 0,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 900)][UInt16]$Timeout = 0
 	)
 	Begin {
@@ -90,7 +90,7 @@ Cache path.
 .PARAMETER LiteralPath
 Cache literal path.
 .PARAMETER UploadChunkSizes
-Maximum chunk size by bytes.
+Maximum chunk size, by KB.
 .PARAMETER UploadConcurrency
 Number of parallel uploads.
 .OUTPUTS
@@ -103,8 +103,8 @@ Function Save-Cache {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1KB, 1GB)][UInt32]$UploadChunkSizes = 0,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Byte]$UploadConcurrency = 0
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSize')][UInt32]$UploadChunkSizes = 0,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency = 0
 	)
 	Begin {
 		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
@@ -124,7 +124,7 @@ Function Save-Cache {
 			}) : $Path
 		}
 		If ($UploadChunkSizes -igt 0) {
-			$InputObject.UploadChunkSizes = $UploadChunkSizes
+			$InputObject.UploadChunkSizes = $UploadChunkSizes * 1KB
 		}
 		If ($UploadConcurrency -igt 0) {
 			$InputObject.UploadConcurrency = $UploadConcurrency
