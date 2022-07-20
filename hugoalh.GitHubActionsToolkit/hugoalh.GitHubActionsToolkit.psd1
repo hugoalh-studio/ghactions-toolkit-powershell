@@ -3,7 +3,7 @@
 	RootModule = 'hugoalh.GitHubActionsToolkit.psm1'
 
 	# Version number of this module.
-	ModuleVersion = '0.5.1'
+	ModuleVersion = '0.5.2'
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -236,7 +236,7 @@
 			ProjectUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell'
 
 			# A URL to an icon representing this module.
-			IconUri = 'https://i.imgur.com/knmLbFg.png'
+			IconUri = 'https://i.imgur.com/6qM8z4w.png'
 
 			# ReleaseNotes of this module
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
