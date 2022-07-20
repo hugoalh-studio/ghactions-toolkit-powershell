@@ -48,7 +48,7 @@ Function Add-PATH {
 					[System.Environment]::SetEnvironmentVariable('PATH', ((([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result) -join [System.IO.Path]::PathSeparator)) | Out-Null
 				}
 				'Subsequent' {
-					If ($Null -ieq $Env:GITHUB_PATH) {
+					If ([String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)) {
 						$Result | ForEach-Object -Process {
 							Write-GitHubActionsCommand -Command 'add-path' -Value $_
 						}
@@ -128,7 +128,7 @@ Function Set-EnvironmentVariable {
 					}
 				}
 				'Subsequent' {
-					If ($Null -ieq $Env:GITHUB_ENV) {
+					If ([String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)) {
 						$Result.GetEnumerator() | ForEach-Object -Process {
 							Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $_.Name } -Value $_.Value
 						}

@@ -144,44 +144,44 @@ Function Test-Environment {
 	)
 	If (
 		$Env:CI -ine 'true' -or
-		$Null -ieq $Env:GITHUB_ACTION -or
-		$Null -ieq $Env:GITHUB_ACTION_REPOSITORY -or
-		$Null -ieq $Env:GITHUB_ACTIONS -or
-		$Null -ieq $Env:GITHUB_ACTOR -or
-		$Null -ieq $Env:GITHUB_API_URL -or
-		$Null -ieq $Env:GITHUB_ENV -or
-		$Null -ieq $Env:GITHUB_EVENT_NAME -or
-		$Null -ieq $Env:GITHUB_EVENT_PATH -or
-		$Null -ieq $Env:GITHUB_GRAPHQL_URL -or
-		$Null -ieq $Env:GITHUB_JOB -or
-		$Null -ieq $Env:GITHUB_PATH -or
-		$Null -ieq $Env:GITHUB_REF_NAME -or
-		$Null -ieq $Env:GITHUB_REF_PROTECTED -or
-		$Null -ieq $Env:GITHUB_REF_TYPE -or
-		$Null -ieq $Env:GITHUB_REPOSITORY -or
-		$Null -ieq $Env:GITHUB_REPOSITORY_OWNER -or
-		$Null -ieq $Env:GITHUB_RUN_ATTEMPT -or
-		$Null -ieq $Env:GITHUB_RUN_ID -or
-		$Null -ieq $Env:GITHUB_RUN_NUMBER -or
-		$Null -ieq $Env:GITHUB_SERVER_URL -or
-		$Null -ieq $Env:GITHUB_SHA -or
-		$Null -ieq $Env:GITHUB_WORKFLOW -or
-		$Null -ieq $Env:GITHUB_WORKSPACE -or
-		$Null -ieq $Env:RUNNER_ARCH -or
-		$Null -ieq $Env:RUNNER_NAME -or
-		$Null -ieq $Env:RUNNER_OS -or
-		$Null -ieq $Env:RUNNER_TEMP -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION_REPOSITORY) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTIONS) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_API_URL) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ENV) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_EVENT_NAME) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_EVENT_PATH) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_GRAPHQL_URL) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_JOB) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_PATH) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_NAME) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_PROTECTED) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_TYPE) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ATTEMPT) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ID) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_NUMBER) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_SERVER_URL) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_SHA) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKSPACE) -or
+		[String]::IsNullOrWhiteSpace($Env:RUNNER_ARCH) -or
+		[String]::IsNullOrWhiteSpace($Env:RUNNER_NAME) -or
+		[String]::IsNullOrWhiteSpace($Env:RUNNER_OS) -or
+		[String]::IsNullOrWhiteSpace($Env:RUNNER_TEMP) -or
 		((
 			$Artifact.IsPresent -or
 			$Cache.IsPresent
-		) -and $Null -ieq $Env:ACTIONS_RUNTIME_TOKEN) -or
-		($Artifact.IsPresent -and $Null -ieq $Env:ACTIONS_RUNTIME_URL) -or
-		($Artifact.IsPresent -and $Null -ieq $Env:GITHUB_RETENTION_DAYS) -or
-		($Cache.IsPresent -and $Null -ieq $Env:ACTIONS_CACHE_URL) -or
-		($OpenIdConnect.IsPresent -and $Null -ieq $Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN) -or
-		($OpenIdConnect.IsPresent -and $Null -ieq $Env:ACTIONS_ID_TOKEN_REQUEST_URL) -or
-		($StepSummary.IsPresent -and $Null -ieq $Env:GITHUB_STEP_SUMMARY) -or
-		($ToolCache.IsPresent -and $Null -ieq $Env:RUNNER_TOOL_CACHE)
+		) -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_RUNTIME_TOKEN)) -or
+		($Artifact.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_RUNTIME_URL)) -or
+		($Artifact.IsPresent -and [String]::IsNullOrWhiteSpace($Env:GITHUB_RETENTION_DAYS)) -or
+		($Cache.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_CACHE_URL)) -or
+		($OpenIdConnect.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN)) -or
+		($OpenIdConnect.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_ID_TOKEN_REQUEST_URL)) -or
+		($StepSummary.IsPresent -and [String]::IsNullOrWhiteSpace($Env:GITHUB_STEP_SUMMARY)) -or
+		($ToolCache.IsPresent -and [String]::IsNullOrWhiteSpace($Env:RUNNER_TOOL_CACHE))
 	) {
 		If ($Mandatory.IsPresent) {
 			Write-GitHubActionsFail -Message $MandatoryMessage

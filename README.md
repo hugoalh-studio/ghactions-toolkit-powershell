@@ -9,7 +9,7 @@
 [![GitHub Forks](https://img.shields.io/github/forks/hugoalh-studio/ghactions-toolkit-powershell?label=Forks&logo=github&logoColor=ffffff&style=flat-square)](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/network/members)
 ![GitHub Languages](https://img.shields.io/github/languages/count/hugoalh-studio/ghactions-toolkit-powershell?label=Languages&logo=github&logoColor=ffffff&style=flat-square)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/hugoalh-studio/ghactions-toolkit-powershell?label=Grade&logo=codefactor&logoColor=ffffff&style=flat-square)](https://www.codefactor.io/repository/github/hugoalh-studio/ghactions-toolkit-powershell)
-[![License](https://img.shields.io/static/v1?label=License&message=MIT&color=brightgreen&style=flat-square)](./LICENSE.md)
+[![License](https://img.shields.io/static/v1?label=License&message=MIT&style=flat-square)](./LICENSE.md)
 
 | **Release** | **Latest** (![GitHub Latest Release Date](https://img.shields.io/github/release-date/hugoalh-studio/ghactions-toolkit-powershell?label=%20&style=flat-square)) | **Pre** (![GitHub Latest Pre-Release Date](https://img.shields.io/github/release-date-pre/hugoalh-studio/ghactions-toolkit-powershell?label=%20&style=flat-square)) |
 |:-:|:-:|:-:|
