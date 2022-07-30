@@ -44,7 +44,7 @@ Function Invoke-NodeJsWrapper {
 				$ResultSkipIndex += $ResultIndex
 			}
 		}
-		If ($LASTEXITCODE -igt 0) {
+		If ($LASTEXITCODE -ine 0) {
 			Throw "Unexpected exit code ``$LASTEXITCODE``! $(($Result | Select-Object -SkipIndex $ResultSkipIndex) -join "`n")"
 		}
 		Return ($Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] -join "`n" | ConvertFrom-Json -Depth 100)
