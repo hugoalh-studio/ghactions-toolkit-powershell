@@ -140,7 +140,7 @@ Function Test-Environment {
 		[Switch]$StepSummary,
 		[Switch]$ToolCache,
 		[Alias('Require', 'Required')][Switch]$Mandatory,
-		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process require to execute inside the GitHub Actions environment!'
+		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!'
 	)
 	If (
 		$Env:CI -ine 'true' -or

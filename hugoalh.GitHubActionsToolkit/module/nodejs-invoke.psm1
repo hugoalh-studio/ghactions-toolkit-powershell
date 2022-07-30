@@ -25,7 +25,7 @@ Function Invoke-NodeJsWrapper {
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Input', 'Object', 'Parameter', 'Parameters')][PSCustomObject]$InputObject
 	)
 	If (!(Test-GitHubActionsNodeJsEnvironment)) {
-		Write-Error -Message 'This function require to execute with compatible NodeJS and NPM environment!' -Category 'ResourceUnavailable'
+		Write-Error -Message 'This function requires to invoke with the compatible NodeJS and NPM environment!' -Category 'ResourceUnavailable'
 		Return
 	}
 	[String]$WrapperFullName = Join-Path -Path $WrapperRoot -ChildPath $Path

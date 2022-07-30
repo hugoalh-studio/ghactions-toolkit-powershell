@@ -49,7 +49,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 | **Legend** | **Description** |
 |:-:|:--|
 | 🧪 | **Experimental:** This is in testing, maybe available in the latest version and/or future version. |
-| 🔘 | **NodeJS Wrapper:** This dependents and requires NodeJS to execute. |
+| 🔘 | **NodeJS Wrapper:** This dependents and requires NodeJS to invoke. |
 
 #### Function
 
