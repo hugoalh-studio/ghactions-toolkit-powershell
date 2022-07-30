@@ -44,7 +44,7 @@ Function Get-OpenIdConnectToken {
 			If ($Null -ieq $ResultRaw) {
 				Return
 			}
-			Return ($ResultRaw | ConvertFrom-Json -Depth 100).Token
+			Return $ResultRaw.Token
 		}
 		[String]$RequestToken = $Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
 		[String]$RequestUri = $Env:ACTIONS_ID_TOKEN_REQUEST_URL

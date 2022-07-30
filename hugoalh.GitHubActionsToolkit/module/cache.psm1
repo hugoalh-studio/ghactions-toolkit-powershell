@@ -73,7 +73,7 @@ Function Restore-Cache {
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
-		Return ($ResultRaw | ConvertFrom-Json -Depth 100).CacheKey
+		Return $ResultRaw.CacheKey
 	}
 	End {}
 }
@@ -133,7 +133,7 @@ Function Save-Cache {
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
-		Return ($ResultRaw | ConvertFrom-Json -Depth 100).CacheId
+		Return $ResultRaw.CacheId
 	}
 	End {}
 }

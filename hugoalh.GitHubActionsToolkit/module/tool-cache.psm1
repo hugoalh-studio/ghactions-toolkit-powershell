@@ -89,7 +89,7 @@ Function Expand-ToolCacheCompressedFile {
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
-		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+		Return $ResultRaw.Path
 	}
 	End {}
 }
@@ -146,8 +146,7 @@ Function Find-ToolCache {
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
-		[PSCUstomObject]$Result = ($ResultRaw | ConvertFrom-Json -Depth 100)
-		Return ($IsFindAll ? $Result.Paths : $Result.Path)
+		Return ($IsFindAll ? $ResultRaw.Paths : $ResultRaw.Path)
 	}
 	End {}
 }
@@ -203,7 +202,7 @@ Function Invoke-ToolCacheToolDownloader {
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
-		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+		Return $ResultRaw.Path
 	}
 	End {}
 }
@@ -255,7 +254,7 @@ Function Register-ToolCacheDirectory {
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
-		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+		Return $ResultRaw.Path
 	}
 	End {}
 }
@@ -311,7 +310,7 @@ Function Register-ToolCacheFile {
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
-		Return ($ResultRaw | ConvertFrom-Json -Depth 100).Path
+		Return $ResultRaw.Path
 	}
 	End {}
 }

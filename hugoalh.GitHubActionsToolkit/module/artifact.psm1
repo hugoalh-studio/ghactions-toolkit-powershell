@@ -72,11 +72,7 @@ Function Export-Artifact {
 		If ($RetentionTime -igt 0) {
 			$InputObject.RetentionTIme = $RetentionTime
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\upload.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return ($ResultRaw | ConvertFrom-Json -Depth 100)
+		Return (Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\upload.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress))
 	}
 	End {}
 }
@@ -121,24 +117,16 @@ Function Import-Artifact {
 		}
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
-				$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download-all.js' -InputObject ([PSCustomObject]@{
+				Return (Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download-all.js' -InputObject ([PSCustomObject]@{
 					Destination = $Destination
-				} | ConvertTo-Json -Depth 100 -Compress)
-				If ($Null -ieq $ResultRaw) {
-					Return
-				}
-				Return ($ResultRaw | ConvertFrom-Json -Depth 100)
+				} | ConvertTo-Json -Depth 100 -Compress))
 			}
 			'Single' {
-				$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download.js' -InputObject ([PSCustomObject]@{
+				Return (Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download.js' -InputObject ([PSCustomObject]@{
 					Name = $Name
 					Destination = $Destination
 					CreateSubfolder = $CreateSubfolder.IsPresent
-				} | ConvertTo-Json -Depth 100 -Compress)
-				If ($Null -ieq $ResultRaw) {
-					Return
-				}
-				Return ($ResultRaw | ConvertFrom-Json -Depth 100)
+				} | ConvertTo-Json -Depth 100 -Compress))
 			}
 		}
 	}
