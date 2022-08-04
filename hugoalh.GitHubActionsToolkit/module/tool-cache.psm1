@@ -31,8 +31,8 @@ Function Expand-ToolCacheCompressedFile {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Source')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateSet('7z', 'Auto', 'Automatic', 'Automatically', 'Tar', 'Xar', 'Zip')][String]$Method = 'Automatically',
-		[String]$7zrPath = '',
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag = ''
+		[String]$7zrPath,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag
 	)
 	Begin {
 		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
@@ -117,7 +117,7 @@ Function Find-ToolCache {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version = '*',
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture = ''
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
 		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
@@ -170,10 +170,10 @@ Function Invoke-ToolCacheToolDownloader {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invoke-githubactionstoolcachetooldownloader#Invoke-GitHubActionsToolCacheToolDownloader')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$')) }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Url')][Uri]$Uri,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination = '',
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Auth')][String]$Authorization = '',
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header = @{}
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$')) }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Source', 'Url')][Uri]$Uri,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Auth')][String]$Authorization,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header
 	)
 	Begin {
 		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
@@ -187,7 +187,7 @@ Function Invoke-ToolCacheToolDownloader {
 			Return
 		}
 		[Hashtable]$InputObject = @{
-			Uri = $Uri
+			Uri = $Uri.ToString()
 		}
 		If ($Destination.Length -igt 0) {
 			$InputObject.Destination = $Destination
@@ -196,7 +196,7 @@ Function Invoke-ToolCacheToolDownloader {
 			$InputObject.Authorization = $Authorization
 		}
 		If ($Header.Count -igt 0) {
-			$InputObject.Header = ([PSCustomObject]$Header | ConvertTo-Json -Depth 100 -Compress)
+			$InputObject.Header = [PSCustomObject]$Header
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\download-tool.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
 		If ($Null -ieq $ResultRaw) {
@@ -229,7 +229,7 @@ Function Register-ToolCacheDirectory {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceDirectory')][String]$Source,
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture = ''
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
 		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
@@ -250,7 +250,7 @@ Function Register-ToolCacheDirectory {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-directory.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-directory.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}
@@ -284,7 +284,7 @@ Function Register-ToolCacheFile {
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('TargetFile')][String]$Target,
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
 		[Parameter(Mandatory = $True, Position = 3, ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture = ''
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
 		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
@@ -306,7 +306,7 @@ Function Register-ToolCacheFile {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\cache-file.js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-file.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
 		If ($Null -ieq $ResultRaw) {
 			Return
 		}

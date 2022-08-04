@@ -21,7 +21,7 @@ Function Add-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionsstepsummary#Add-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content')][String[]]$Value,
 		[Switch]$NoNewLine
 	)
 	Begin {
@@ -98,8 +98,8 @@ Function Add-StepSummaryImage {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Url')][String]$Uri,
-		[String]$Title = '',
-		[Alias('AltText')][String]$AlternativeText = '',
+		[String]$Title,
+		[Alias('AltText')][String]$AlternativeText,
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Width = -1,
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Height = -1,
 		[Switch]$NoNewLine
@@ -122,14 +122,15 @@ Function Add-StepSummaryImage {
 			$ResultHtml += " height=`"$Height`""
 		}
 		$ResultHtml += ' />'
-		Return (Add-StepSummary -Value $ResultHtml -NoNewLine:$NoNewLine.IsPresent)
+		Add-StepSummary -Value $ResultHtml -NoNewLine:$NoNewLine.IsPresent
+	} Else {
+		[String]$ResultMarkdown = "![$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))]($([Uri]::EscapeUriString($Uri))"
+		If ($Title.Length -igt 0) {
+			$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
+		}
+		$ResultMarkdown += ')'
+		Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent
 	}
-	[String]$ResultMarkdown = "![$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))]($([Uri]::EscapeUriString($Uri))"
-	If ($Title.Length -igt 0) {
-		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
-	}
-	$ResultMarkdown += ')'
-	Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent
 }
 Set-Alias -Name 'Add-StepSummaryPicture' -Value 'Add-StepSummaryImage' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -156,7 +157,7 @@ Function Add-StepSummaryLink {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Text,
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Url')][String]$Uri,
-		[String]$Title = '',
+		[String]$Title,
 		[Switch]$NoNewLine
 	)
 	[String]$ResultMarkdown = "[$([System.Web.HttpUtility]::HtmlAttributeEncode($Text))]($([Uri]::EscapeUriString($Uri))"

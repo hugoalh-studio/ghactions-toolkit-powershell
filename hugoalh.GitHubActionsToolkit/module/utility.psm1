@@ -20,17 +20,17 @@ Function Add-SecretMask {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][Alias('Key', 'Secret', 'Token')][String]$Value,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Key', 'Secret', 'Token')][String]$Value,
 		[Alias('Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
 	)
 	Begin {}
 	Process {
 		If ($Value.Length -igt 0) {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
-		}
-		If ($WithChunks.IsPresent) {
-			[String[]]($Value -isplit '[\b\n\r\s\t_-]+') | ForEach-Object -Process {
-				If ($_ -ine $Value -and $_.Length -ige 4) {
+			If ($WithChunks.IsPresent) {
+				[String[]]($Value -isplit '[\b\n\r\s\t_-]+') | Where-Object -FilterScript {
+					Return ($_ -ine $Value -and $_.Length -ige 4)
+				} | ForEach-Object -Process {
 					Write-GitHubActionsCommand -Command 'add-mask' -Value $_
 				}
 			}
@@ -101,11 +101,10 @@ Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
 	[OutputType([String])]
 	Param ()
-	If (!(Test-Environment)) {
-		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
-		Return
+	If (Test-Environment) {
+		Return "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 	}
-	Return "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
+	Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 }
 Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -185,7 +184,7 @@ Function Test-Environment {
 	) {
 		If ($Mandatory.IsPresent) {
 			Write-GitHubActionsFail -Message $MandatoryMessage
-			Return
+			Throw
 		}
 		Return $False
 	}
