@@ -45,9 +45,9 @@ Function Invoke-NodeJsWrapper {
 			}
 		}
 		If ($LASTEXITCODE -ine 0) {
-			Throw "Unexpected exit code ``$LASTEXITCODE``! $(($Result | Select-Object -SkipIndex $ResultSkipIndex) -join "`n")"
+			Throw "Unexpected exit code ``$LASTEXITCODE``! $($Result | Select-Object -SkipIndex $ResultSkipIndex | Join-String -Separator "`n")"
 		}
-		Return ($Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] -join "`n" | ConvertFrom-Json -Depth 100)
+		Return ($Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] | Join-String -Separator "`n" | ConvertFrom-Json -Depth 100)
 	} Catch {
 		Write-Error -Message "Unable to successfully invoke NodeJS wrapper ``$Path``! $_" -Category 'InvalidData'
 		Return

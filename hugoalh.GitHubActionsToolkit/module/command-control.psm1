@@ -20,6 +20,8 @@ Import-Module -Name @(
 	'stop-commands'
 	'warning'
 )
+[Char[]]$GitHubActionsCommandsEndTokenPool = [String[]]@(0..9) + [Char[]]@(97..122)
+[String[]]$GitHubActionsCommandsEndTokensUsed = @()
 <#
 .SYNOPSIS
 GitHub Actions - Disable Echoing Commands
@@ -63,7 +65,7 @@ Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = ((New-Guid).Guid -ireplace '-', '')
+		[Parameter(Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = (Get-RandomCommandsEndToken)
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
 	Return $EndToken
@@ -145,6 +147,27 @@ Set-Alias -Name 'Start-ProcessCommand' -Value 'Enable-ProcessingCommands' -Optio
 Set-Alias -Name 'Start-ProcessCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Start-ProcessingCommand' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Start-ProcessingCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
+GitHub Actions (Internal) - Get Random Commands End Token
+.DESCRIPTION
+Get random GitHub Actions commands end token.
+.OUTPUTS
+[String] A random GitHub Actions commands end token.
+#>
+Function Get-RandomCommandsEndToken {
+	[CmdletBinding()]
+	[OutputType([String])]
+	Param ()
+	[String]$Result = (@(1..64) | ForEach-Object -Process {
+		Return ($GitHubActionsCommandsEndTokenPool | Get-Random -Count 1)
+	} | Join-String -Separator '')
+	If ($Result -iin $GitHubActionsCommandsEndTokensUsed) {
+		Return Get-RandomCommandsEndToken
+	}
+	$Script:GitHubActionsCommandsEndTokensUsed += $Result
+	Return $Result
+}
 <#
 .SYNOPSIS
 GitHub Actions (Internal) - Test Processing Commands End Token

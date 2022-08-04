@@ -45,7 +45,7 @@ Function Add-PATH {
 		If ($Result.Count -igt 0) {
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					[System.Environment]::SetEnvironmentVariable('PATH', ((([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result) -join [System.IO.Path]::PathSeparator)) | Out-Null
+					[System.Environment]::SetEnvironmentVariable('PATH', ((([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result) | Join-String -Separator [System.IO.Path]::PathSeparator)) | Out-Null
 				}
 				'Subsequent' {
 					If ([String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)) {
@@ -53,7 +53,7 @@ Function Add-PATH {
 							Write-GitHubActionsCommand -Command 'add-path' -Value $_
 						}
 					} Else {
-						Add-Content -LiteralPath $Env:GITHUB_PATH -Value ($Result -join "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
+						Add-Content -LiteralPath $Env:GITHUB_PATH -Value ($Result | Join-String -Separator "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
 					}
 				}
 			}
@@ -133,9 +133,9 @@ Function Set-EnvironmentVariable {
 							Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $_.Name } -Value $_.Value
 						}
 					} Else {
-						Add-Content -LiteralPath $Env:GITHUB_ENV -Value (($Result.GetEnumerator() | ForEach-Object -Process {
+						Add-Content -LiteralPath $Env:GITHUB_ENV -Value ($Result.GetEnumerator() | ForEach-Object -Process {
 							Return "$($_.Name)=$($_.Value)"
-						}) -join "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
+						} | Join-String -Separator "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
 					}
 				}
 			}

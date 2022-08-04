@@ -33,7 +33,7 @@ Function Export-Artifact {
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return ([System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container')) }, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ContinueOnError')][Switch]$ContinueOnIssue,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 90)][Alias('RetentionDay')][Byte]$RetentionTime = 0
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 90)][Alias('RetentionDay')][Byte]$RetentionTime
 	)
 	Begin {
 		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.

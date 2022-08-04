@@ -4,7 +4,7 @@
 [Boolean]$EnvironmentTested = $False
 [SemVer]$NodeJsMinimumVersion = [SemVer]::Parse('14.15.0')
 [SemVer]$NpmMinimumVersion = [SemVer]::Parse('6.14.8')
-[String]$SemVerRegularExpression = '^v?\d+\.\d+\.\d+$'
+[RegEx]$SemVerRegEx = '^v?\d+\.\d+\.\d+$'
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
 <#
 .SYNOPSIS
@@ -33,9 +33,9 @@ Function Test-NodeJsEnvironment {
 	Try {
 		Write-Verbose -Message 'Test NodeJS.'
 		Get-Command -Name 'node' -CommandType 'Application' | Out-Null# `Get-Command` always throw error when nothing is found.
-		[String]$GetNodeJsVersionRawResult = ((Invoke-Expression -Command 'node --no-deprecation --no-warnings --version') -join "`n").Trim()
+		[String]$GetNodeJsVersionRawResult = (Invoke-Expression -Command 'node --no-deprecation --no-warnings --version' | Join-String -Separator "`n").Trim()
 		If (
-			$GetNodeJsVersionRawResult -inotmatch $SemVerRegularExpression -or
+			$GetNodeJsVersionRawResult -inotmatch $SemVerRegEx -or
 			$NodeJsMinimumVersion -igt [SemVer]::Parse(($GetNodeJsVersionRawResult -ireplace '^v', ''))
 		) {
 			Throw
@@ -44,7 +44,7 @@ Function Test-NodeJsEnvironment {
 		Get-Command -Name 'npm' -CommandType 'Application' | Out-Null# `Get-Command` always throw error when nothing is found.
 		[String[]]$GetNpmVersionRawResult = Invoke-Expression -Command 'npm --version'# NPM sometimes display other useless things which unable to suppress.
 		If (
-			$GetNpmVersionRawResult -inotmatch $SemVerRegularExpression -or
+			$GetNpmVersionRawResult -inotmatch $SemVerRegEx -or
 			$NpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
 		) {
 			Throw

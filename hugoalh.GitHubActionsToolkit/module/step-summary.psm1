@@ -37,7 +37,7 @@ Function Add-StepSummary {
 			Return
 		}
 		If ($Value.Count -igt 0) {
-			$Result += $Value -join "`n"
+			$Result += ($Value | Join-String -Separator "`n")
 		}
 	}
 	End {
@@ -45,7 +45,7 @@ Function Add-StepSummary {
 			Return
 		}
 		If ($Result.Count -igt 0) {
-			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
+			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result | Join-String -Separator "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
 	}
 }
@@ -299,7 +299,7 @@ Function Set-StepSummary {
 			Return
 		}
 		If ($Value.Count -igt 0) {
-			$Result += $Value -join "`n"
+			$Result += ($Value | Join-String -Separator "`n")
 		}
 	}
 	End {
@@ -307,7 +307,7 @@ Function Set-StepSummary {
 			Return
 		}
 		If ($Result.Count -igt 0) {
-			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result -join "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
+			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result | Join-String -Separator "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
 	}
 }
