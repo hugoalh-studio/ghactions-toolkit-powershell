@@ -283,7 +283,7 @@ Function Set-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstepsummary#Set-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][Alias('Content')][String[]]$Value,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content')][String[]]$Value,
 		[Switch]$NoNewLine
 	)
 	Begin {

@@ -152,7 +152,7 @@ Function Test-CacheKey {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
 	Begin {}
 	Process {

@@ -25,14 +25,14 @@ Function Test-NodeJsEnvironment {
 		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies,
 		[Alias('Redo')][Switch]$Retest
 	)
-	If ($EnvironmentTested -and !$Retest.IsPresent) {
+	If ($EnvironmentTested -and !$ReinstallDependencies.IsPresent -and !$Retest.IsPresent) {
 		Write-Verbose -Message 'Previously tested NodeJS environment; Return previous result.'
 		Return $EnvironmentResult
 	}
-	$EnvironmentTested = $False
+	$Script:EnvironmentTested = $False
 	Try {
 		Write-Verbose -Message 'Test NodeJS.'
-		Get-Command -Name 'node' -CommandType 'Application' | Out-Null# `Get-Command` always throw error when nothing is found.
+		Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop' | Out-Null# `Get-Command` will throw error when nothing is found.
 		[String]$GetNodeJsVersionRawResult = (Invoke-Expression -Command 'node --no-deprecation --no-warnings --version' | Join-String -Separator "`n").Trim()
 		If (
 			$GetNodeJsVersionRawResult -inotmatch $SemVerRegEx -or
@@ -41,7 +41,7 @@ Function Test-NodeJsEnvironment {
 			Throw
 		}
 		Write-Verbose -Message 'Test NPM.'
-		Get-Command -Name 'npm' -CommandType 'Application' | Out-Null# `Get-Command` always throw error when nothing is found.
+		Get-Command -Name 'npm' -CommandType 'Application' -ErrorAction 'Stop' | Out-Null# `Get-Command` will throw error when nothing is found.
 		[String[]]$GetNpmVersionRawResult = Invoke-Expression -Command 'npm --version'# NPM sometimes display other useless things which unable to suppress.
 		If (
 			$GetNpmVersionRawResult -inotmatch $SemVerRegEx -or
@@ -50,9 +50,9 @@ Function Test-NodeJsEnvironment {
 			Throw
 		}
 	} Catch {
-		$EnvironmentTested = $True
-		$EnvironmentResult = $False
-		Return $False
+		$Script:EnvironmentTested = $True
+		$Script:EnvironmentResult = $False
+		Return $EnvironmentResult
 	}
 	[String]$OriginalWorkingDirectory = (Get-Location).Path
 	Write-Verbose -Message 'Test NodeJS dependencies.'
@@ -71,14 +71,14 @@ Function Test-NodeJsEnvironment {
 		}
 	} Catch {
 		Set-Location -LiteralPath $OriginalWorkingDirectory
-		$EnvironmentTested = $True
-		$EnvironmentResult = $False
-		Return $False
+		$Script:EnvironmentTested = $True
+		$Script:EnvironmentResult = $False
+		Return $EnvironmentResult
 	}
 	Set-Location -LiteralPath $OriginalWorkingDirectory
-	$EnvironmentTested = $True
-	$EnvironmentResult = $True
-	Return $True
+	$Script:EnvironmentTested = $True
+	$Script:EnvironmentResult = $True
+	Return $EnvironmentResult
 }
 Export-ModuleMember -Function @(
 	'Test-NodeJsEnvironment'
