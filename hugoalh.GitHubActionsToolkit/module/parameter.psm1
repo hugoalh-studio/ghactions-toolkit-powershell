@@ -63,7 +63,7 @@ Function Get-Input {
 			If ($Null -ieq $InputValueRaw) {
 				If ($Mandatory.IsPresent) {
 					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
-					Return
+					Throw
 				}
 				Return $Null
 			}
@@ -71,7 +71,7 @@ Function Get-Input {
 			If ($EmptyStringAsNull.IsPresent -and $InputValue.Length -ieq 0) {
 				If ($Mandatory.IsPresent) {
 					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
-					Return
+					Throw
 				}
 				Return $Null
 			}
