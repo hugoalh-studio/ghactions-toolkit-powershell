@@ -65,7 +65,7 @@ Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = (Get-RandomCommandsEndToken)
+		[Parameter(Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = (New-CommandsEndToken)
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
 	Return $EndToken
@@ -149,13 +149,13 @@ Set-Alias -Name 'Start-ProcessingCommand' -Value 'Enable-ProcessingCommands' -Op
 Set-Alias -Name 'Start-ProcessingCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Get Random Commands End Token
+GitHub Actions (Internal) - New Commands End Token
 .DESCRIPTION
-Get random GitHub Actions commands end token.
+Get a new GitHub Actions commands end token.
 .OUTPUTS
-[String] A random GitHub Actions commands end token.
+[String] A new GitHub Actions commands end token.
 #>
-Function Get-RandomCommandsEndToken {
+Function New-CommandsEndToken {
 	[CmdletBinding()]
 	[OutputType([String])]
 	Param ()
@@ -163,7 +163,7 @@ Function Get-RandomCommandsEndToken {
 		Return ($GitHubActionsCommandsEndTokenPool | Get-Random -Count 1)
 	} | Join-String -Separator '')
 	If ($Result -iin $GitHubActionsCommandsEndTokensUsed) {
-		Return Get-RandomCommandsEndToken
+		Return New-CommandsEndToken
 	}
 	$Script:GitHubActionsCommandsEndTokensUsed += $Result
 	Return $Result
