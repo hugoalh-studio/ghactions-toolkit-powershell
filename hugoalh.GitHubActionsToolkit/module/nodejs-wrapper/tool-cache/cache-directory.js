@@ -6,7 +6,5 @@ const result = await ghactionsToolCacheCacheDirectory(input.Source, input.Name, 
 	return process.exit(1);
 });
 console.log(process.argv[3]);
-console.log(JSON.stringify({
-	Path: result
-}));
+console.log(JSON.stringify({ Path: result }));
 process.exit(0);

@@ -3,7 +3,5 @@ import { findAllVersions as ghactionsToolCacheFindAllVersions } from "@actions/t
 const input = JSON.parse(process.argv[2]);
 const result = ghactionsToolCacheFindAllVersions(input.Name, input.Architecture);
 console.log(process.argv[3]);
-console.log(JSON.stringify({
-	Paths: result
-}));
+console.log(JSON.stringify({ Paths: result }));
 process.exit(0);

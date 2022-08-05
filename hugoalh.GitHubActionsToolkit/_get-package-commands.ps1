@@ -6,7 +6,5 @@ This script is use for debug, and help to copy commands to hugoalh.GitHubActions
 Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath 'hugoalh.GitHubActionsToolkit.psm1') -Scope 'Local'
 [PSCustomObject[]]$PackageCommands = Get-Command -Module 'hugoalh.GitHubActionsToolkit' -ListImported
 ForEach ($CommandType In @('Function', 'Alias')) {
-	Set-Clipboard -Value "$($PackageCommands | Where-Object -FilterScript {
-		Return ($_.CommandType -ieq $CommandType)
-	} | Select-Object -ExpandProperty 'Name' | Sort-Object | Join-String -Separator "`n" -SingleQuote)" -Confirm
+	Set-Clipboard -Value ($PackageCommands | Where-Object -FilterScript { Return ($_.CommandType -ieq $CommandType) } | Select-Object -ExpandProperty 'Name' | Sort-Object | Join-String -Separator ",`n" -SingleQuote) -Confirm
 }

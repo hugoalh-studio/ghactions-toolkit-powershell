@@ -14,7 +14,7 @@
 | **Tag / Version** | **Target** | **Support** |
 |:-:|:-:|:-:|
 | v0.5.X | PowerShell v7.2.0 | ✔ |
-| v0.5.0 \~ v0.5.2 | PowerShell v7.2.0 | 👎{🐛} |
+| v0.5.0 \~ v0.5.3 | PowerShell v7.2.0 | 👎{🐛} |
 | v0.4.X | PowerShell v7.2.0 | 👎{🧓} |
 | v0.3.X | PowerShell v7.2.0 | 👎{🧓} |
 | v0.3.0 \~ v0.3.2 | PowerShell v7.2.0 | ❌{🐛🧓} |

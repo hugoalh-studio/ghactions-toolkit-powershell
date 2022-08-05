@@ -6,7 +6,5 @@ const result = await ghactionToolCacheDownloadTool(input.Uri, input.Destination,
 	return process.exit(1);
 });
 console.log(process.argv[3]);
-console.log(JSON.stringify({
-	Path: result
-}));
+console.log(JSON.stringify({ Path: result }));
 process.exit(0);

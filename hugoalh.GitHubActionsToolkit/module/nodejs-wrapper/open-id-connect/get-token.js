@@ -6,7 +6,5 @@ const result = await ghactionsGetOpenIDConnectToken(input.Audience).catch((reaso
 	return process.exit(1);
 });
 console.log(process.argv[3]);
-console.log(JSON.stringify({
-	Token: result
-}));
+console.log(JSON.stringify({ Token: result }));
 process.exit(0);

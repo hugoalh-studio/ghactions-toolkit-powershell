@@ -50,7 +50,6 @@ Function Invoke-NodeJsWrapper {
 		Return ($Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] | Join-String -Separator "`n" | ConvertFrom-Json -Depth 100)
 	} Catch {
 		Write-Error -Message "Unable to successfully invoke NodeJS wrapper ``$Path``! $_" -Category 'InvalidData'
-		Return
 	}
 }
 Export-ModuleMember -Function @(
