@@ -48,7 +48,6 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 
 | **Legend** | **Description** |
 |:-:|:--|
-| 🧪 | **Experimental:** This is in testing, maybe available in the latest version and/or future version. |
 | 🔘 | **NodeJS Wrapper:** This dependents and requires NodeJS to invoke. |
 
 #### Function
@@ -68,30 +67,30 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Enable-GitHubActionsProcessingCommands`
 - `Enter-GitHubActionsLogGroup`
 - `Exit-GitHubActionsLogGroup`
-- `Expand-GitHubActionsToolCacheCompressedFile` 🧪🔘
-- `Export-GitHubActionsArtifact` 🧪🔘
-- `Find-GitHubActionsToolCache` 🧪🔘
+- `Expand-GitHubActionsToolCacheCompressedFile` 🔘
+- `Export-GitHubActionsArtifact` 🔘
+- `Find-GitHubActionsToolCache` 🔘
 - `Get-GitHubActionsInput`
 - `Get-GitHubActionsIsDebug`
-- `Get-GitHubActionsOpenIdConnectToken` 🧪
+- `Get-GitHubActionsOpenIdConnectToken`
 - `Get-GitHubActionsState`
 - `Get-GitHubActionsStepSummary`
 - `Get-GitHubActionsWebhookEventPayload`
 - `Get-GitHubActionsWorkflowRunUri`
-- `Import-GitHubActionsArtifact` 🧪🔘
-- `Invoke-GitHubActionsToolCacheToolDownloader` 🧪🔘
-- `Register-GitHubActionsToolCacheDirectory` 🧪🔘
-- `Register-GitHubActionsToolCacheFile` 🧪🔘
+- `Import-GitHubActionsArtifact` 🔘
+- `Invoke-GitHubActionsToolCacheToolDownloader` 🔘
+- `Register-GitHubActionsToolCacheDirectory` 🔘
+- `Register-GitHubActionsToolCacheFile` 🔘
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
-- `Restore-GitHubActionsCache` 🧪🔘
-- `Save-GitHubActionsCache` 🧪🔘
+- `Restore-GitHubActionsCache` 🔘
+- `Save-GitHubActionsCache` 🔘
 - `Set-GitHubActionsEnvironmentVariable`
 - `Set-GitHubActionsOutput`
 - `Set-GitHubActionsState`
 - `Set-GitHubActionsStepSummary`
 - `Test-GitHubActionsEnvironment`
-- `Test-GitHubActionsNodeJsEnvironment` 🧪
+- `Test-GitHubActionsNodeJsEnvironment`
 - `Write-GitHubActionsAnnotation`
 - `Write-GitHubActionsCommand`
 - `Write-GitHubActionsDebug`
