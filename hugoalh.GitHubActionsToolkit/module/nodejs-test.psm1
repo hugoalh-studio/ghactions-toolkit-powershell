@@ -55,16 +55,15 @@ Function Test-NodeJsEnvironment {
 		Return $EnvironmentResult
 	}
 	[String]$OriginalWorkingDirectory = (Get-Location).Path
-	Write-Verbose -Message 'Test NodeJS dependencies.'
+	Write-Verbose -Message 'Test NodeJS wrapper API dependencies.'
 	Set-Location -LiteralPath $WrapperRoot
 	Try {
-		[String[]]$GetNpmPackageStatusResult = Invoke-Expression -Command 'npm outdated'
 		If (
 			$ReinstallDependencies.IsPresent -or
-			$GetNpmPackageStatusResult -cmatch 'MISSING'
+			([String[]](Invoke-Expression -Command 'npm outdated') -join "`n") -cmatch 'MISSING'
 		) {
-			Write-Verbose -Message 'Install/Reinstall dependencies.'
-			Invoke-Expression -Command 'npm ci' | Out-Null
+			Write-Verbose -Message 'Install/Reinstall NodeJS wrapper API dependencies.'
+			Invoke-Expression -Command 'npm ci --no-audit --no-fund' | Out-Null
 			If ($LASTEXITCODE -ine 0) {
 				Throw
 			}
