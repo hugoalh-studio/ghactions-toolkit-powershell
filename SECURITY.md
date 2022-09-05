@@ -11,10 +11,10 @@
 > | ❌{🐛} | **No (Issue):** Not supported due to confirmed contains bugs and/or issues. |
 > | ❌{🧓} | **No (Old):** Not supported due to too old. |
 
-| **Versions** | **Status** | **Target - PowerShell** | **Target - NodeJS (Wrapper API)** | **Target - NPM (Wrapper API)** |
+| **Releases / Tags / Versions** | **Status** | **Target - PowerShell** | **Target - NodeJS (Wrapper API)** | **Target - NPM (Wrapper API)** |
 |:-:|:-:|:-:|:-:|:-:|
 | v1.0.X | L | >= v7.2.0 | >= 14.15.0 | >= v6.14.8 |
-| v0.5.X | ✔ | >= v7.2.0 | >= 14.15.0 | >= v6.14.8 |
+| v0.5.X | 👎{🧓} | >= v7.2.0 | >= 14.15.0 | >= v6.14.8 |
 | v0.5.0 \~ v0.5.3 | ❌{🐛} | >= v7.2.0 | >= 14.15.0 | >= v6.14.8 |
 | v0.3.X \~ v0.4.X | ❌{🧓} | >= v7.2.0 | *N/A* | *N/A* |
 | v0.3.0 \~ v0.3.2 | ❌{🐛🧓} | >= v7.2.0 | *N/A* | *N/A* |
