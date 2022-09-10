@@ -2,7 +2,7 @@
 #Requires -Version 7.2
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Format Command Parameter Value
+GitHub Actions (Private) - Format Command Parameter Value
 .DESCRIPTION
 Format command parameter value characters that can cause issues.
 .PARAMETER InputObject
@@ -16,16 +16,15 @@ Function Format-CommandParameterValue {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	Begin {}
 	Process {
-		Return ((Format-CommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A')
+		(Format-CommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A' |
+			Write-Output
 	}
-	End {}
 }
 Set-Alias -Name 'Format-CommandPropertyValue' -Value 'Format-CommandParameterValue' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Format Command Value
+GitHub Actions (Private) - Format Command Value
 .DESCRIPTION
 Format command value characters that can cause issues.
 .PARAMETER InputObject
@@ -39,11 +38,10 @@ Function Format-CommandValue {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
 	)
-	Begin {}
 	Process {
-		Return ($InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D')
+		$InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D' |
+			Write-Output
 	}
-	End {}
 }
 Set-Alias -Name 'Format-CommandContent' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
@@ -69,13 +67,17 @@ Function Write-Command {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Parameters', 'Properties', 'Property')][Hashtable]$Parameter,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Value
 	)
-	Begin {}
 	Process {
-		Write-Host -Object "::$Command$(($Parameter.Count -igt 0) ? " $($Parameter.GetEnumerator() | Sort-Object -Property 'Name' | ForEach-Object -Process {
-			Return "$($_.Name)=$(Format-CommandParameterValue -InputObject $_.Value)"
-		} | Join-String -Separator ',')" : '')::$(Format-CommandValue -InputObject $Value)"
+		"::$Command$(($Parameter.Count -igt 0) ?
+			" $($Parameter.GetEnumerator() |
+					Sort-Object -Property 'Name' |
+					ForEach-Object -Process { "$($_.Name)=$(Format-CommandParameterValue -InputObject $_.Value)" } |
+					Join-String -Separator ','
+			)" :
+			''
+		)::$(Format-CommandValue -InputObject $Value)" |
+			Write-Host
 	}
-	End {}
 }
 Export-ModuleMember -Function @(
 	'Write-Command'

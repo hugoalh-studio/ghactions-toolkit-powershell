@@ -1,9 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-invoke.psm1'),
-	(Join-Path -Path $PSScriptRoot -ChildPath 'utility.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'nodejs-invoke.psm1',
+	'utility.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Restore Cache
@@ -28,7 +30,7 @@ Function Restore-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_restore-githubactionscache#Restore-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-CacheKey -InputObject $_ }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
@@ -48,17 +50,22 @@ Function Restore-Cache {
 		}
 		[String[]]$KeysProceed = @()
 		If ($Key.Count -igt 10) {
-			Write-Warning -Message "Keys are limit to maximum count of 10! Only first 10 keys will use."
-			$KeysProceed += ($Key | Select-Object -First 10)
-		} Else {
+			Write-Warning -Message 'Keys are limit to maximum count of 10! Only first 10 keys will use.'
+			$KeysProceed += $Key |
+				Select-Object -First 10
+		}
+		Else {
 			$KeysProceed += $Key
 		}
 		[Hashtable]$InputObject = @{
 			PrimaryKey = $KeysProceed[0]
-			RestoreKey = ($KeysProceed | Select-Object -SkipIndex 0)
-			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? ($LiteralPath | ForEach-Object -Process {
-				Return [WildcardPattern]::Escape($_)
-			}) : $Path
+			RestoreKey = $KeysProceed |
+				Select-Object -SkipIndex 0
+			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ?
+				($LiteralPath |
+					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
+				) :
+				$Path
 			UseAzureSdk = !$NotUseAzureSdk.IsPresent
 		}
 		If (!$NotUseAzureSdk.IsPresent) {
@@ -69,13 +76,9 @@ Function Restore-Cache {
 				$InputObject.Timeout = $Timeout * 1000
 			}
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'cache\restore.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return $ResultRaw.CacheKey
+		(Invoke-GitHubActionsNodeJsWrapper -Path 'cache\restore.js' -InputObject ([PSCustomObject]$InputObject))?.CacheKey |
+			Write-Output
 	}
-	End {}
 }
 Set-Alias -Name 'Import-Cache' -Value 'Restore-Cache' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -100,7 +103,7 @@ Function Save-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_save-githubactionscache#Save-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-CacheKey -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-CacheKey -InputObject $_ }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSize')][UInt32]$UploadChunkSizes,
@@ -119,9 +122,11 @@ Function Save-Cache {
 		}
 		[Hashtable]$InputObject = @{
 			Key = $Key
-			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? ($LiteralPath | ForEach-Object -Process {
-				Return [WildcardPattern]::Escape($_)
-			}) : $Path
+			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ?
+				($LiteralPath |
+					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
+				) :
+				$Path
 		}
 		If ($UploadChunkSizes -igt 0) {
 			$InputObject.UploadChunkSizes = $UploadChunkSizes * 1KB
@@ -129,18 +134,14 @@ Function Save-Cache {
 		If ($UploadConcurrency -igt 0) {
 			$InputObject.UploadConcurrency = $UploadConcurrency
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'cache\save.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return $ResultRaw.CacheId
+		(Invoke-GitHubActionsNodeJsWrapper -Path 'cache\save.js' -InputObject ([PSCustomObject]$InputObject))?.CacheId |
+			Write-Output
 	}
-	End {}
 }
 Set-Alias -Name 'Export-Cache' -Value 'Save-Cache' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Test Cache Key
+GitHub Actions (Private) - Test Cache Key
 .DESCRIPTION
 Test GitHub Actions cache key whether is valid.
 .PARAMETER InputObject
@@ -154,11 +155,10 @@ Function Test-CacheKey {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
-	Begin {}
 	Process {
-		Return ($InputObject.Length -ile 512 -and $InputObject -imatch '^[^,\n\r]+$')
+		$InputObject.Length -ile 512 -and $InputObject -imatch '^[^,\n\r]+$' |
+			Write-Output
 	}
-	End {}
 }
 Export-ModuleMember -Function @(
 	'Restore-Cache',

@@ -1,9 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
-	(Join-Path -Path $PSScriptRoot -ChildPath 'command-control.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'command-base.psm1',
+	'command-control.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 Enum GitHubActionsAnnotationType {
 	Notice = 0
 	N = 0
@@ -85,7 +87,6 @@ Function Write-Annotation {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
-	Begin {}
 	Process {
 		[String]$TypeRaw = ''
 		Switch ($Type.GetHashCode()) {
@@ -123,7 +124,6 @@ Function Write-Annotation {
 		}
 		Write-GitHubActionsCommand -Command $TypeRaw -Parameter $Property -Value $Message
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -141,11 +141,9 @@ Function Write-Debug {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Content')][String]$Message
 	)
-	Begin {}
 	Process {
 		Write-GitHubActionsCommand -Command 'debug' -Value $Message
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -181,11 +179,9 @@ Function Write-Error {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
-	Begin {}
 	Process {
 		Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -258,11 +254,9 @@ Function Write-Notice {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
-	Begin {}
 	Process {
 		Write-Annotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
-	End {}
 }
 Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -334,11 +328,9 @@ Function Write-Warning {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
-	Begin {}
 	Process {
 		Write-Annotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
 	}
-	End {}
 }
 Set-Alias -Name 'Write-Warn' -Value 'Write-Warning' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(

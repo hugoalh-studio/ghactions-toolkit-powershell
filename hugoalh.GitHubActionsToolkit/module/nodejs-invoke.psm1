@@ -1,12 +1,15 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-test.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'internal\token.psm1',
+	'nodejs-test.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Invoke NodeJS Wrapper
+GitHub Actions (Private) - Invoke NodeJS Wrapper
 .DESCRIPTION
 Invoke NodeJS wrapper.
 .PARAMETER Path
@@ -33,22 +36,37 @@ Function Invoke-NodeJsWrapper {
 		Write-Error -Message "``$Path`` is not an exist and valid NodeJS wrapper path! Most likely some of the files are missing." -Category 'ResourceUnavailable'
 		Return
 	}
-	[String]$ResultSeparator = "====== $((New-Guid).Guid -ireplace '-', '') ======"
+	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
 	Try {
-		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$($WrapperFullName -ireplace '\\', '/')`" `"$($InputObject | ConvertTo-Json -Depth 100 -Compress)`" `"$ResultSeparator`""
+		[String[]]$Result = "node --no-deprecation --no-warnings `"$($WrapperFullName -ireplace '\\', '/')`" `"$(
+			$InputObject |
+				ConvertTo-Json -Depth 100 -Compress |
+				Write-Output
+		)`" `"$ResultSeparator`"" |
+			Invoke-Expression
 		[UInt32]$ResultSkipIndex = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]
 			If ($Item -imatch '^::.+$') {
-				Write-Host -Object $Item
+				$Item |
+					Write-Host
 				$ResultSkipIndex += $ResultIndex
 			}
 		}
 		If ($LASTEXITCODE -ine 0) {
-			Throw "Unexpected exit code ``$LASTEXITCODE``! $($Result | Select-Object -SkipIndex $ResultSkipIndex | Join-String -Separator "`n")"
+			Throw "Unexpected exit code ``$LASTEXITCODE``! $(
+				$Result |
+					Select-Object -SkipIndex $ResultSkipIndex |
+					Join-String -Separator "`n" |
+					Write-Output
+			)"
 		}
-		Return ($Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] | Join-String -Separator "`n" | ConvertFrom-Json -Depth 100)
-	} Catch {
+		$Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] |
+			Join-String -Separator "`n" |
+			ConvertFrom-Json -Depth 100 |
+			Write-Output
+	}
+	Catch {
 		Write-Error -Message "Unable to successfully invoke NodeJS wrapper ``$Path``! $_" -Category 'InvalidData'
 	}
 }

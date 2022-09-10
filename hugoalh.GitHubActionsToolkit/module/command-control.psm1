@@ -1,8 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'command-base.psm1',
+	'internal\token.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 [String[]]$GitHubActionsCommands = @(
 	'add-mask',
 	'add-matcher',
@@ -20,7 +23,6 @@ Import-Module -Name @(
 	'stop-commands'
 	'warning'
 )
-[Char[]]$GitHubActionsCommandsEndTokenPool = [String[]]@(0..9) + [Char[]]@(97..122)
 [String[]]$GitHubActionsCommandsEndTokensUsed = @()
 <#
 .SYNOPSIS
@@ -65,10 +67,11 @@ Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = (New-CommandsEndToken)
+		[Parameter(Position = 0)][ValidateScript({ Test-ProcessingCommandsEndToken -InputObject $_ }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = (New-CommandsEndToken)
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
-	Return $EndToken
+	$EndToken |
+		Write-Output
 }
 Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Disable-CommandProcessing' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -128,7 +131,7 @@ Function Enable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enable-githubactionsprocessingcommands#Enable-GitHubActionsProcessingCommands')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Return (Test-ProcessingCommandsEndToken -InputObject $_) }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
+		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Test-ProcessingCommandsEndToken -InputObject $_ }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	Write-GitHubActionsCommand -Command $EndToken
 }
@@ -149,7 +152,7 @@ Set-Alias -Name 'Start-ProcessingCommand' -Value 'Enable-ProcessingCommands' -Op
 Set-Alias -Name 'Start-ProcessingCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - New Commands End Token
+GitHub Actions (Private) - New Commands End Token
 .DESCRIPTION
 Get a new GitHub Actions commands end token.
 .OUTPUTS
@@ -159,18 +162,17 @@ Function New-CommandsEndToken {
 	[CmdletBinding()]
 	[OutputType([String])]
 	Param ()
-	[String]$Result = (@(1..64) | ForEach-Object -Process {
-		Return ($GitHubActionsCommandsEndTokenPool | Get-Random -Count 1)
-	} | Join-String -Separator '')
-	If ($Result -iin $GitHubActionsCommandsEndTokensUsed) {
-		Return New-CommandsEndToken
+	Do {
+		[String]$Result = New-GitHubActionsRandomToken -Length 64
 	}
+	While ( $Result -iin $GitHubActionsCommandsEndTokensUsed )
 	$Script:GitHubActionsCommandsEndTokensUsed += $Result
-	Return $Result
+	$Result |
+		Write-Output
 }
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Test Processing Commands End Token
+GitHub Actions (Private) - Test Processing Commands End Token
 .DESCRIPTION
 Test GitHub Actions processing commands end token whether is valid.
 .PARAMETER InputObject
@@ -184,11 +186,10 @@ Function Test-ProcessingCommandsEndToken {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
-	Begin {}
 	Process {
-		Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands)
+		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands |
+			Write-Output
 	}
-	End {}
 }
 Export-ModuleMember -Function @(
 	'Disable-EchoingCommands',

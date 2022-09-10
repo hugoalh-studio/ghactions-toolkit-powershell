@@ -1,8 +1,10 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'command-base.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Problem Matcher
@@ -22,13 +24,13 @@ Function Add-ProblemMatcher {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` must be in single line string!')][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `LiteralPath` must be in single line string!')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath
 	)
-	Begin {}
 	Process {
-		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? $LiteralPath : [String[]](Resolve-Path -Path $Path) | ForEach-Object -Process {
-			Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/')
-		}
+		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ?
+			$LiteralPath :
+			[String[]](Resolve-Path -Path $Path)
+		|
+			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -46,13 +48,10 @@ Function Remove-ProblemMatcher {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Owner` must be in single line string!')][Alias('Identifies', 'Identify', 'Identifier', 'Identifiers', 'Key', 'Keys', 'Name', 'Names', 'Owners')][String[]]$Owner
 	)
-	Begin {}
 	Process {
-		$Owner | ForEach-Object -Process {
-			Write-GitHubActionsCommand -Command 'remove-matcher' -Parameter @{ 'owner' = $_ }
-		}
+		$Owner |
+			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'remove-matcher' -Parameter @{ 'owner' = $_ } }
 	}
-	End {}
 }
 Export-ModuleMember -Function @(
 	'Add-ProblemMatcher',

@@ -1,9 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1'),
-	(Join-Path -Path $PSScriptRoot -ChildPath 'log.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'command-base.psm1',
+	'log.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Input
@@ -50,12 +52,13 @@ Function Get-Input {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+				[String]$ItemValue = $Trim.IsPresent ?
+					$Item.Value.Trim() :
+					$Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
-				[String]$ItemName = $Item.Name -ireplace '^INPUT_', ''
-				$OutputObject[$ItemName] = $ItemValue
+				$OutputObject[$Item.Name -ireplace '^INPUT_', ''] = $ItemValue
 			}
 		}
 		'One' {
@@ -65,29 +68,34 @@ Function Get-Input {
 					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
 					Throw
 				}
-				Return $Null
+				Return
 			}
-			[String]$InputValue = $Trim.IsPresent ? $InputValueRaw.Trim() : $InputValueRaw
+			[String]$InputValue = $Trim.IsPresent ?
+				$InputValueRaw.Trim() :
+				$InputValueRaw
 			If ($EmptyStringAsNull.IsPresent -and $InputValue.Length -ieq 0) {
 				If ($Mandatory.IsPresent) {
 					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
 					Throw
 				}
-				Return $Null
+				Return
 			}
-			Return $InputValue
+			$InputValue |
+				Write-Output
+			Return
 		}
 		'Prefix' {
 			ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*")) {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+				[String]$ItemValue = $Trim.IsPresent ?
+					$Item.Value.Trim() :
+					$Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
-				[String]$ItemName = $Item.Name -ireplace "^INPUT_$([RegEx]::Escape($NamePrefix))", ''
-				$OutputObject[$ItemName] = $ItemValue
+				$OutputObject[$Item.Name -ireplace "^INPUT_$([RegEx]::Escape($NamePrefix))", ''] = $ItemValue
 			}
 		}
 		'Suffix' {
@@ -95,16 +103,18 @@ Function Get-Input {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+				[String]$ItemValue = $Trim.IsPresent ?
+					$Item.Value.Trim() :
+					$Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
-				[String]$ItemName = $Item.Name -ireplace "^INPUT_|$([RegEx]::Escape($NameSuffix))$", ''
-				$OutputObject[$ItemName] = $ItemValue
+				$OutputObject[$Item.Name -ireplace "^INPUT_|$([RegEx]::Escape($NameSuffix))$", ''] = $ItemValue
 			}
 		}
 	}
-	Return $OutputObject
+	$OutputObject |
+		Write-Output
 }
 <#
 .SYNOPSIS
@@ -146,36 +156,42 @@ Function Get-State {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+				[String]$ItemValue = $Trim.IsPresent ?
+					$Item.Value.Trim() :
+					$Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
-				[String]$ItemName = $Item.Name -ireplace '^STATE_', ''
-				$OutputObject[$ItemName] = $ItemValue
+				$OutputObject[$Item.Name -ireplace '^STATE_', ''] = $ItemValue
 			}
 		}
 		'One' {
 			$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 			If ($Null -ieq $StateValueRaw) {
-				Return $Null
+				Return
 			}
-			[String]$StateValue = $Trim.IsPresent ? $StateValueRaw.Trim() : $StateValueRaw
+			[String]$StateValue = $Trim.IsPresent ?
+				$StateValueRaw.Trim() :
+				$StateValueRaw
 			If ($EmptyStringAsNull.IsPresent -and $StateValue.Length -ieq 0) {
-				Return $Null
+				Return
 			}
-			Return $StateValue
+			$StateValue |
+				Write-Output
+			Return
 		}
 		'Prefix' {
 			ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*")) {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+				[String]$ItemValue = $Trim.IsPresent ?
+					$Item.Value.Trim() :
+					$Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
-				[String]$ItemName = $Item.Name -ireplace "^STATE_$([RegEx]::Escape($NamePrefix))", ''
-				$OutputObject[$ItemName] = $ItemValue
+				$OutputObject[$Item.Name -ireplace "^STATE_$([RegEx]::Escape($NamePrefix))", ''] = $ItemValue
 			}
 		}
 		'Suffix' {
@@ -183,16 +199,18 @@ Function Get-State {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
+				[String]$ItemValue = $Trim.IsPresent ?
+					$Item.Value.Trim() :
+					$Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
-				[String]$ItemName = $Item.Name -ireplace "^STATE_|$([RegEx]::Escape($NameSuffix))$", ''
-				$OutputObject[$ItemName] = $ItemValue
+				$OutputObject[$Item.Name -ireplace "^STATE_|$([RegEx]::Escape($NameSuffix))$", ''] = $ItemValue
 			}
 		}
 	}
-	Return $OutputObject
+	$OutputObject |
+		Write-Output
 }
 Set-Alias -Name 'Restore-State' -Value 'Get-State' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -217,32 +235,31 @@ Function Set-Output {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
-	Begin {}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				$InputObject.GetEnumerator() | ForEach-Object -Process {
-					If ($_.Name.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						Return
+				$InputObject.GetEnumerator() |
+					ForEach-Object -Process {
+						If ($_.Name.GetType().Name -ine 'String') {
+							Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
+							Return
+						}
+						If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+							Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
+							Return
+						}
+						If ($_.Value.GetType().Name -ine 'String') {
+							Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
+							Return
+						}
+						Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $_.Name } -Value $_.Value
 					}
-					If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
-						Return
-					}
-					If ($_.Value.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						Return
-					}
-					Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $_.Name } -Value $_.Value
-				}
 			}
 			'Single' {
 				Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
 			}
 		}
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -266,32 +283,31 @@ Function Set-State {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
-	Begin {}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				$InputObject.GetEnumerator() | ForEach-Object -Process {
-					If ($_.Name.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						Return
+				$InputObject.GetEnumerator() |
+					ForEach-Object -Process {
+						If ($_.Name.GetType().Name -ine 'String') {
+							Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
+							Return
+						}
+						If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+							Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
+							Return
+						}
+						If ($_.Value.GetType().Name -ine 'String') {
+							Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
+							Return
+						}
+						Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $_.Name } -Value $_.Value
 					}
-					If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
-						Return
-					}
-					If ($_.Value.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						Return
-					}
-					Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $_.Name } -Value $_.Value
-				}
 			}
 			'Single' {
 				Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
 			}
 		}
 	}
-	End {}
 }
 Set-Alias -Name 'Save-State' -Value 'Set-State' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(

@@ -1,8 +1,10 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'utility.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'utility.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
@@ -37,7 +39,8 @@ Function Add-StepSummary {
 			Return
 		}
 		If ($Value.Count -igt 0) {
-			$Result += ($Value | Join-String -Separator "`n")
+			$Result += $Value |
+				Join-String -Separator "`n"
 		}
 	}
 	End {
@@ -45,7 +48,10 @@ Function Add-StepSummary {
 			Return
 		}
 		If ($Result.Count -igt 0) {
-			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result | Join-String -Separator "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
+			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
+				$Result |
+					Join-String -Separator "`n"
+			) -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
 	}
 }
@@ -123,7 +129,8 @@ Function Add-StepSummaryImage {
 		}
 		$ResultHtml += ' />'
 		Add-StepSummary -Value $ResultHtml -NoNewLine:$NoNewLine.IsPresent
-	} Else {
+	}
+	Else {
 		[String]$ResultMarkdown = "![$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))]($([Uri]::EscapeUriString($Uri))"
 		If ($Title.Length -igt 0) {
 			$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
@@ -240,10 +247,12 @@ Function Get-StepSummary {
 	}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
-			Return (Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw.IsPresent -Encoding 'UTF8NoBOM')
+			Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw.IsPresent -Encoding 'UTF8NoBOM' |
+				Write-Output
 		}
 		'Sizes' {
-			Return (Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY).Length
+			(Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY).Length |
+				Write-Output
 		}
 	}
 }
@@ -299,7 +308,8 @@ Function Set-StepSummary {
 			Return
 		}
 		If ($Value.Count -igt 0) {
-			$Result += ($Value | Join-String -Separator "`n")
+			$Result += $Value |
+				Join-String -Separator "`n"
 		}
 	}
 	End {
@@ -307,7 +317,10 @@ Function Set-StepSummary {
 			Return
 		}
 		If ($Result.Count -igt 0) {
-			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value ($Result | Join-String -Separator "`n") -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
+			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
+				$Result |
+					Join-String -Separator "`n"
+			) -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
 	}
 }

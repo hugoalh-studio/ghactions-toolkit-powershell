@@ -1,9 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1'),
-	(Join-Path -Path $PSScriptRoot -ChildPath 'log.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'command-base.psm1',
+	'log.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Secret Mask
@@ -23,18 +25,16 @@ Function Add-SecretMask {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Key', 'Secret', 'Token')][String]$Value,
 		[Alias('Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
 	)
-	Begin {}
 	Process {
 		If ($Value.Length -igt 0) {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 			If ($WithChunks.IsPresent) {
-				[String[]]($Value -isplit '[\b\n\r\s\t_-]+') | Where-Object -FilterScript { Return ($_ -ine $Value -and $_.Length -ige 4) } | ForEach-Object -Process {
-					Write-GitHubActionsCommand -Command 'add-mask' -Value $_
-				}
+				[String[]]($Value -isplit '[\b\n\r\s\t_-]+') |
+					Where-Object -FilterScript { $_ -ine $Value -and $_.Length -ige 4 } |
+					ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-mask' -Value $_ }
 			}
 		}
 	}
-	End {}
 }
 Set-Alias -Name 'Add-Mask' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Add-Secret' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
@@ -50,13 +50,11 @@ Function Get-IsDebug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsisdebug#Get-GitHubActionsIsDebug')]
 	[OutputType([Boolean])]
 	Param ()
-	If (
+	(
 		$Env:RUNNER_DEBUG -ieq 'true' -or
 		$Env:RUNNER_DEBUG -ieq '1'
-	) {
-		Return $True
-	}
-	Return $False
+	) |
+		Write-Output
 }
 <#
 .SYNOPSIS
@@ -81,7 +79,9 @@ Function Get-WebhookEventPayload {
 		[UInt16]$Depth = 1024,
 		[Switch]$NoEnumerate
 	)
-	Return (Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' | ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth $Depth -NoEnumerate:$NoEnumerate.IsPresent)
+	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
+		ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth $Depth -NoEnumerate:$NoEnumerate.IsPresent |
+		Write-Output
 }
 Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-Payload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
@@ -100,7 +100,9 @@ Function Get-WorkflowRunUri {
 	[OutputType([String])]
 	Param ()
 	If (Test-Environment) {
-		Return "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
+		"$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID" |
+			Write-Output
+		Return
 	}
 	Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 }
@@ -184,9 +186,12 @@ Function Test-Environment {
 			Write-GitHubActionsFail -Message $MandatoryMessage
 			Throw
 		}
-		Return $False
+		$False |
+			Write-Output
+		Return
 	}
-	Return $True
+	$True |
+		Write-Output
 }
 Export-ModuleMember -Function @(
 	'Add-SecretMask',

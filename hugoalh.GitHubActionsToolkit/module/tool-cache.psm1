@@ -1,9 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-invoke.psm1'),
-	(Join-Path -Path $PSScriptRoot -ChildPath 'utility.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'nodejs-invoke.psm1',
+	'utility.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Expand Tool Cache Compressed File
@@ -85,13 +87,9 @@ Function Expand-ToolCacheCompressedFile {
 		If ($Flag.Length -igt 0) {
 			$InputObject.Flag = $Flag
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\extract-$($Method.ToLower()).js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return $ResultRaw.Path
+		(Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\extract-$($Method.ToLower()).js" -InputObject ([PSCustomObject]$InputObject))?.Path |
+			Write-Output
 	}
-	End {}
 }
 Set-Alias -Name 'Expand-ToolCacheArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Expand-ToolCacheCompressedArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
@@ -136,19 +134,24 @@ Function Find-ToolCache {
 		[Boolean]$IsFindAll = $False
 		If ($Version -ieq '*') {
 			$IsFindAll = $True
-		} ElseIf ($Version.Length -igt 0) {
+		}
+		ElseIf ($Version.Length -igt 0) {
 			$InputObject.Version = $Version
 		}
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$($IsFindAll ? '-all-versions' : '').js" -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return ($IsFindAll ? $ResultRaw.Paths : $ResultRaw.Path)
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$(
+			$IsFindAll ?
+				'-all-versions' :
+				''
+		).js" -InputObject ([PSCustomObject]$InputObject)
+		$IsFindAll ?
+			${ResultRaw}?.Paths :
+			${ResultRaw}?.Path
+		|
+			Write-Output
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -170,7 +173,7 @@ Function Invoke-ToolCacheToolDownloader {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invoke-githubactionstoolcachetooldownloader#Invoke-GitHubActionsToolCacheToolDownloader')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$')) }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Source', 'Url')][Uri]$Uri,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ ($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$') }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Source', 'Url')][Uri]$Uri,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Auth')][String]$Authorization,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header
@@ -198,13 +201,9 @@ Function Invoke-ToolCacheToolDownloader {
 		If ($Header.Count -igt 0) {
 			$InputObject.Header = [PSCustomObject]$Header
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\download-tool.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return $ResultRaw.Path
+		(Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\download-tool.js' -InputObject ([PSCustomObject]$InputObject))?.Path |
+			Write-Output
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -250,13 +249,9 @@ Function Register-ToolCacheDirectory {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-directory.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return $ResultRaw.Path
+		(Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-directory.js' -InputObject ([PSCustomObject]$InputObject))?.Path |
+			Write-Output
 	}
-	End {}
 }
 <#
 .SYNOPSIS
@@ -306,13 +301,9 @@ Function Register-ToolCacheFile {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-file.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress)
-		If ($Null -ieq $ResultRaw) {
-			Return
-		}
-		Return $ResultRaw.Path
+		(Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-file.js' -InputObject ([PSCustomObject]$InputObject))?.Path |
+			Write-Output
 	}
-	End {}
 }
 Export-ModuleMember -Function @(
 	'Expand-ToolCacheCompressedFile',

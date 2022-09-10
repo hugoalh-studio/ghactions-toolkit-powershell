@@ -1,9 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-invoke.psm1'),
-	(Join-Path -Path $PSScriptRoot -ChildPath 'utility.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'nodejs-invoke.psm1',
+	'utility.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Export Artifact
@@ -28,10 +30,10 @@ Function Export-Artifact {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_export-githubactionsartifact#Export-GitHubActionsArtifact')]
 	[OutputType([PSCustomObject])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-ArtifactName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-ArtifactName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return ([System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container')) }, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateScript({ [System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container') }, ErrorMessage = '`{0}` is not an exist and valid GitHub Actions artifact base root!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ContinueOnError')][Switch]$ContinueOnIssue,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 90)][Alias('RetentionDay')][Byte]$RetentionTime
 	)
@@ -48,16 +50,24 @@ Function Export-Artifact {
 		}
 		Switch ($PSCmdlet.ParameterSetName) {
 			'LiteralPath' {
-				[String[]]$PathsProceed = ($LiteralPath | ForEach-Object -Process {
-					Return ([System.IO.Path]::IsPathRooted($_) ? $_ : (Join-Path -Path $BaseRoot -ChildPath $_))
-				})
+				[String[]]$PathsProceed = $LiteralPath |
+					ForEach-Object -Process {
+						[System.IO.Path]::IsPathRooted($_) ?
+							$_ :
+							(Join-Path -Path $BaseRoot -ChildPath $_)
+					}
 			}
 			'Path' {
 				[String[]]$PathsProceed = @()
 				ForEach ($Item In $Path) {
 					Try {
-						$PathsProceed += Resolve-Path -Path ([System.IO.Path]::IsPathRooted($Item) ? $Item : (Join-Path -Path $BaseRoot -ChildPath $Item))
-					} Catch {
+						$PathsProceed += [System.IO.Path]::IsPathRooted($Item) ?
+							$Item :
+							(Join-Path -Path $BaseRoot -ChildPath $Item)
+							|
+								Resolve-Path
+					}
+					Catch {
 						$PathsProceed += $Item
 					}
 				}
@@ -72,9 +82,9 @@ Function Export-Artifact {
 		If ($RetentionTime -igt 0) {
 			$InputObject.RetentionTIme = $RetentionTime
 		}
-		Return (Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\upload.js' -InputObject ([PSCustomObject]$InputObject | ConvertTo-Json -Depth 100 -Compress))
+		Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\upload.js' -InputObject ([PSCustomObject]$InputObject) |
+			Write-Output
 	}
-	End {}
 }
 Set-Alias -Name 'Save-Artifact' -Value 'Export-Artifact' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -99,7 +109,7 @@ Function Import-Artifact {
 	[OutputType([PSCustomObject[]], ParameterSetName = 'All')]
 	[OutputType([PSCustomObject], ParameterSetName = 'Single')]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-ArtifactName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-ArtifactName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid GitHub Actions artifact name!')][String]$Name,
 		[Parameter(ParameterSetName = 'Single', ValueFromPipelineByPropertyName = $True)][Switch]$CreateSubfolder,
 		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Dest', 'Target')][String]$Destination = $Env:GITHUB_WORKSPACE
@@ -117,25 +127,26 @@ Function Import-Artifact {
 		}
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
-				Return (Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download-all.js' -InputObject ([PSCustomObject]@{
+				Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download-all.js' -InputObject ([PSCustomObject]@{
 					Destination = $Destination
-				} | ConvertTo-Json -Depth 100 -Compress))
+				}) |
+					Write-Output
 			}
 			'Single' {
-				Return (Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download.js' -InputObject ([PSCustomObject]@{
+				Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download.js' -InputObject ([PSCustomObject]@{
 					Name = $Name
 					Destination = $Destination
 					CreateSubfolder = $CreateSubfolder.IsPresent
-				} | ConvertTo-Json -Depth 100 -Compress))
+				}) |
+					Write-Output
 			}
 		}
 	}
-	End {}
 }
 Set-Alias -Name 'Restore-Artifact' -Value 'Import-Artifact' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Test Artifact Name
+GitHub Actions (Private) - Test Artifact Name
 .DESCRIPTION
 Test GitHub Actions artifact name whether is valid.
 .PARAMETER InputObject
@@ -149,15 +160,14 @@ Function Test-ArtifactName {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
-	Begin {}
 	Process {
-		Return ((Test-ArtifactPath -InputObject $InputObject) -and $InputObject -imatch '^[^\\/]+$')
+		(Test-ArtifactPath -InputObject $InputObject) -and $InputObject -imatch '^[^\\/]+$' |
+			Write-Output
 	}
-	End {}
 }
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Test Artifact Path
+GitHub Actions (Private) - Test Artifact Path
 .DESCRIPTION
 Test GitHub Actions artifact path whether is valid.
 .PARAMETER InputObject
@@ -171,11 +181,10 @@ Function Test-ArtifactPath {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
-	Begin {}
 	Process {
-		Return ($InputObject -imatch '^[^":<>|*?\n\r\t]+$')
+		$InputObject -imatch '^[^":<>|*?\n\r\t]+$' |
+			Write-Output
 	}
-	End {}
 }
 Export-ModuleMember -Function @(
 	'Export-Artifact',

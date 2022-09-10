@@ -1,26 +1,43 @@
 # Contributing Guide
 
-## Preface
-
 This Contributing Guide includes the guidelines, methods, and ways to contribute on different categories, items, and types; If this Contributing Guide does not include some of the categories, items, and/or types, maybe:
 
 - those guidelines, methods, and/or ways are separated from this Contributing Guide and exist and/or store in their corresponding places,
 - those categories, items, and/or types are easy to understand how to correctly contributing, or
 - maintainers and/or owners forgot to edit this Contributing Guide.
 
-If you still confused, try to create a discussion or an issue.
+If you have any questions and/or still confused, try to create a discussion.
+
+## Codes
+
+All of the codes in this project and repository are follow the "[hxhS (hugoalh & hugoalh Studio) Coding Guide](https://github.com/hugoalh/hugoalh/blob/main/coding-guide/main.md)".
+
+## Deploys, Releases, Tags & Versions
+
+These are always the works for the maintainers and owners.
 
 ## Discussions
 
 - Before create a discussion, check whether any similar discussions are already exist.
-- For any bug reports, it is better to create an issue.
-- For any security vulnerability reports, please visit the Security Policy (/.github/SECURITY.md).
+- Any reports and requests should create an issue instead.
+
+## Documentations, Documents & Wikis
+
+To improve the documentations and/or documents, clone this repository, edit the documentations and/or documents, and create a pull request.
+
+This project and repository does not have wikis.
+
+## I18ns (Internationalizations) & Translations
+
+This project and repository does not have necessary things to do i18ns and/or translations.
+
+If you want to do i18ns and/or translations on the documentations, documents and/or wikis, please see section "[Documentations, Documents & Wikis](#documentations-documents--wikis)".
 
 ## Issues
 
 - Before create an issue, check whether any similar issues are already exist.
-- For any questions, it is better to create a discussion.
-- For any security vulnerability reports, please visit the Security Policy (/.github/SECURITY.md).
+- Any questions should create a discussion instead.
+- For any security vulnerability reports, please visit the Security Policy (file: `SECURITY.md`).
 
 ## Pull Requests
 
@@ -30,4 +47,4 @@ If you still confused, try to create a discussion or an issue.
 - Try to avoid a pull request with too many changes if possible.
   - A large pull request not only stretches the review time, but also makes it much harder to spot issues.
   - It is better to split the pull request to multiple smaller ones.
-- If your pull request is not ready but want to save it first, you can submit it by mark as draft, and no need to add any identifications to the title (e.g.: `WIP`).
+- If your pull request is not ready but want to save it first, you can submit it by mark as draft, and no need to add any identifications to the title (e.g.: `[WIP]`).

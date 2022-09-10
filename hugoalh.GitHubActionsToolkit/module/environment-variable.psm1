@@ -1,8 +1,10 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'command-base.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
+@(
+	'command-base.psm1'
+) |
+	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
+	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
 [Flags()] Enum GitHubActionsEnvironmentVariableScopes {
 	Current = 1
 	Subsequent = 2
@@ -33,7 +35,10 @@ Function Add-PATH {
 		[String[]]$Result = @()
 	}
 	Process {
-		ForEach ($Item In ($Path | Select-Object -Unique)) {
+		ForEach ($Item In (
+			$Path |
+				Select-Object -Unique
+		)) {
 			If (!$NoValidator.IsPresent -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				Continue
@@ -45,15 +50,25 @@ Function Add-PATH {
 		If ($Result.Count -igt 0) {
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					[System.Environment]::SetEnvironmentVariable('PATH', ((([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result) | Join-String -Separator [System.IO.Path]::PathSeparator)) | Out-Null
+					[System.Environment]::SetEnvironmentVariable(
+						'PATH',
+						(
+							([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result |
+								Join-String -Separator [System.IO.Path]::PathSeparator
+						)
+					) |
+						Out-Null
 				}
 				'Subsequent' {
 					If ([String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)) {
-						$Result | ForEach-Object -Process {
-							Write-GitHubActionsCommand -Command 'add-path' -Value $_
-						}
-					} Else {
-						Add-Content -LiteralPath $Env:GITHUB_PATH -Value ($Result | Join-String -Separator "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
+						$Result |
+							ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-path' -Value $_ }
+					}
+					Else {
+						Add-Content -LiteralPath $Env:GITHUB_PATH -Value (
+							$Result |
+								Join-String -Separator "`n"
+						) -Confirm:$False -Encoding 'UTF8NoBOM'
 					}
 				}
 			}
@@ -83,7 +98,7 @@ Function Set-EnvironmentVariable {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Return (Test-EnvironmentVariableName -InputObject $_) }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-EnvironmentVariableName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][String]$Value,
 		[Alias('NoToUppercase')][Switch]$NoToUpper,
 		[GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
@@ -111,11 +126,19 @@ Function Set-EnvironmentVariable {
 						Write-Error -Message 'Parameter `Value` must be in single line string!' -Category 'SyntaxError'
 						Continue
 					}
-					$Result[$NoToUpper.IsPresent ? $Item.Name : $Item.Name.ToUpper()] = $Item.Value
+					$Result[
+						$NoToUpper.IsPresent ?
+							$Item.Name :
+							$Item.Name.ToUpper()
+					] = $Item.Value
 				}
 			}
 			'Single' {
-				$Result[$NoToUpper.IsPresent ? $Name : $Name.ToUpper()] = $Value
+				$Result[
+					$NoToUpper.IsPresent ?
+						$Name :
+						$Name.ToUpper()
+				] = $Value
 			}
 		}
 	}
@@ -123,19 +146,23 @@ Function Set-EnvironmentVariable {
 		If ($Result.Count -igt 0) {
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					$Result.GetEnumerator() | ForEach-Object -Process {
-						[System.Environment]::SetEnvironmentVariable($_.Name, $_.Value) | Out-Null
-					}
+					$Result.GetEnumerator() |
+						ForEach-Object -Process {
+							[System.Environment]::SetEnvironmentVariable($_.Name, $_.Value) |
+								Out-Null
+						}
 				}
 				'Subsequent' {
 					If ([String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)) {
-						$Result.GetEnumerator() | ForEach-Object -Process {
-							Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $_.Name } -Value $_.Value
-						}
-					} Else {
-						Add-Content -LiteralPath $Env:GITHUB_ENV -Value ($Result.GetEnumerator() | ForEach-Object -Process {
-							Return "$($_.Name)=$($_.Value)"
-						} | Join-String -Separator "`n") -Confirm:$False -Encoding 'UTF8NoBOM'
+						$Result.GetEnumerator() |
+							ForEach-Object -Process { Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $_.Name } -Value $_.Value }
+					}
+					Else {
+						Add-Content -LiteralPath $Env:GITHUB_ENV -Value (
+							$Result.GetEnumerator() |
+								ForEach-Object -Process { "$($_.Name)=$($_.Value)" } |
+								Join-String -Separator "`n"
+						) -Confirm:$False -Encoding 'UTF8NoBOM'
 					}
 				}
 			}
@@ -146,7 +173,7 @@ Set-Alias -Name 'Set-Env' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -S
 Set-Alias -Name 'Set-Environment' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Internal) - Test Environment Variable Name
+GitHub Actions (Private) - Test Environment Variable Name
 .DESCRIPTION
 Test environment variable name whether is valid.
 .PARAMETER InputObject
@@ -160,11 +187,10 @@ Function Test-EnvironmentVariableName {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
-	Begin {}
 	Process {
-		Return ($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$' -and $InputObject -inotmatch '^(?:ACTIONS|GITHUB|RUNNER)_')
+		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$' -and $InputObject -inotmatch '^(?:ACTIONS|GITHUB|RUNNER)_' |
+			Write-Output
 	}
-	End {}
 }
 Export-ModuleMember -Function @(
 	'Add-PATH',
