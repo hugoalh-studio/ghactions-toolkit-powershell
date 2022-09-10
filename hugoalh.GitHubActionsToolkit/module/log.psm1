@@ -285,7 +285,8 @@ Function Write-Raw {
 		[String]$EndToken = Disable-GitHubActionsProcessingCommands
 	}
 	Process {
-		Write-Host -Object $InputObject
+		$InputObject |
+			Write-Host
 	}
 	End {
 		Enable-GitHubActionsProcessingCommands -EndToken $EndToken
