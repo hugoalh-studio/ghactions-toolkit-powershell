@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'command-base.psm1',
-	'command-control.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base.psm1',
+		'command-control.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 Enum GitHubActionsAnnotationType {
 	Notice = 0
 	N = 0
@@ -285,8 +286,7 @@ Function Write-Raw {
 		[String]$EndToken = Disable-GitHubActionsProcessingCommands
 	}
 	Process {
-		$InputObject |
-			Write-Host
+		Write-Host -Object $InputObject
 	}
 	End {
 		Enable-GitHubActionsProcessingCommands -EndToken $EndToken

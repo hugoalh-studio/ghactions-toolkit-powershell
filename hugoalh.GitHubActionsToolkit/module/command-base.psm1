@@ -68,15 +68,12 @@ Function Write-Command {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Value
 	)
 	Process {
-		"::$Command$(($Parameter.Count -igt 0) ?
-			" $($Parameter.GetEnumerator() |
-					Sort-Object -Property 'Name' |
-					ForEach-Object -Process { "$($_.Name)=$(Format-CommandParameterValue -InputObject $_.Value)" } |
-					Join-String -Separator ','
-			)" :
-			''
-		)::$(Format-CommandValue -InputObject $Value)" |
-			Write-Host
+		Write-Host -Object "::$Command$(($Parameter.Count -igt 0) ? " $(
+			$Parameter.GetEnumerator() |
+				Sort-Object -Property 'Name' |
+				ForEach-Object -Process { "$($_.Name)=$(Format-CommandParameterValue -InputObject $_.Value)" } |
+				Join-String -Separator ','
+		)" : '')::$(Format-CommandValue -InputObject $Value)"
 	}
 }
 Export-ModuleMember -Function @(

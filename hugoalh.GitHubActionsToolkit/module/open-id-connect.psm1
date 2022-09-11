@@ -1,12 +1,13 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'log.psm1',
-	'nodejs-invoke.psm1',
-	'utility.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'log.psm1',
+		'nodejs-invoke.psm1',
+		'utility.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get OpenID Connect Token
@@ -57,8 +58,7 @@ Function Get-OpenIdConnectToken {
 			[PSCustomObject]$Response = Invoke-WebRequest -Uri $RequestUri -UseBasicParsing -UserAgent 'actions/oidc-client' -Headers @{ Authorization = "Bearer $RequestToken" } -MaximumRedirection 1 -MaximumRetryCount 10 -RetryIntervalSec 10 -Method 'Get'
 			[ValidateNotNullOrEmpty()][String]$OidcToken = (ConvertFrom-Json -InputObject $Response.Content -Depth 100).value
 			Add-GitHubActionsSecretMask -Value $OidcToken
-			$OidcToken |
-				Write-Output
+			Write-Output -InputObject $OidcToken
 		}
 		Catch {
 			Write-Error @_

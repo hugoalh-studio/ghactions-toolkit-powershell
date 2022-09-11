@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'nodejs-invoke.psm1',
-	'utility.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'nodejs-invoke.psm1',
+		'utility.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Expand Tool Cache Compressed File
@@ -141,15 +142,8 @@ Function Find-ToolCache {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$(
-			$IsFindAll ?
-				'-all-versions' :
-				''
-		).js" -InputObject ([PSCustomObject]$InputObject)
-		$IsFindAll ?
-			${ResultRaw}?.Paths :
-			${ResultRaw}?.Path
-		|
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$($IsFindAll ? '-all-versions' : '').js" -InputObject ([PSCustomObject]$InputObject)
+		$IsFindAll ? ${ResultRaw}?.Paths : ${ResultRaw}?.Path |
 			Write-Output
 	}
 }

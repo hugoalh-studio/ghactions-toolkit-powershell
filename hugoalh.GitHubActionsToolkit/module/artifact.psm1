@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'nodejs-invoke.psm1',
-	'utility.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'nodejs-invoke.psm1',
+		'utility.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Export Artifact
@@ -51,21 +52,13 @@ Function Export-Artifact {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'LiteralPath' {
 				[String[]]$PathsProceed = $LiteralPath |
-					ForEach-Object -Process {
-						[System.IO.Path]::IsPathRooted($_) ?
-							$_ :
-							(Join-Path -Path $BaseRoot -ChildPath $_)
-					}
+					ForEach-Object -Process { [System.IO.Path]::IsPathRooted($_) ? $_ : (Join-Path -Path $BaseRoot -ChildPath $_) }
 			}
 			'Path' {
 				[String[]]$PathsProceed = @()
 				ForEach ($Item In $Path) {
 					Try {
-						$PathsProceed += [System.IO.Path]::IsPathRooted($Item) ?
-							$Item :
-							(Join-Path -Path $BaseRoot -ChildPath $Item)
-							|
-								Resolve-Path
+						$PathsProceed += Resolve-Path -Path [System.IO.Path]::IsPathRooted($Item) ? $Item : (Join-Path -Path $BaseRoot -ChildPath $Item)
 					}
 					Catch {
 						$PathsProceed += $Item

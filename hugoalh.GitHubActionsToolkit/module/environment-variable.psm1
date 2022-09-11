@@ -1,10 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'command-base.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 [Flags()] Enum GitHubActionsEnvironmentVariableScopes {
 	Current = 1
 	Subsequent = 2
@@ -126,19 +127,11 @@ Function Set-EnvironmentVariable {
 						Write-Error -Message 'Parameter `Value` must be in single line string!' -Category 'SyntaxError'
 						Continue
 					}
-					$Result[
-						$NoToUpper.IsPresent ?
-							$Item.Name :
-							$Item.Name.ToUpper()
-					] = $Item.Value
+					$Result[$NoToUpper.IsPresent ? $Item.Name : $Item.Name.ToUpper()] = $Item.Value
 				}
 			}
 			'Single' {
-				$Result[
-					$NoToUpper.IsPresent ?
-						$Name :
-						$Name.ToUpper()
-				] = $Value
+				$Result[$NoToUpper.IsPresent ? $Name : $Name.ToUpper()] = $Value
 			}
 		}
 	}

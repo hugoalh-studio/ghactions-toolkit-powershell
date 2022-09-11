@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'internal\token.psm1',
-	'nodejs-test.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'internal\token.psm1',
+		'nodejs-test.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
 <#
 .SYNOPSIS
@@ -38,18 +39,15 @@ Function Invoke-NodeJsWrapper {
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
 	Try {
-		[String[]]$Result = "node --no-deprecation --no-warnings `"$($WrapperFullName -ireplace '\\', '/')`" `"$(
+		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$($WrapperFullName -ireplace '\\', '/')`" `"$(
 			$InputObject |
-				ConvertTo-Json -Depth 100 -Compress |
-				Write-Output
-		)`" `"$ResultSeparator`"" |
-			Invoke-Expression
+				ConvertTo-Json -Depth 100 -Compress
+		)`" `"$ResultSeparator`""
 		[UInt32]$ResultSkipIndex = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]
 			If ($Item -imatch '^::.+$') {
-				$Item |
-					Write-Host
+				Write-Host -Object $Item
 				$ResultSkipIndex += $ResultIndex
 			}
 		}
@@ -57,8 +55,7 @@ Function Invoke-NodeJsWrapper {
 			Throw "Unexpected exit code ``$LASTEXITCODE``! $(
 				$Result |
 					Select-Object -SkipIndex $ResultSkipIndex |
-					Join-String -Separator "`n" |
-					Write-Output
+					Join-String -Separator "`n"
 			)"
 		}
 		$Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] |

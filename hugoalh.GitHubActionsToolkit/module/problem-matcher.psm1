@@ -1,10 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'command-base.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Problem Matcher
@@ -25,10 +26,7 @@ Function Add-ProblemMatcher {
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `LiteralPath` must be in single line string!')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath
 	)
 	Process {
-		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ?
-			$LiteralPath :
-			[String[]](Resolve-Path -Path $Path)
-		|
+		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? $LiteralPath : [String[]](Resolve-Path -Path $Path) |
 			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
 	}
 }

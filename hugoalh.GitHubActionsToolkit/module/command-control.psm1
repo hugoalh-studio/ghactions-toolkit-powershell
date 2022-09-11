@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'command-base.psm1',
-	'internal\token.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base.psm1',
+		'internal\token.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 [String[]]$GitHubActionsCommands = @(
 	'add-mask',
 	'add-matcher',
@@ -70,8 +71,7 @@ Function Disable-ProcessingCommands {
 		[Parameter(Position = 0)][ValidateScript({ Test-ProcessingCommandsEndToken -InputObject $_ }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, not match any GitHub Actions commands, and unique!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken = (New-CommandsEndToken)
 	)
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
-	$EndToken |
-		Write-Output
+	Write-Output -InputObject $EndToken
 }
 Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Disable-CommandProcessing' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
@@ -167,8 +167,7 @@ Function New-CommandsEndToken {
 	}
 	While ( $Result -iin $GitHubActionsCommandsEndTokensUsed )
 	$Script:GitHubActionsCommandsEndTokensUsed += $Result
-	$Result |
-		Write-Output
+	Write-Output -InputObject $Result
 }
 <#
 .SYNOPSIS

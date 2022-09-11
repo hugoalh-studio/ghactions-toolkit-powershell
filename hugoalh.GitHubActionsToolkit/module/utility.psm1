@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'command-base.psm1',
-	'log.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base.psm1',
+		'log.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Secret Mask
@@ -100,8 +101,7 @@ Function Get-WorkflowRunUri {
 	[OutputType([String])]
 	Param ()
 	If (Test-Environment) {
-		"$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID" |
-			Write-Output
+		Write-Output -InputObject "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 		Return
 	}
 	Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
@@ -186,12 +186,10 @@ Function Test-Environment {
 			Write-GitHubActionsFail -Message $MandatoryMessage
 			Throw
 		}
-		$False |
-			Write-Output
+		Write-Output -InputObject $False
 		Return
 	}
-	$True |
-		Write-Output
+	Write-Output -InputObject $True
 }
 Export-ModuleMember -Function @(
 	'Add-SecretMask',

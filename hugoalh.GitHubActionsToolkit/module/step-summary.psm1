@@ -1,10 +1,11 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'utility.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'utility.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
@@ -251,7 +252,8 @@ Function Get-StepSummary {
 				Write-Output
 		}
 		'Sizes' {
-			(Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY).Length |
+			Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY |
+				Select-Object -ExpandProperty 'Length' |
 				Write-Output
 		}
 	}

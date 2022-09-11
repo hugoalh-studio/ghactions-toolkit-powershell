@@ -15,9 +15,10 @@
 	'tool-cache',
 	'utility'
 )
-$ModulesNames |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'module' -AdditionalChildPath "$_.psm1" } |
-	Import-Module -Scope 'Local'
+Import-Module -Name (
+	$ModulesNames |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'module' -AdditionalChildPath "$_.psm1" }
+) -Scope 'Local'
 [PSCustomObject[]]$PackageCommands = Get-Command -Module $ModulesNames -ListImported
 [String[]]$PackageCommandsFunctions = $PackageCommands |
 	Where-Object -FilterScript { $_.CommandType -ieq 'Function' } |

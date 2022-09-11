@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'nodejs-invoke.psm1',
-	'utility.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'nodejs-invoke.psm1',
+		'utility.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Restore Cache
@@ -61,11 +62,10 @@ Function Restore-Cache {
 			PrimaryKey = $KeysProceed[0]
 			RestoreKey = $KeysProceed |
 				Select-Object -SkipIndex 0
-			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ?
-				($LiteralPath |
+			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
+				$LiteralPath |
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
-				) :
-				$Path
+			) : $Path
 			UseAzureSdk = !$NotUseAzureSdk.IsPresent
 		}
 		If (!$NotUseAzureSdk.IsPresent) {
@@ -122,11 +122,10 @@ Function Save-Cache {
 		}
 		[Hashtable]$InputObject = @{
 			Key = $Key
-			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ?
-				($LiteralPath |
+			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
+				$LiteralPath |
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
-				) :
-				$Path
+			) : $Path
 		}
 		If ($UploadChunkSizes -igt 0) {
 			$InputObject.UploadChunkSizes = $UploadChunkSizes * 1KB

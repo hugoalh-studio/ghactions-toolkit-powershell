@@ -1,11 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-@(
-	'command-base.psm1',
-	'log.psm1'
-) |
-	ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
-	Import-Module -Prefix 'GitHubActions' -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base.psm1',
+		'log.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Input
@@ -52,9 +53,7 @@ Function Get-Input {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ?
-					$Item.Value.Trim() :
-					$Item.Value
+				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
@@ -70,9 +69,7 @@ Function Get-Input {
 				}
 				Return
 			}
-			[String]$InputValue = $Trim.IsPresent ?
-				$InputValueRaw.Trim() :
-				$InputValueRaw
+			[String]$InputValue = $Trim.IsPresent ? $InputValueRaw.Trim() : $InputValueRaw
 			If ($EmptyStringAsNull.IsPresent -and $InputValue.Length -ieq 0) {
 				If ($Mandatory.IsPresent) {
 					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
@@ -80,8 +77,7 @@ Function Get-Input {
 				}
 				Return
 			}
-			$InputValue |
-				Write-Output
+			Write-Output -InputObject $InputValue
 			Return
 		}
 		'Prefix' {
@@ -89,9 +85,7 @@ Function Get-Input {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ?
-					$Item.Value.Trim() :
-					$Item.Value
+				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
@@ -103,9 +97,7 @@ Function Get-Input {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ?
-					$Item.Value.Trim() :
-					$Item.Value
+				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
@@ -113,8 +105,7 @@ Function Get-Input {
 			}
 		}
 	}
-	$OutputObject |
-		Write-Output
+	Write-Output -InputObject $OutputObject
 }
 <#
 .SYNOPSIS
@@ -156,9 +147,7 @@ Function Get-State {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ?
-					$Item.Value.Trim() :
-					$Item.Value
+				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
@@ -170,14 +159,11 @@ Function Get-State {
 			If ($Null -ieq $StateValueRaw) {
 				Return
 			}
-			[String]$StateValue = $Trim.IsPresent ?
-				$StateValueRaw.Trim() :
-				$StateValueRaw
+			[String]$StateValue = $Trim.IsPresent ? $StateValueRaw.Trim() : $StateValueRaw
 			If ($EmptyStringAsNull.IsPresent -and $StateValue.Length -ieq 0) {
 				Return
 			}
-			$StateValue |
-				Write-Output
+			Write-Output -InputObject $StateValue
 			Return
 		}
 		'Prefix' {
@@ -185,9 +171,7 @@ Function Get-State {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ?
-					$Item.Value.Trim() :
-					$Item.Value
+				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
@@ -199,9 +183,7 @@ Function Get-State {
 				If ($Null -ieq $Item.Value) {
 					Continue
 				}
-				[String]$ItemValue = $Trim.IsPresent ?
-					$Item.Value.Trim() :
-					$Item.Value
+				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
 				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
 					Continue
 				}
@@ -209,8 +191,7 @@ Function Get-State {
 			}
 		}
 	}
-	$OutputObject |
-		Write-Output
+	Write-Output -InputObject $OutputObject
 }
 Set-Alias -Name 'Restore-State' -Value 'Get-State' -Option 'ReadOnly' -Scope 'Local'
 <#

@@ -1,3 +1,5 @@
+#Requires -PSEdition Core
+#Requires -Version 7.2
 [Char[]]$TokenPool = [String[]]@(0..9) + [Char[]]@(97..122)
 <#
 .SYNOPSIS
@@ -18,8 +20,7 @@ Function New-RandomToken {
 	@(1..$Length) |
 		ForEach-Object -Process {
 			$TokenPool |
-				Get-Random -Count 1 |
-				Write-Output
+				Get-Random -Count 1
 		} |
 		Join-String -Separator '' |
 		Write-Output
