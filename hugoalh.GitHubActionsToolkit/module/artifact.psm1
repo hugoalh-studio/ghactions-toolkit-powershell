@@ -58,7 +58,7 @@ Function Export-Artifact {
 				[String[]]$PathsProceed = @()
 				ForEach ($Item In $Path) {
 					Try {
-						$PathsProceed += Resolve-Path -Path [System.IO.Path]::IsPathRooted($Item) ? $Item : (Join-Path -Path $BaseRoot -ChildPath $Item)
+						$PathsProceed += Resolve-Path -Path ([System.IO.Path]::IsPathRooted($Item) ? $Item : (Join-Path -Path $BaseRoot -ChildPath $Item))
 					}
 					Catch {
 						$PathsProceed += $Item

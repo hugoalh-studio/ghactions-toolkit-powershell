@@ -51,13 +51,10 @@ Function Add-PATH {
 		If ($Result.Count -igt 0) {
 			Switch -Exact ($Scope.ToString() -isplit ', ') {
 				'Current' {
-					[System.Environment]::SetEnvironmentVariable(
-						'PATH',
-						(
-							([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result |
-								Join-String -Separator [System.IO.Path]::PathSeparator
-						)
-					) |
+					[System.Environment]::SetEnvironmentVariable('PATH', (
+						([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result |
+							Join-String -Separator [System.IO.Path]::PathSeparator
+					)) |
 						Out-Null
 				}
 				'Subsequent' {
