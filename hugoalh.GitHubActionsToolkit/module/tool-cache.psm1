@@ -143,8 +143,7 @@ Function Find-ToolCache {
 			$InputObject.Architecture = $Architecture
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$($IsFindAll ? '-all-versions' : '').js" -InputObject ([PSCustomObject]$InputObject)
-		$IsFindAll ? ${ResultRaw}?.Paths : ${ResultRaw}?.Path |
-			Write-Output
+		Write-Output -InputObject ($IsFindAll ? ${ResultRaw}?.Paths : ${ResultRaw}?.Path)
 	}
 }
 <#
