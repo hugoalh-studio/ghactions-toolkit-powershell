@@ -10,7 +10,7 @@ If you have any questions and/or still confused, try to create a discussion.
 
 ## Codes
 
-All of the codes in this project and repository are follow the "[hxhS (hugoalh & hugoalh Studio) Coding Guide](https://github.com/hugoalh/hugoalh/blob/main/coding-guide/main.md)".
+All of the codes in this project and repository are follow the [hxhS (hugoalh & hugoalh Studio) Coding Guide](https://github.com/hugoalh/hugoalh/blob/main/coding-guide/main.md).
 
 ## Deploys, Releases, Tags & Versions
 
@@ -21,23 +21,23 @@ These are always the works for the maintainers and owners.
 - Before create a discussion, check whether any similar discussions are already exist.
 - Any reports and requests should create an issue instead.
 
-## Documentations, Documents & Wikis
+## Documentations, Documents & Wiki
 
 To improve the documentations and/or documents, clone this repository, edit the documentations and/or documents, and create a pull request.
 
-This project and repository does not have wikis.
+To improve the wikis, please create an issue.
 
 ## I18ns (Internationalizations) & Translations
 
 This project and repository does not have necessary things to do i18ns and/or translations.
 
-If you want to do i18ns and/or translations on the documentations, documents and/or wikis, please see section "[Documentations, Documents & Wikis](#documentations-documents--wikis)".
+If you want to do i18ns and/or translations on the documentations, documents and/or wiki, please see section "[Documentations, Documents & Wiki](#documentations-documents--wiki)".
 
 ## Issues
 
 - Before create an issue, check whether any similar issues are already exist.
 - Any questions should create a discussion instead.
-- For any security vulnerability reports, please visit the Security Policy (file: `SECURITY.md`).
+- For any security vulnerability reports, please visit the [Security Policy](./SECURITY.md).
 
 ## Pull Requests
 
