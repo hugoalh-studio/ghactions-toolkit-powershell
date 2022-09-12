@@ -14,7 +14,12 @@ All of the codes in this project and repository are follow the [hxhS (hugoalh & 
 
 ## Deploys, Releases, Tags & Versions
 
-These are always the works for the maintainers and owners.
+These are always the works of:
+
+- the maintainers who in this project and repository, and
+- the owner.
+
+Which are follow the [hxhS (hugoalh & hugoalh Studio) Versioning Guide](https://github.com/hugoalh/hugoalh/blob/main/versioning-guide/main.md).
 
 ## Discussions
 
@@ -23,7 +28,10 @@ These are always the works for the maintainers and owners.
 
 ## Documentations, Documents & Wiki
 
-To improve the documentations and/or documents, clone this repository, edit the documentations and/or documents, and create a pull request.
+To improve the documentations and/or documents, you can:
+
+- clone this repository, edit the documentations and/or documents, and create a pull request, or
+- create an issue.
 
 To improve the wiki, create an issue.
 
