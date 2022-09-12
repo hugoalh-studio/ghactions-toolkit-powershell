@@ -26,7 +26,10 @@ Function Add-ProblemMatcher {
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `LiteralPath` must be in single line string!')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath
 	)
 	Process {
-		(($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? $LiteralPath : [String[]](Resolve-Path -Path $Path)) |
+		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? $LiteralPath : (
+			[String[]](Resolve-Path -Path $Path) |
+				Where-Object -FilterScript { ![String]::IsNullOrEmpty($_) }
+		) |
 			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
 	}
 }

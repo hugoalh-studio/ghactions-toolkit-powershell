@@ -80,9 +80,13 @@ Function Get-WebhookEventPayload {
 		[UInt16]$Depth = 1024,
 		[Switch]$NoEnumerate
 	)
-	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
-		ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth $Depth -NoEnumerate:$NoEnumerate.IsPresent |
-		Write-Output
+	If (Test-Environment) {
+		Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
+			ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth $Depth -NoEnumerate:$NoEnumerate.IsPresent |
+			Write-Output
+		Return
+	}
+	Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 }
 Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-Payload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
