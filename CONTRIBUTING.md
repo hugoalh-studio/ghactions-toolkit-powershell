@@ -37,7 +37,7 @@ If you want to do i18ns and/or translations on the documentations, documents and
 
 - Before create an issue, check whether any similar issues are already exist.
 - Any questions should create a discussion instead.
-- For any security vulnerability reports, please visit the [Security Policy](./SECURITY.md).
+- For any security vulnerability reports, please visit the Security Policy (file: `SECURITY.md`).
 
 ## Pull Requests
 
