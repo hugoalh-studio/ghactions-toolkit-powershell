@@ -25,7 +25,7 @@ These are always the works for the maintainers and owners.
 
 To improve the documentations and/or documents, clone this repository, edit the documentations and/or documents, and create a pull request.
 
-To improve the wikis, please create an issue.
+To improve the wiki, create an issue.
 
 ## I18ns (Internationalizations) & Translations
 
