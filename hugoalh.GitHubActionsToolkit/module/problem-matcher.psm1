@@ -27,10 +27,10 @@ Function Add-ProblemMatcher {
 	)
 	Process {
 		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? $LiteralPath : (
-			[String[]](Resolve-Path -Path $Path) |
-				Where-Object -FilterScript { ![String]::IsNullOrEmpty($_) }
-		) |
-			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
+			Resolve-Path -Path $Path |
+				Select-Object -ExpandProperty 'Path' |
+				ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
+		)
 	}
 }
 <#

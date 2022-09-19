@@ -35,20 +35,20 @@ Function Test-NodeJsEnvironment {
 		Write-Verbose -Message 'Test NodeJS.'
 		Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop' |# `Get-Command` will throw error when nothing is found.
 			Out-Null# No need the result.
-		[String]$GetNodeJsVersionRawResult = node --no-deprecation --no-warnings --version |
+		[String]$ExpressionNodeJsVersionResult = node --no-deprecation --no-warnings --version |
 			Join-String -Separator "`n"
 		If (
-			$GetNodeJsVersionRawResult -inotmatch $SemVerRegEx -or
-			$NodeJsMinimumVersion -igt [SemVer]::Parse(($GetNodeJsVersionRawResult -ireplace '^v', ''))
+			$ExpressionNodeJsVersionResult -inotmatch $SemVerRegEx -or
+			$NodeJsMinimumVersion -igt [SemVer]::Parse(($ExpressionNodeJsVersionResult -ireplace '^v', ''))
 		) {
 			Throw
 		}
 		Write-Verbose -Message 'Test NPM.'
 		Get-Command -Name 'npm' -CommandType 'Application' -ErrorAction 'Stop' |# `Get-Command` will throw error when nothing is found.
 			Out-Null# No need the result.
-		[String[]]$GetNpmVersionRawResult = npm --version# NPM sometimes display other useless things which unable to suppress.
+		[String[]]$ExpressionNpmVersionResult = npm --version# NPM sometimes display other useless things which unable to suppress.
 		If (
-			$GetNpmVersionRawResult -inotmatch $SemVerRegEx -or
+			$ExpressionNpmVersionResult -inotmatch $SemVerRegEx -or
 			$NpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
 		) {
 			Throw

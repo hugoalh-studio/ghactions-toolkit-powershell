@@ -30,7 +30,7 @@ Function Add-SecretMask {
 		If ($Value.Length -igt 0) {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 			If ($WithChunks.IsPresent) {
-				[String[]]($Value -isplit '[\b\n\r\s\t_-]+') |
+				$Value -isplit '[\b\n\r\s\t_-]+' |
 					Where-Object -FilterScript { $_ -ine $Value -and $_.Length -ige 4 } |
 					ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-mask' -Value $_ }
 			}

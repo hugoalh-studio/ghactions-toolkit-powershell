@@ -50,27 +50,16 @@ Function Get-Input {
 	Switch ($PSCmdlet.ParameterSetName) {
 		'All' {
 			ForEach ($Item In (Get-ChildItem -Path 'Env:\INPUT_*')) {
-				If ($Null -ieq $Item.Value) {
-					Continue
-				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
-				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
-					Continue
-				}
-				$OutputObject[$Item.Name -ireplace '^INPUT_', ''] = $ItemValue
+				$OutputObject[$Item.Name -ireplace '^INPUT_', ''] = $Item.Value
 			}
 		}
 		'One' {
 			$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-			If ($Null -ieq $InputValueRaw) {
-				If ($Mandatory.IsPresent) {
-					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
-					Throw
-				}
-				Return
-			}
-			[String]$InputValue = $Trim.IsPresent ? $InputValueRaw.Trim() : $InputValueRaw
-			If ($EmptyStringAsNull.IsPresent -and $InputValue.Length -ieq 0) {
+			[String]$InputValue = $Trim.IsPresent ? ${InputValueRaw}?.Trim() : $InputValueRaw
+			If (
+				$Null -ieq $InputValueRaw -or
+				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($InputValue))
+			) {
 				If ($Mandatory.IsPresent) {
 					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
 					Throw
@@ -81,27 +70,15 @@ Function Get-Input {
 			Return
 		}
 		'Prefix' {
+			[RegEx]$InputNameReplaceRegEx = "^INPUT_$([RegEx]::Escape($NamePrefix))"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*")) {
-				If ($Null -ieq $Item.Value) {
-					Continue
-				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
-				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
-					Continue
-				}
-				$OutputObject[$Item.Name -ireplace "^INPUT_$([RegEx]::Escape($NamePrefix))", ''] = $ItemValue
+				$OutputObject[$Item.Name -ireplace $InputNameReplaceRegEx, ''] = $Item.Value
 			}
 		}
 		'Suffix' {
+			[RegEx]$InputNameReplaceRegEx = "^INPUT_|$([RegEx]::Escape($NameSuffix))$"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_*$($NameSuffix.ToUpper())")) {
-				If ($Null -ieq $Item.Value) {
-					Continue
-				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
-				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
-					Continue
-				}
-				$OutputObject[$Item.Name -ireplace "^INPUT_|$([RegEx]::Escape($NameSuffix))$", ''] = $ItemValue
+				$OutputObject[$Item.Name -ireplace $InputNameReplaceRegEx, ''] = $Item.Value
 			}
 		}
 	}
@@ -144,50 +121,31 @@ Function Get-State {
 	Switch ($PSCmdlet.ParameterSetName) {
 		'All' {
 			ForEach ($Item In (Get-ChildItem -Path 'Env:\STATE_*')) {
-				If ($Null -ieq $Item.Value) {
-					Continue
-				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
-				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
-					Continue
-				}
-				$OutputObject[$Item.Name -ireplace '^STATE_', ''] = $ItemValue
+				$OutputObject[$Item.Name -ireplace '^STATE_', ''] = $Item.Value
 			}
 		}
 		'One' {
 			$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-			If ($Null -ieq $StateValueRaw) {
-				Return
-			}
-			[String]$StateValue = $Trim.IsPresent ? $StateValueRaw.Trim() : $StateValueRaw
-			If ($EmptyStringAsNull.IsPresent -and $StateValue.Length -ieq 0) {
+			[String]$StateValue = $Trim.IsPresent ? ${StateValueRaw}?.Trim() : $StateValueRaw
+			If (
+				$Null -ieq $StateValueRaw -or
+				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($StateValue))
+			) {
 				Return
 			}
 			Write-Output -InputObject $StateValue
 			Return
 		}
 		'Prefix' {
+			[RegEx]$StateNameReplaceRegEx = "^STATE_$([RegEx]::Escape($NamePrefix))"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*")) {
-				If ($Null -ieq $Item.Value) {
-					Continue
-				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
-				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
-					Continue
-				}
-				$OutputObject[$Item.Name -ireplace "^STATE_$([RegEx]::Escape($NamePrefix))", ''] = $ItemValue
+				$OutputObject[$Item.Name -ireplace $StateNameReplaceRegEx, ''] = $Item.Value
 			}
 		}
 		'Suffix' {
+			[RegEx]$StateNameReplaceRegEx = "^STATE_|$([RegEx]::Escape($NameSuffix))$"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_*$($NameSuffix.ToUpper())")) {
-				If ($Null -ieq $Item.Value) {
-					Continue
-				}
-				[String]$ItemValue = $Trim.IsPresent ? $Item.Value.Trim() : $Item.Value
-				If ($EmptyStringAsNull.IsPresent -and $ItemValue.Length -ieq 0) {
-					Continue
-				}
-				$OutputObject[$Item.Name -ireplace "^STATE_|$([RegEx]::Escape($NameSuffix))$", ''] = $ItemValue
+				$OutputObject[$Item.Name -ireplace $StateNameReplaceRegEx, ''] = $Item.Value
 			}
 		}
 	}
