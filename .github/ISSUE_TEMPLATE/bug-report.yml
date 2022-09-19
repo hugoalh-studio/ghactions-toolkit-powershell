@@ -18,10 +18,8 @@ body:
       description: "What versions are affected? Versions must be listed as supported in the Security Policy (file: `SECURITY.md`)."
       multiple: true
       options:
+        - "v1.0.2"
         - "v1.0.1"
-        - "v1.0.0"
-        - "v0.5.5"
-        - "v0.5.4"
     validations:
       required: false
   - type: "textarea"

@@ -35,7 +35,7 @@ Function Test-NodeJsEnvironment {
 		Write-Verbose -Message 'Test NodeJS.'
 		Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop' |# `Get-Command` will throw error when nothing is found.
 			Out-Null# No need the result.
-		[String]$GetNodeJsVersionRawResult = Invoke-Expression -Command 'node --no-deprecation --no-warnings --version' |
+		[String]$GetNodeJsVersionRawResult = node --no-deprecation --no-warnings --version |
 			Join-String -Separator "`n"
 		If (
 			$GetNodeJsVersionRawResult -inotmatch $SemVerRegEx -or
@@ -46,7 +46,7 @@ Function Test-NodeJsEnvironment {
 		Write-Verbose -Message 'Test NPM.'
 		Get-Command -Name 'npm' -CommandType 'Application' -ErrorAction 'Stop' |# `Get-Command` will throw error when nothing is found.
 			Out-Null# No need the result.
-		[String[]]$GetNpmVersionRawResult = Invoke-Expression -Command 'npm --version'# NPM sometimes display other useless things which unable to suppress.
+		[String[]]$GetNpmVersionRawResult = npm --version# NPM sometimes display other useless things which unable to suppress.
 		If (
 			$GetNpmVersionRawResult -inotmatch $SemVerRegEx -or
 			$NpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
@@ -67,12 +67,12 @@ Function Test-NodeJsEnvironment {
 		If (
 			$ReinstallDependencies.IsPresent -or
 			(
-				[String[]](Invoke-Expression -Command 'npm outdated') |
+				npm outdated |
 					Join-String -Separator "`n"
 			) -cmatch 'MISSING'
 		) {
 			Write-Verbose -Message 'Install/Reinstall NodeJS wrapper API dependencies.'
-			Invoke-Expression -Command 'npm ci --no-audit --no-fund' |
+			npm ci --no-audit --no-fund |
 				Out-Null# No need the result.
 			If ($LASTEXITCODE -ine 0) {
 				Throw

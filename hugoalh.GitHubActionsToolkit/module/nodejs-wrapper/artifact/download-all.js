@@ -13,6 +13,6 @@ for (let item of result) {
 		Name: item.artifactName,
 		Path: item.downloadPath
 	});
-};
+}
 console.log(JSON.stringify(outputObject));
 process.exit(0);
