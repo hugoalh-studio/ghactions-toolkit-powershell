@@ -1,6 +1,7 @@
 # GitHub Actions Toolkit (PowerShell)
 
 [`GitHubActionsToolkit.PowerShell`](https://github.com/hugoalh-studio/ghactions-toolkit-powershell)
+
 ![PowerShell](https://img.shields.io/badge/PowerShell-0072C6?logo=powershell&logoColor=ffffff&style=flat-square "PowerShell")
 ![License](https://img.shields.io/static/v1?label=License&message=MIT&style=flat-square "License")
 [![GitHub Stars](https://img.shields.io/github/stars/hugoalh-studio/ghactions-toolkit-powershell?label=Stars&logo=github&logoColor=ffffff&style=flat-square "GitHub Stars")](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/stargazers)
@@ -12,7 +13,7 @@
 
 | **Releases** | **Latest** (![GitHub Latest Release Date](https://img.shields.io/github/release-date/hugoalh-studio/ghactions-toolkit-powershell?label=&style=flat-square "GitHub Latest Release Date")) | **Pre** (![GitHub Latest Pre-Release Date](https://img.shields.io/github/release-date-pre/hugoalh-studio/ghactions-toolkit-powershell?label=&style=flat-square "GitHub Latest Pre-Release Date")) |
 |:-:|:-:|:-:|
-| [![GitHub](https://img.shields.io/badge/GitHub-24292F?logo=github&logoColor=ffffff&style=flat-square "GitHub")](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases) ![GitHub Total Downloads](https://img.shields.io/github/downloads/hugoalh-studio/ghactions-toolkit-powershell/total?label=&style=flat-square "GitHub Total Downloads") | ![GitHub Latest Release Version](https://img.shields.io/github/release/hugoalh-studio/ghactions-toolkit-powershell?sort=semver&label=&style=flat-square "GitHub Latest Release Version") | ![GitHub Latest Pre-Release Version](https://img.shields.io/github/release/hugoalh-studio/ghactions-toolkit-powershell?include_prereleases&sort=semver&label=&style=flat-square "GitHub Latest Pre-Release Version") |
+| [![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=ffffff&style=flat-square "GitHub")](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases) ![GitHub Total Downloads](https://img.shields.io/github/downloads/hugoalh-studio/ghactions-toolkit-powershell/total?label=&style=flat-square "GitHub Total Downloads") | ![GitHub Latest Release Version](https://img.shields.io/github/release/hugoalh-studio/ghactions-toolkit-powershell?sort=semver&label=&style=flat-square "GitHub Latest Release Version") | ![GitHub Latest Pre-Release Version](https://img.shields.io/github/release/hugoalh-studio/ghactions-toolkit-powershell?include_prereleases&sort=semver&label=&style=flat-square "GitHub Latest Pre-Release Version") |
 | [![PowerShell Gallery](https://img.shields.io/badge/PowerShell%20Gallery-0072C6?logo=powershell&logoColor=ffffff&style=flat-square "PowerShell Gallery")](https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit) ![PowerShell Gallery Total Downloads](https://img.shields.io/powershellgallery/dt/hugoalh.GitHubActionsToolkit?label=&style=flat-square "PowerShell Gallery Total Downloads") | ![PowerShell Gallery Latest Release Version](https://img.shields.io/powershellgallery/v/hugoalh.GitHubActionsToolkit?label=&style=flat-square "PowerShell Gallery Latest Release Version") | ![PowerShell Gallery Latest Pre-Release Version](https://img.shields.io/powershellgallery/v/hugoalh.GitHubActionsToolkit?include_prereleases&label=&style=flat-square "PowerShell Gallery Latest Pre-Release Version") |
 
 ## 📝 Description
@@ -45,9 +46,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 
 ### API
 
-| **Legend** | **Description** |
-|:-:|:--|
-| 🔘 | **NodeJS Wrapper:** This dependents and requires NodeJS to invoke. |
+> | **Legend** | **Description** |
+> |:-:|:--|
+> | 🔘 | **NodeJS Wrapper:** This dependents and requires NodeJS to invoke. |
 
 #### Function
 
