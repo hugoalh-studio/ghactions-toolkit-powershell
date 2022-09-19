@@ -18,7 +18,7 @@ jobs:
                   > ${{github.event.repository.description}}
 
                   Version ${{github.event.release.name}} (${{github.event.release.tag_name}}) just released!
-                color: "44,85,145"
+                color: "0,114,198"
                 thumbnail:
                   url: "https://i.imgur.com/OhKCMwk.png"
                 fields:
