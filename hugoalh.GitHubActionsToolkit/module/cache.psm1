@@ -51,7 +51,7 @@ Function Restore-Cache {
 		}
 		[String[]]$KeysProceed = @()
 		If ($Key.Count -igt 10) {
-			Write-Warning -Message 'Keys are limit to maximum count of 10! Only first 10 keys will use.'
+			Write-Warning -Message 'Keys are limit to maximum count of 10! Only first 10 keys will be use.'
 			$KeysProceed += $Key |
 				Select-Object -First 10
 		}
