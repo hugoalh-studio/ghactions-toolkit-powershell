@@ -39,10 +39,10 @@ Function Invoke-NodeJsWrapper {
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
 	Try {
-		[String[]]$Result = node --no-deprecation --no-warnings `"$($WrapperFullName -ireplace '\\', '/')`" `"$(
+		[String[]]$Result = node --no-deprecation --no-warnings "$($WrapperFullName -ireplace '\\', '/')" "$(
 			$InputObject |
 				ConvertTo-Json -Depth 100 -Compress
-		)`" `"$ResultSeparator`"
+		)" "$ResultSeparator"
 		[UInt32]$ResultSkipIndex = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]
