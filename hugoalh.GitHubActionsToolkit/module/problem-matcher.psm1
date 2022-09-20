@@ -28,9 +28,9 @@ Function Add-ProblemMatcher {
 	Process {
 		($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? $LiteralPath : (
 			Resolve-Path -Path $Path |
-				Select-Object -ExpandProperty 'Path' |
-				ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
-		)
+				Select-Object -ExpandProperty 'Path'
+		) |
+			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
 	}
 }
 <#
