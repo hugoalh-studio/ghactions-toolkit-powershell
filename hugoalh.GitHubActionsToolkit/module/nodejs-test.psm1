@@ -60,7 +60,7 @@ Function Test-NodeJsEnvironment {
 		Write-Output -InputObject $EnvironmentResult
 		Return
 	}
-	[String]$OriginalWorkingDirectory = (Get-Location).Path
+	$OriginalWorkingDirectory = Get-Location
 	Write-Verbose -Message 'Test NodeJS wrapper API dependencies.'
 	Set-Location -LiteralPath $WrapperRoot
 	Try {
