@@ -148,11 +148,7 @@ Function Set-EnvironmentVariable {
 							ForEach-Object -Process { Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $_.Name } -Value $_.Value }
 					}
 					Else {
-						Add-Content -LiteralPath $Env:GITHUB_ENV -Value (
-							$Result.GetEnumerator() |
-								ForEach-Object -Process { "$($_.Name)=$($_.Value)" } |
-								Join-String -Separator "`n"
-						) -Confirm:$False -Encoding 'UTF8NoBOM'
+						Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Table $Result
 					}
 				}
 			}

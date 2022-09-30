@@ -1,5 +1,12 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
+Import-Module -Name (
+	@(
+		'internal\token.psm1'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+) -Prefix 'GitHubActions' -Scope 'Local'
+[String[]]$GitHubActionsFileCommandTokensUsed = @()
 <#
 .SYNOPSIS
 GitHub Actions (Private) - Format Command Parameter Value
@@ -76,6 +83,46 @@ Function Write-Command {
 		)" : '')::$(Format-CommandValue -InputObject $Value)"
 	}
 }
+<#
+.SYNOPSIS
+GitHub Actions (Private) - Write File Command
+.DESCRIPTION
+Write file command to communicate with the runner machine.
+.PARAMETER LiteralPath
+Literal path of the file.
+.PARAMETER Table
+Table.
+.OUTPUTS
+[Void]
+#>
+Function Write-FileCommand {
+	[CmdletBinding()]
+	[OutputType([Void])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][String]$LiteralPath,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Hashtable]$Table
+	)
+	Process {
+		Add-Content -LiteralPath $LiteralPath -Value (
+			$Table.GetEnumerator() |
+				ForEach-Object -Process {
+					If ($_.Value -imatch '^.+$') {
+						Write-Output -InputObject "$($_.Name)=$($_.Value)"
+					}
+					Else {
+						Do {
+							[String]$Token = New-GitHubActionsRandomToken -Length 64
+						}
+						While ( $Token -iin $GitHubActionsFileCommandTokensUsed )
+						$Script:GitHubActionsFileCommandTokensUsed += $Token
+						Write-Output -InputObject "$($_.Name)=<<$Token`n$($_.Value -ireplace '\r?\n', "`n")`n$Token"
+					}
+				} |
+				Join-String -Separator "`n"
+		) -Confirm:$False -Encoding 'UTF8NoBOM'
+	}
+}
 Export-ModuleMember -Function @(
-	'Write-Command'
+	'Write-Command',
+	'Write-FileCommand'
 )

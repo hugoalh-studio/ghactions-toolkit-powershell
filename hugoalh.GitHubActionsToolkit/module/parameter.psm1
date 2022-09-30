@@ -174,6 +174,10 @@ Function Set-Output {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
+	Begin {
+		[Boolean]$FileEditionAvailable = ![String]::IsNullOrWhiteSpace($Env:GITHUB_OUTPUT)
+		[Hashtable]$Result = @{}
+	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
@@ -191,12 +195,27 @@ Function Set-Output {
 							Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
 							Return
 						}
-						Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $_.Name } -Value $_.Value
+						If ($FileEditionAvailable) {
+							$Result[$_.Name] = $_.Value
+						}
+						Else {
+							Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $_.Name } -Value $_.Value
+						}
 					}
 			}
 			'Single' {
-				Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
+				If ($FileEditionAvailable) {
+					$Result[$Name] = $Value
+				}
+				Else {
+					Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
+				}
 			}
+		}
+	}
+	End {
+		If ($FileEditionAvailable) {
+			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Table $Result
 		}
 	}
 }
@@ -222,6 +241,10 @@ Function Set-State {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
+	Begin {
+		[Boolean]$FileEditionAvailable = ![String]::IsNullOrWhiteSpace($Env:GITHUB_STATE)
+		[Hashtable]$Result = @{}
+	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
@@ -239,12 +262,27 @@ Function Set-State {
 							Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
 							Return
 						}
-						Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $_.Name } -Value $_.Value
+						If ($FileEditionAvailable) {
+							$Result[$_.Name] = $_.Value
+						}
+						Else {
+							Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $_.Name } -Value $_.Value
+						}
 					}
 			}
 			'Single' {
-				Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
+				If ($FileEditionAvailable) {
+					$Result[$Name] = $Value
+				}
+				Else {
+					Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
+				}
 			}
+		}
+	}
+	End {
+		If ($FileEditionAvailable) {
+			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Table $Result
 		}
 	}
 }
