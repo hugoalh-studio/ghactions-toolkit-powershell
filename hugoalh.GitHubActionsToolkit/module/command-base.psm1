@@ -4,11 +4,11 @@
 .SYNOPSIS
 GitHub Actions (Private) - Format Command Parameter Value
 .DESCRIPTION
-Format command parameter value characters that can cause issues.
+Format the command parameter value characters that can cause issues.
 .PARAMETER InputObject
-String that need to format command parameter value characters.
+String that need to format the command parameter value characters.
 .OUTPUTS
-[String] A string that formatted command parameter value characters.
+[String] A string that formatted the command parameter value characters.
 #>
 Function Format-CommandParameterValue {
 	[CmdletBinding()]
@@ -26,11 +26,11 @@ Set-Alias -Name 'Format-CommandPropertyValue' -Value 'Format-CommandParameterVal
 .SYNOPSIS
 GitHub Actions (Private) - Format Command Value
 .DESCRIPTION
-Format command value characters that can cause issues.
+Format the command value characters that can cause issues.
 .PARAMETER InputObject
-String that need to format command value characters.
+String that need to format the command value characters.
 .OUTPUTS
-[String] A string that formatted command value characters.
+[String] A string that formatted the command value characters.
 #>
 Function Format-CommandValue {
 	[CmdletBinding()]
