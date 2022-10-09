@@ -242,7 +242,7 @@
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
-			Prerelease = 'beta.1'
+			Prerelease = 'beta2'
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 			RequireLicenseAcceptance = $False
