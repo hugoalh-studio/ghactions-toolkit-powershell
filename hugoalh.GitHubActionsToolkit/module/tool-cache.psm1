@@ -38,10 +38,9 @@ Function Expand-ToolCacheCompressedFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
 	}
 	Process {
@@ -119,10 +118,9 @@ Function Find-ToolCache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
 	}
 	Process {
@@ -172,10 +170,9 @@ Function Invoke-ToolCacheToolDownloader {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
 	}
 	Process {
@@ -224,10 +221,9 @@ Function Register-ToolCacheDirectory {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
 	}
 	Process {
@@ -275,10 +271,9 @@ Function Register-ToolCacheFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -ToolCache)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
 	}
 	Process {

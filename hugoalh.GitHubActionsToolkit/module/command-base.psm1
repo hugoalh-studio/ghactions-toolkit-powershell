@@ -90,8 +90,10 @@ GitHub Actions (Private) - Write File Command
 Write file command to communicate with the runner machine.
 .PARAMETER LiteralPath
 Literal path of the file.
-.PARAMETER Table
-Table.
+.PARAMETER Name
+Name.
+.PARAMETER Value
+Value.
 .OUTPUTS
 [Void]
 #>
@@ -100,25 +102,22 @@ Function Write-FileCommand {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][String]$LiteralPath,
-		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Hashtable]$Table
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Name,
+		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][String]$Value
 	)
 	Process {
-		Add-Content -LiteralPath $LiteralPath -Value (
-			$Table.GetEnumerator() |
-				ForEach-Object -Process {
-					If ($_.Value -imatch '^.+$') {
-						Write-Output -InputObject "$($_.Name)=$($_.Value)"
-					}
-					Else {
-						Do {
-							[String]$Token = New-GitHubActionsRandomToken -Length 64
-						}
-						While ( $Token -iin $GitHubActionsFileCommandTokensUsed )
-						$Script:GitHubActionsFileCommandTokensUsed += $Token
-						Write-Output -InputObject "$($_.Name)=<<$Token`n$($_.Value -ireplace '\r?\n', "`n")`n$Token"
-					}
-				} |
-				Join-String -Separator "`n"
+		Add-Content -LiteralPath $LiteralPath -Value $(
+			If ($Value -imatch '^.+$') {
+				Write-Output -InputObject "$($Name)=$($Value)"
+			}
+			Else {
+				Do {
+					[String]$Token = New-GitHubActionsRandomToken -Length 64
+				}
+				While ( $Token -iin $GitHubActionsFileCommandTokensUsed )
+				$Script:GitHubActionsFileCommandTokensUsed += $Token
+				Write-Output -InputObject "$Name<<$Token`n$($Value -ireplace '\r?\n', "`n")`n$Token"
+			}
 		) -Confirm:$False -Encoding 'UTF8NoBOM'
 	}
 }

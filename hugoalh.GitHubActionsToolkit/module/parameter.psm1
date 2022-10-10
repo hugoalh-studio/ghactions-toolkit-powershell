@@ -175,47 +175,38 @@ Function Set-Output {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
 	Begin {
-		[Boolean]$FileEditionAvailable = ![String]::IsNullOrWhiteSpace($Env:GITHUB_OUTPUT)
-		[Hashtable]$Result = @{}
+		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_OUTPUT)
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				$InputObject.GetEnumerator() |
-					ForEach-Object -Process {
-						If ($_.Name.GetType().Name -ine 'String') {
-							Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-							Return
-						}
-						If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-							Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
-							Return
-						}
-						If ($_.Value.GetType().Name -ine 'String') {
-							Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-							Return
-						}
-						If ($FileEditionAvailable) {
-							$Result[$_.Name] = $_.Value
-						}
-						Else {
-							Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $_.Name } -Value $_.Value
-						}
+				ForEach ($Item In $InputObject.GetEnumerator()) {
+					If ($Item.Name.GetType().Name -ine 'String') {
+						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
+						Return
 					}
+					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
+						Return
+					}
+					If ($Item.Value.GetType().Name -ine 'String') {
+						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
+						Return
+					}
+					[String]$ItemName = $Item.Name
+					[String]$ItemValue = $Item.Value
+				}
 			}
 			'Single' {
-				If ($FileEditionAvailable) {
-					$Result[$Name] = $Value
-				}
-				Else {
-					Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
-				}
+				[String]$ItemName = $Name
+				[String]$ItemValue = $Value
 			}
 		}
-	}
-	End {
-		If ($FileEditionAvailable) {
-			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Table $Result
+		If ($Legacy) {
+			Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $ItemName } -Value $ItemValue
+		}
+		Else {
+			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Name $ItemName -Value $ItemValue
 		}
 	}
 }
@@ -242,47 +233,38 @@ Function Set-State {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
 	Begin {
-		[Boolean]$FileEditionAvailable = ![String]::IsNullOrWhiteSpace($Env:GITHUB_STATE)
-		[Hashtable]$Result = @{}
+		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_STATE)
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
-				$InputObject.GetEnumerator() |
-					ForEach-Object -Process {
-						If ($_.Name.GetType().Name -ine 'String') {
-							Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-							Return
-						}
-						If ($_.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-							Write-Error -Message "``$($_.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
-							Return
-						}
-						If ($_.Value.GetType().Name -ine 'String') {
-							Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-							Return
-						}
-						If ($FileEditionAvailable) {
-							$Result[$_.Name] = $_.Value
-						}
-						Else {
-							Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $_.Name } -Value $_.Value
-						}
+				ForEach ($Item In $InputObject.GetEnumerator()) {
+					If ($Item.Name.GetType().Name -ine 'String') {
+						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
+						Return
 					}
+					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
+						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
+						Return
+					}
+					If ($Item.Value.GetType().Name -ine 'String') {
+						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
+						Return
+					}
+					[String]$ItemName = $Item.Name
+					[String]$ItemValue = $Item.Value
+				}
 			}
 			'Single' {
-				If ($FileEditionAvailable) {
-					$Result[$Name] = $Value
-				}
-				Else {
-					Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
-				}
+				[String]$ItemName = $Name
+				[String]$ItemValue = $Value
 			}
 		}
-	}
-	End {
-		If ($FileEditionAvailable) {
-			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Table $Result
+		If ($Legacy) {
+			Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $ItemName } -Value $ItemValue
+		}
+		Else {
+			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Name $ItemName -Value $ItemValue
 		}
 	}
 }

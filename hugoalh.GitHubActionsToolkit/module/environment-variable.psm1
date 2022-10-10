@@ -30,10 +30,11 @@ Function Add-PATH {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` must be in single line string!')][Alias('Paths')][String[]]$Path,
 		[Alias('NoValidate', 'SkipValidate', 'SkipValidator')][Switch]$NoValidator,
-		[GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
+		[Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Begin {
-		[String[]]$Result = @()
+		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)
+		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
 	}
 	Process {
 		ForEach ($Item In (
@@ -44,29 +45,20 @@ Function Add-PATH {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				Continue
 			}
-			$Result += $Item
-		}
-	}
-	End {
-		If ($Result.Count -igt 0) {
-			Switch -Exact ($Scope.ToString() -isplit ', ') {
+			Switch -Exact ($ScopeArray) {
 				'Current' {
 					[System.Environment]::SetEnvironmentVariable('PATH', (
-						([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Result |
+						([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Item |
 							Join-String -Separator [System.IO.Path]::PathSeparator
 					)) |
 						Out-Null
 				}
 				'Subsequent' {
-					If ([String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)) {
-						$Result |
-							ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-path' -Value $_ }
+					If ($Legacy) {
+						Write-GitHubActionsCommand -Command 'add-path' -Value $Item
 					}
 					Else {
-						Add-Content -LiteralPath $Env:GITHUB_PATH -Value (
-							$Result |
-								Join-String -Separator "`n"
-						) -Confirm:$False -Encoding 'UTF8NoBOM'
+						Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
 					}
 				}
 			}
@@ -97,12 +89,13 @@ Function Set-EnvironmentVariable {
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-EnvironmentVariableName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Value` must be in single line string!')][String]$Value,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Value,
 		[Alias('NoToUppercase')][Switch]$NoToUpper,
-		[GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
+		[Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Begin {
-		[Hashtable]$Result = @{}
+		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)
+		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
 	}
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
@@ -120,36 +113,26 @@ Function Set-EnvironmentVariable {
 						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
 						Continue
 					}
-					If ($Item.Value -inotmatch '^.+$') {
-						Write-Error -Message 'Parameter `Value` must be in single line string!' -Category 'SyntaxError'
-						Continue
-					}
-					$Result[$NoToUpper.IsPresent ? $Item.Name : $Item.Name.ToUpper()] = $Item.Value
+					[String]$ItemName = $NoToUpper.IsPresent ? $Item.Name : $Item.Name.ToUpper()
+					[String]$ItemValue = $Item.Value
 				}
 			}
 			'Single' {
-				$Result[$NoToUpper.IsPresent ? $Name : $Name.ToUpper()] = $Value
+				[String]$ItemName = $NoToUpper.IsPresent ? $Name : $Name.ToUpper()
+				[String]$ItemValue = $Value
 			}
 		}
-	}
-	End {
-		If ($Result.Count -igt 0) {
-			Switch -Exact ($Scope.ToString() -isplit ', ') {
-				'Current' {
-					$Result.GetEnumerator() |
-						ForEach-Object -Process {
-							[System.Environment]::SetEnvironmentVariable($_.Name, $_.Value) |
-								Out-Null
-						}
+		Switch -Exact ($ScopeArray) {
+			'Current' {
+				[System.Environment]::SetEnvironmentVariable($ItemName, $ItemValue) |
+					Out-Null
+			}
+			'Subsequent' {
+				If ($Legacy) {
+					Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $ItemName } -Value $ItemValue
 				}
-				'Subsequent' {
-					If ([String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)) {
-						$Result.GetEnumerator() |
-							ForEach-Object -Process { Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $_.Name } -Value $_.Value }
-					}
-					Else {
-						Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Table $Result
-					}
+				Else {
+					Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Name $ItemName -Value $ItemValue
 				}
 			}
 		}
@@ -174,7 +157,7 @@ Function Test-EnvironmentVariableName {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
 	Process {
-		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$' -and $InputObject -inotmatch '^(?:ACTIONS|GITHUB|RUNNER)_' |
+		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$|^(?:ACTIONS|GITHUB|RUNNER)_' |
 			Write-Output
 	}
 }

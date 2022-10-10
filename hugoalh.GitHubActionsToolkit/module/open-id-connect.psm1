@@ -28,10 +28,9 @@ Function Get-OpenIdConnectToken {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NodeJs', 'NodeJsWrapper', 'UseNodeJs')][Switch]$UseNodeJsWrapper
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -OpenIDConnect)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -OpenIDConnect)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions OpenID Connect (OIDC) resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
 	}
 	Process {

@@ -1,6 +1,6 @@
 #Requires -PSEdition Core
 #Requires -Version 7.2
-[Char[]]$TokenPool = [String[]]@(0..9) + [Char[]]@(97..122)
+[Char[]]$Pool = [String[]]@(0..9) + [Char[]]@(97..122)
 <#
 .SYNOPSIS
 GitHub Actions - Internal - New Random Token
@@ -19,7 +19,7 @@ Function New-RandomToken {
 	)
 	@(1..$Length) |
 		ForEach-Object -Process {
-			$TokenPool |
+			$Pool |
 				Get-Random -Count 1
 		} |
 		Join-String -Separator '' |

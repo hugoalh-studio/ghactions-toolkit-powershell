@@ -28,29 +28,18 @@ Function Add-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
-		[String[]]$Result = @()
 	}
 	Process {
 		If ($NoOperation) {
 			Return
 		}
 		If ($Value.Count -igt 0) {
-			$Result += $Value |
-				Join-String -Separator "`n"
-		}
-	}
-	End {
-		If ($NoOperation) {
-			Return
-		}
-		If ($Result.Count -igt 0) {
 			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
-				$Result |
+				$Value |
 					Join-String -Separator "`n"
 			) -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
 		}
@@ -298,10 +287,9 @@ Function Set-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
-		[Boolean]$NoOperation = $False# When the requirements are not fulfill, only stop this function but not others.
-		If (!(Test-GitHubActionsEnvironment -StepSummary)) {
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, only stop this function but not others.
+		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
-			$NoOperation = $True
 		}
 		[String[]]$Result = @()
 	}
