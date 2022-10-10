@@ -1,15 +1,21 @@
-#!/usr/bin/env node
 import { create as ghactionsArtifact } from "@actions/artifact";
-const input = JSON.parse(process.argv[2]);
-const result = await ghactionsArtifact().uploadArtifact(input.Name, input.Path, input.BaseRoot, {
-	continueOnError: input.ContinueOnIssue,
-	retentionDays: input.RetentionTime
+const [inputs, delimiter] = process.argv.slice(2);
+const {
+	BaseRoot,
+	ContinueOnIssue,
+	Name,
+	Path,
+	RetentionTime
+} = JSON.parse(inputs);
+const result = await ghactionsArtifact().uploadArtifact(Name, Path, BaseRoot, {
+	continueOnError: ContinueOnIssue,
+	retentionDays: RetentionTime
 })
 	.catch((reason) => {
 		console.error(reason);
 		return process.exit(1);
 	});
-console.log(process.argv[3]);
+console.log(delimiter);
 console.log(JSON.stringify({
 	FailedItem: result.failedItems,
 	FailedItems: result.failedItems,
@@ -19,4 +25,3 @@ console.log(JSON.stringify({
 	Size: result.size,
 	Sizes: result.size
 }));
-process.exit(0);

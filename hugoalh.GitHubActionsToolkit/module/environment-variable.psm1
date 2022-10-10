@@ -47,11 +47,7 @@ Function Add-PATH {
 			}
 			Switch -Exact ($ScopeArray) {
 				'Current' {
-					[System.Environment]::SetEnvironmentVariable('PATH', (
-						([System.Environment]::GetEnvironmentVariable('PATH') -isplit [System.IO.Path]::PathSeparator) + $Item |
-							Join-String -Separator [System.IO.Path]::PathSeparator
-					)) |
-						Out-Null
+					Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$Item" -Confirm:$False -NoNewLine
 				}
 				'Subsequent' {
 					If ($Legacy) {

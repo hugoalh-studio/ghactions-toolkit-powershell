@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { cacheFile as ghactionsToolCacheCacheFile } from "@actions/tool-cache";
 const input = JSON.parse(process.argv[2]);
 const result = await ghactionsToolCacheCacheFile(input.Source, input.Target, input.Name, input.Version, input.Architecture)
@@ -8,4 +7,3 @@ const result = await ghactionsToolCacheCacheFile(input.Source, input.Target, inp
 	});
 console.log(process.argv[3]);
 console.log(JSON.stringify({ Path: result }));
-process.exit(0);
