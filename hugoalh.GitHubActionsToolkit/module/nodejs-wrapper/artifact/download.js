@@ -1,15 +1,12 @@
+import { argumentHandle, errorHandle } from "../handle.js";
 import { create as ghactionsArtifact } from "@actions/artifact";
-const [inputs, delimiter] = process.argv.slice(2);
 const {
+	delimiter,
 	CreateSubfolder,
 	Destination,
 	Name
-} = JSON.parse(inputs);
-const result = await ghactionsArtifact().downloadArtifact(Name, Destination, { createArtifactFolder: CreateSubfolder })
-	.catch((reason) => {
-		console.error(reason);
-		return process.exit(1);
-	});
+} = argumentHandle();
+const result = await ghactionsArtifact().downloadArtifact(Name, Destination, { createArtifactFolder: CreateSubfolder }).catch(errorHandle);
 console.log(delimiter);
 console.log(JSON.stringify({
 	Name: result.artifactName,

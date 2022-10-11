@@ -11,15 +11,15 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Restore Cache
 .DESCRIPTION
-Restore cache that shared data from previous job in the same workflow.
+Restore cache that shared data from past job in the same workflow.
 .PARAMETER Key
-Cache key.
+Key of the cache.
 .PARAMETER Path
-Cache destination path.
+Path of the destination of the cache.
 .PARAMETER LiteralPath
-Cache destination literal path.
+Absolute literal path of the destination of the cache.
 .PARAMETER NotUseAzureSdk
-Do not use Azure Blob SDK to download caches that are stored on Azure Blob Storage, this maybe affect reliability and performance.
+Whether to not use Azure Blob SDK to download caches that are stored on the Azure Blob Storage, this maybe affect the reliability and performance.
 .PARAMETER DownloadConcurrency
 Number of parallel downloads (only for Azure SDK).
 .PARAMETER Timeout
@@ -84,11 +84,11 @@ Set-Alias -Name 'Import-Cache' -Value 'Restore-Cache' -Option 'ReadOnly' -Scope 
 .SYNOPSIS
 GitHub Actions - Save cache
 .DESCRIPTION
-Save cache to persist data and/or share with another job in the same workflow.
+Save cache to persist data and/or share with future job in the same workflow.
 .PARAMETER Key
-Cache key.
+Key of the cache.
 .PARAMETER Path
-Cache path.
+Paths of the cache.
 .PARAMETER LiteralPath
 Cache literal path.
 .PARAMETER UploadChunkSizes

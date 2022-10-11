@@ -1,9 +1,11 @@
+import { argumentHandle, errorHandle } from "../handle.js";
 import { extractXar as ghactionToolCacheExtractXar } from "@actions/tool-cache";
-const input = JSON.parse(process.argv[2]);
-const result = await ghactionToolCacheExtractXar(input.File, input.Destination, input.Flag)
-	.catch((reason) => {
-		console.error(reason);
-		return process.exit(1);
-	});
-console.log(process.argv[3]);
+const {
+	delimiter,
+	Destination,
+	File,
+	Flag
+} = argumentHandle();
+const result = await ghactionToolCacheExtractXar(File, Destination, Flag).catch(errorHandle);
+console.log(delimiter);
 console.log(JSON.stringify({ Path: result }));

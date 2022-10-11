@@ -1,5 +1,11 @@
+import { argumentHandle } from "../handle.js";
 import { find as ghactionsToolCacheFind } from "@actions/tool-cache";
-const input = JSON.parse(process.argv[2]);
-const result = ghactionsToolCacheFind(input.Name, input.Version, input.Architecture);
-console.log(process.argv[3]);
+const {
+	delimiter,
+	Architecture,
+	Name,
+	Version
+} = argumentHandle();
+const result = ghactionsToolCacheFind(Name, Version, Architecture);
+console.log(delimiter);
 console.log(JSON.stringify({ Path: result }));

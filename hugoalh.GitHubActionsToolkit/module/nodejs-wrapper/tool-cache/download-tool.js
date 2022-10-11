@@ -1,9 +1,12 @@
+import { argumentHandle, errorHandle } from "../handle.js";
 import { downloadTool as ghactionToolCacheDownloadTool } from "@actions/tool-cache";
-const input = JSON.parse(process.argv[2]);
-const result = await ghactionToolCacheDownloadTool(input.Uri, input.Destination, input.Authorization, input.Header)
-	.catch((reason) => {
-		console.error(reason);
-		return process.exit(1);
-	});
-console.log(process.argv[3]);
+const {
+	delimiter,
+	Authorization,
+	Destination,
+	Header,
+	Uri
+} = argumentHandle();
+const result = await ghactionToolCacheDownloadTool(Uri, Destination, Authorization, Header).catch(errorHandle);
+console.log(delimiter);
 console.log(JSON.stringify({ Path: result }));

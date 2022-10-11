@@ -1,20 +1,17 @@
+import { argumentHandle, errorHandle } from "../handle.js";
 import { create as ghactionsArtifact } from "@actions/artifact";
-const [inputs, delimiter] = process.argv.slice(2);
 const {
+	delimiter,
 	BaseRoot,
 	ContinueOnIssue,
 	Name,
 	Path,
 	RetentionTime
-} = JSON.parse(inputs);
+} = argumentHandle();
 const result = await ghactionsArtifact().uploadArtifact(Name, Path, BaseRoot, {
 	continueOnError: ContinueOnIssue,
 	retentionDays: RetentionTime
-})
-	.catch((reason) => {
-		console.error(reason);
-		return process.exit(1);
-	});
+}).catch(errorHandle);
 console.log(delimiter);
 console.log(JSON.stringify({
 	FailedItem: result.failedItems,

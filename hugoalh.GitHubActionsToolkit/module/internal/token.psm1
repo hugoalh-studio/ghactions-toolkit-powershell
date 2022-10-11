@@ -11,7 +11,7 @@ Generate a new random token.
 .PARAMETER Length
 Length of the token.
 .PARAMETER WithUpperCase
-Contain upper case letters in the token.
+Whether to contain upper case letters in the token.
 .OUTPUTS
 [String] A new random token.
 #>
@@ -22,7 +22,8 @@ Function New-RandomToken {
 		[Parameter(Position = 0)][ValidateRange(1, [UInt32]::MaxValue)][UInt32]$Length = 8,
 		[Alias('UpperCase')][Switch]$WithUpperCase
 	)
-	[Char[]]$Pool = $PoolLowerCase + $PoolNumber + ($WithUpperCase.IsPresent ? $PoolUpperCase : @())
+	[Char[]]$Pool = $PoolLowerCase + $PoolNumber + ($WithUpperCase.IsPresent ? $PoolUpperCase : @()) |
+		Get-Random -Shuffle
 	@(1..$Length) |
 		ForEach-Object -Process {
 			$Pool |

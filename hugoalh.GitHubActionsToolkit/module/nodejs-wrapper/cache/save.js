@@ -1,18 +1,15 @@
+import { argumentHandle, errorHandle } from "../handle.js";
 import { saveCache as ghactionsCacheSaveCache } from "@actions/cache";
-const [inputs, delimiter] = process.argv.slice(2);
 const {
+	delimiter,
 	Key,
 	Path,
 	UploadChunkSizes,
 	UploadConcurrency
-} = JSON.parse(inputs);
+} = argumentHandle();
 const result = await ghactionsCacheSaveCache(Path, Key, {
 	uploadChunkSize: UploadChunkSizes,
 	uploadConcurrency: UploadConcurrency
-})
-	.catch((reason) => {
-		console.error(reason);
-		return process.exit(1);
-	});
+}).catch(errorHandle);
 console.log(delimiter);
 console.log(JSON.stringify({ CacheId: result }));
