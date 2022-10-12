@@ -10,13 +10,15 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
 .DESCRIPTION
-Add some GitHub flavored Markdown for step so that it will display on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures.
+Add some GitHub flavored Markdown for the step to display on the summary page of a run.
 
-When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
+Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures.
+
+When a run's job finished, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
 .PARAMETER Value
-Content.
+Contents of the step summary.
 .PARAMETER NoNewLine
-Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+Whether to not add a new line or carriage return to the content; The string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 [Void]
 #>
@@ -50,11 +52,11 @@ Set-Alias -Name 'Add-StepSummaryRaw' -Value 'Add-StepSummary' -Option 'ReadOnly'
 .SYNOPSIS
 GitHub Actions - Add Step Summary Header
 .DESCRIPTION
-Add header for step so that it will display on the summary page of a run.
+Add header for the step to display on the summary page of a run.
 .PARAMETER Level
-Header level
+Level of the header.
 .PARAMETER Header
-Header title.
+Title of the header.
 .OUTPUTS
 [Void]
 #>
@@ -71,21 +73,21 @@ Function Add-StepSummaryHeader {
 .SYNOPSIS
 GitHub Actions - Add Step Summary Image
 .DESCRIPTION
-Add image for step so that it will display on the summary page of a run.
+Add image for the step to display on the summary page of a run.
 
 IMPORTANT: Not support reference image!
 .PARAMETER Uri
-Image URI.
+URI of the image.
 .PARAMETER Title
-Image title.
+Title of the image.
 .PARAMETER AlternativeText
-Image alternative text.
+Alternative text of the image.
 .PARAMETER Width
-Image width, by pixels (px).
+Width of the image, by pixels (px).
 .PARAMETER Height
-Image height, by pixels (px).
+Height of the image, by pixels (px).
 .PARAMETER NoNewLine
-Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+Whether to not add a new line or carriage return to the content; The string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 [Void]
 #>
@@ -134,17 +136,17 @@ Set-Alias -Name 'Add-StepSummaryPicture' -Value 'Add-StepSummaryImage' -Option '
 .SYNOPSIS
 GitHub Actions - Add Step Summary Link
 .DESCRIPTION
-Add link for step so that it will display on the summary page of a run.
+Add link for the step to display on the summary page of a run.
 
 IMPORTANT: Not support reference link!
 .PARAMETER Text
-Link text.
+Text of the link.
 .PARAMETER Uri
-Link URI.
+URI of the link.
 .PARAMETER Title
-Link title.
+Title of the link.
 .PARAMETER NoNewLine
-Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+Whether to not add a new line or carriage return to the content; The string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 [Void]
 #>
@@ -169,11 +171,11 @@ Set-Alias -Name 'Add-StepSummaryHyperlink' -Value 'Add-StepSummaryLink' -Option 
 .SYNOPSIS
 GitHub Actions - Add Step Summary Subscript Text
 .DESCRIPTION
-Add subscript text for step so that it will display on the summary page of a run.
+Add subscript text for the step to display on the summary page of a run.
 .PARAMETER Text
-Text that need to subscript.
+A string that need to subscript text.
 .PARAMETER NoNewLine
-Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+Whether to not add a new line or carriage return to the content; The string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 [Void]
 #>
@@ -191,11 +193,11 @@ Set-Alias -Name 'Add-StepSummarySubscript' -Value 'Add-StepSummarySubscriptText'
 .SYNOPSIS
 GitHub Actions - Add Step Summary Superscript Text
 .DESCRIPTION
-Add superscript text for step so that it will display on the summary page of a run.
+Add superscript text for the step to display on the summary page of a run.
 .PARAMETER Text
-Text that need to superscript.
+A string that need to superscript text.
 .PARAMETER NoNewLine
-Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+Whether to not add a new line or carriage return to the content; The string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 [Void]
 #>
@@ -215,9 +217,9 @@ GitHub Actions - Get Step Summary
 .DESCRIPTION
 Get step summary that previously added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
 .PARAMETER Raw
-Ignore newline characters and return the entire contents of a file in one string with the newlines preserved; By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
+Whether to ignore newline characters and output the entire contents of a file in one string with the newlines preserved; By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
 .PARAMETER Sizes
-Get step summary sizes instead of the content.
+Whether to get step summary sizes instead of the contents.
 .OUTPUTS
 [String] Step summary with the entire contents in one string.
 [String[]] Step summary with separate contents in multiple string by newline characters.
@@ -269,13 +271,15 @@ Function Remove-StepSummary {
 .SYNOPSIS
 GitHub Actions - Set Step Summary
 .DESCRIPTION
-Set some GitHub flavored Markdown for step so that it will display on the summary page of a run; Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures.
+Set some GitHub flavored Markdown for the step to display on the summary page of a run.
 
-When a run's job finishes, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
+Can use to display and group unique content, such as test result summaries, so that viewing the result of a run does not need to go into the logs to see important information related to the run, such as failures.
+
+When a run's job finished, the summaries for all steps in a job are grouped together into a single job summary and are shown on the run summary page. If multiple jobs generate summaries, the job summaries are ordered by job completion time.
 .PARAMETER Value
-Content.
+Contents of the step summary.
 .PARAMETER NoNewLine
-Do not add a new line or carriage return to the content, the string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
+Whether to not add a new line or carriage return to the content; The string representations of the input objects are concatenated to form the output, no spaces or newlines are inserted between the output strings, no newline is added after the last output string.
 .OUTPUTS
 [Void]
 #>

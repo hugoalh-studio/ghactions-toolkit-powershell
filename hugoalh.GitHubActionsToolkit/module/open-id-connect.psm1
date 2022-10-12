@@ -16,7 +16,7 @@ Interact with the GitHub OpenID Connect (OIDC) provider and get a JSON Web Token
 .PARAMETER Audience
 Audience.
 .PARAMETER UseNodeJsWrapper
-Use NodeJS wrapper edition instead of PowerShell edition.
+Whether to use NodeJS wrapper edition instead of PowerShell edition.
 .OUTPUTS
 [String] A JSON Web Token (JWT) ID token.
 #>

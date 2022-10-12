@@ -15,7 +15,7 @@ Get input.
 .PARAMETER Name
 Name of the input.
 .PARAMETER Mandatory
-The input whether is mandatory; If mandatory but not exist, will throw an error.
+Whether the input is mandatory; If mandatory but not exist, will throw an error.
 .PARAMETER MandatoryMessage
 Message when the input is mandatory but not exist.
 .PARAMETER NamePrefix
@@ -23,14 +23,14 @@ Name of the inputs start with.
 .PARAMETER NameSuffix
 Name of the inputs end with.
 .PARAMETER All
-Get all of the inputs.
+Whether to get all of the inputs.
 .PARAMETER EmptyStringAsNull
-Assume empty string of input's value as `$Null`.
+Whether to assume empty string value of the input(s) as `$Null`.
 .PARAMETER Trim
-Trim the input's value.
+Whether to trim the value of the input(s).
 .OUTPUTS
 [Hashtable] Inputs.
-[String] Input value.
+[String] Value of the input.
 #>
 Function Get-Input {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsinput#Get-GitHubActionsInput')]
@@ -96,14 +96,14 @@ Name of the states start with.
 .PARAMETER NameSuffix
 Name of the states end with.
 .PARAMETER All
-Get all of the states.
+Whether to get all of the states.
 .PARAMETER EmptyStringAsNull
-Assume empty string of state's value as `$Null`.
+Whether to assume empty string value of the state(s) as `$Null`.
 .PARAMETER Trim
-Trim the state's value.
+Whether to trim the value of the state(s).
 .OUTPUTS
 [Hashtable] States.
-[String] State value.
+[String] Value of the state.
 #>
 Function Get-State {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstate#Get-GitHubActionsState')]

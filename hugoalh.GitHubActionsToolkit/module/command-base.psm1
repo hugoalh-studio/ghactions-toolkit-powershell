@@ -60,9 +60,9 @@ Write command to communicate with the runner machine.
 .PARAMETER Command
 Command.
 .PARAMETER Parameter
-Command parameter.
+Parameters of the command.
 .PARAMETER Value
-Command value.
+Value of the command.
 .OUTPUTS
 [Void]
 #>
@@ -89,7 +89,7 @@ GitHub Actions (Private) - Write File Command
 .DESCRIPTION
 Write file command to communicate with the runner machine.
 .PARAMETER LiteralPath
-Literal path of the file.
+Literal path of the file command.
 .PARAMETER Name
 Name.
 .PARAMETER Value

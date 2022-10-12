@@ -29,7 +29,7 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Disable Echoing Commands
 .DESCRIPTION
-Disable echoing most of the commands, the log will not show the command itself; Secret `ACTIONS_STEP_DEBUG` will ignore this setting; When processing a command, it will still echo if there has any issues.
+Disable echoing most of the commands, the log will not show the command itself; Environment variable `ACTIONS_STEP_DEBUG` will ignore this setting; When processing a command, it will still echo if there has any issues.
 .OUTPUTS
 [Void]
 #>
@@ -60,9 +60,9 @@ GitHub Actions - Disable Processing Commands
 .DESCRIPTION
 Disable processing any commands, to allow log anything without accidentally execute any commands.
 .PARAMETER EndToken
-An end token for function `Enable-GitHubActionsProcessingCommands`.
+An end token for the function `Enable-GitHubActionsProcessingCommands`.
 .OUTPUTS
-[String] An end token for function `Enable-GitHubActionsProcessingCommands`.
+[String] An end token for the function `Enable-GitHubActionsProcessingCommands`.
 #>
 Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
@@ -92,7 +92,7 @@ Set-Alias -Name 'Stop-ProcessingCommands' -Value 'Disable-ProcessingCommands' -O
 .SYNOPSIS
 GitHub Actions - Enable Echoing Commands
 .DESCRIPTION
-Enable echoing most of the commands, the log will show the command itself; Secret `ACTIONS_STEP_DEBUG` will ignore this setting.
+Enable echoing most of the commands, the log will show the command itself; Environment variable `ACTIONS_STEP_DEBUG` will ignore this setting.
 .OUTPUTS
 [Void]
 #>
@@ -123,7 +123,7 @@ GitHub Actions - Enable Processing Commands
 .DESCRIPTION
 Enable processing any commands, to allow execute any commands.
 .PARAMETER EndToken
-An end token from function `Disable-GitHubActionsProcessingCommands`.
+An end token from the function `Disable-GitHubActionsProcessingCommands`.
 .OUTPUTS
 [Void]
 #>
@@ -173,7 +173,7 @@ Function New-CommandsEndToken {
 .SYNOPSIS
 GitHub Actions (Private) - Test Processing Commands End Token
 .DESCRIPTION
-Test GitHub Actions processing commands end token whether is valid.
+Test the GitHub Actions processing commands end token whether is valid.
 .PARAMETER InputObject
 GitHub Actions processing commands end token that need to test.
 .OUTPUTS

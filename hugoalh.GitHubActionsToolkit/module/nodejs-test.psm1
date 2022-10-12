@@ -12,9 +12,9 @@ GitHub Actions - Test NodeJS Environment
 .DESCRIPTION
 Test the current machine whether has compatible NodeJS and NPM environment, and has dependencies ready; Test result always cache for reuse.
 .PARAMETER ReinstallDependencies
-Force to reinstall dependencies even though available.
+Whether to force reinstall dependencies even though available.
 .PARAMETER Retest
-Redo this test, ignore the cached test result.
+Whether to redo this test, ignore the cached test result.
 .OUTPUTS
 [Boolean] Test result.
 #>

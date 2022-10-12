@@ -14,19 +14,19 @@ GitHub Actions (Private) - Invoke NodeJS Wrapper
 .DESCRIPTION
 Invoke NodeJS wrapper.
 .PARAMETER Path
-NodeJS wrapper path.
+Relative literal path of the NodeJS wrapper.
 .PARAMETER InputObject
-NodeJS wrapper parameters.
+Arguments of the NodeJS wrapper.
 .OUTPUTS
-[PSCustomObject] Wrapper result.
-[PSCustomObject[]] Wrapper result.
+[PSCustomObject] Result of the NodeJS wrapper.
+[PSCustomObject[]] Result of the NodeJS wrapper.
 #>
 Function Invoke-NodeJsWrapper {
 	[CmdletBinding()]
 	[OutputType(([PSCustomObject], [PSCustomObject[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Path,
-		[Parameter(Mandatory = $True, Position = 1)][Alias('Input', 'Object', 'Parameter', 'Parameters')][PSCustomObject]$InputObject
+		[Parameter(Mandatory = $True, Position = 1)][Alias('Argument', 'Arguments', 'Input', 'Object', 'Parameter', 'Parameters')][PSCustomObject]$InputObject
 	)
 	If (!(Test-GitHubActionsNodeJsEnvironment)) {
 		Write-Error -Message 'This function requires to invoke with the compatible NodeJS and NPM environment!' -Category 'ResourceUnavailable'

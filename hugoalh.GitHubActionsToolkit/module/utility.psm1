@@ -11,11 +11,11 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Add Secret Mask
 .DESCRIPTION
-Make a secret will get masked from the log.
+Make a secret get masked from the log.
 .PARAMETER Value
-The secret.
+A secret that need to get masked from the log.
 .PARAMETER WithChunks
-Split the secret to chunks to well make a secret will get masked from the log.
+Split a secret into chunks to well make a secret get masked from the log.
 .OUTPUTS
 [Void]
 #>
@@ -43,7 +43,7 @@ Set-Alias -Name 'Add-Secret' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope '
 .SYNOPSIS
 GitHub Actions - Get Debug Status
 .DESCRIPTION
-Get debug status.
+Get the debug status of the runner.
 .OUTPUTS
 [Boolean] Debug status.
 #>
@@ -63,26 +63,22 @@ GitHub Actions - Get Webhook Event Payload
 .DESCRIPTION
 Get the complete webhook event payload.
 .PARAMETER AsHashtable
-Output as hashtable instead of object.
-.PARAMETER Depth
-Set the maximum depth the JSON input is allowed to have.
-.PARAMETER NoEnumerate
-Specify that output is not enumerated; Setting this parameter causes arrays to be sent as a single object instead of sending every element separately, this guarantees that JSON can be round-tripped via Cmdlet `ConvertTo-Json`.
+Whether to output as hashtable instead of object.
 .OUTPUTS
 [Hashtable] Webhook event payload as hashtable.
-[PSCustomObject] Webhook event payload as custom object.
+[PSCustomObject] Webhook event payload as object.
 #>
 Function Get-WebhookEventPayload {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionswebhookeventpayload#Get-GitHubActionsWebhookEventPayload')]
 	[OutputType(([Hashtable], [PSCustomObject]))]
 	Param (
 		[Alias('ToHashtable')][Switch]$AsHashtable,
-		[UInt16]$Depth = 1024,
-		[Switch]$NoEnumerate
+		[UInt16]$Depth,# Deprecated, keep as legacy.
+		[Switch]$NoEnumerate# Deprecated, keep as legacy.
 	)
 	If (Test-Environment) {
 		Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
-			ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth $Depth -NoEnumerate:$NoEnumerate.IsPresent |
+			ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth 100 -NoEnumerate |
 			Write-Output
 		Return
 	}
@@ -96,9 +92,9 @@ Set-Alias -Name 'Get-WebhookPayload' -Value 'Get-WebhookEventPayload' -Option 'R
 .SYNOPSIS
 GitHub Actions - Get Workflow Run URI
 .DESCRIPTION
-Get the workflow run's URI.
+Get the URI of the workflow run.
 .OUTPUTS
-[String] Workflow run's URI.
+[String] URI of the workflow run.
 #>
 Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
@@ -117,25 +113,26 @@ GitHub Actions - Test Environment
 .DESCRIPTION
 Test the current process whether is executing inside the GitHub Actions environment.
 .PARAMETER Artifact
-Also test the current process whether has GitHub Actions artifact resources.
+Also test the current process whether has artifact resources.
 .PARAMETER Cache
-Also test the current process whether has GitHub Actions cache resources.
+Also test the current process whether has cache resources.
 .PARAMETER OpenIdConnect
-Also test the current process whether has GitHub Actions OpenID Connect (OIDC) resources.
+Also test the current process whether has OpenID Connect (OIDC) resources.
 .PARAMETER StepSummary
-Also test the current process whether has GitHub Actions step summary resources.
+Also test the current process whether has step summary resources.
 .PARAMETER ToolCache
-Also test the current process whether has GitHub Actions tool cache resources.
+Also test the current process whether has tool cache resources.
 .PARAMETER Mandatory
-The requirement whether is mandatory; If mandatory but not fulfill, will throw an error.
+Whether the requirement is mandatory; If mandatory but not fulfill, will throw an error.
 .PARAMETER MandatoryMessage
 Message when the requirement is mandatory but not fulfill.
 .OUTPUTS
-[Boolean] Test result.
+[Boolean] Test result when the requirement is not mandatory.
+[Void] Nothing when the requirement is mandatory.
 #>
 Function Test-Environment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
-	[OutputType([Boolean])]
+	[OutputType(([Boolean], [Void]))]
 	Param (
 		[Switch]$Artifact,
 		[Switch]$Cache,
@@ -193,7 +190,9 @@ Function Test-Environment {
 		Write-Output -InputObject $False
 		Return
 	}
-	Write-Output -InputObject $True
+	If (!$Mandatory.IsPresent) {
+		Write-Output -InputObject $True
+	}
 }
 Export-ModuleMember -Function @(
 	'Add-SecretMask',

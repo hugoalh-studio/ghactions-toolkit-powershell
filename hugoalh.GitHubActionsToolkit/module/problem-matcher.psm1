@@ -10,11 +10,11 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Add Problem Matcher
 .DESCRIPTION
-Add problem matcher, a way to scan the output of actions for a specified regular expression pattern and automatically surface that information prominently in the user interface, both annotation and log decoration are created when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
+Add problem matcher to scan the outputs by specified regular expression patterns and automatically surface that information prominently in the user interface, both annotation and log decoration will create when a match is detected. For more information, please visit https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md.
 .PARAMETER Path
-Relative path to the JSON file problem matcher.
+Relative paths of the JSON problem matcher files.
 .PARAMETER LiteralPath
-Relative literal path to the JSON file problem matcher.
+Relative literal paths of the JSON problem matcher files.
 .OUTPUTS
 [Void]
 #>
@@ -39,7 +39,7 @@ GitHub Actions - Remove Problem Matcher
 .DESCRIPTION
 Remove problem matcher that previously added from function `Add-GitHubActionsProblemMatcher`.
 .PARAMETER Owner
-Owner of the problem matcher that previously added from function `Add-GitHubActionsProblemMatcher`.
+Owners of the problem matchers that previously added from function `Add-GitHubActionsProblemMatcher`.
 .OUTPUTS
 [Void]
 #>

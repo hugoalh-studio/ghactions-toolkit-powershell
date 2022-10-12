@@ -15,15 +15,15 @@ Restore cache that shared data from past job in the same workflow.
 .PARAMETER Key
 Key of the cache.
 .PARAMETER Path
-Path of the destination of the cache.
+Paths of the cache.
 .PARAMETER LiteralPath
-Absolute literal path of the destination of the cache.
+Literal paths of the cache.
 .PARAMETER NotUseAzureSdk
-Whether to not use Azure Blob SDK to download caches that are stored on the Azure Blob Storage, this maybe affect the reliability and performance.
+Whether to not use Azure Blob SDK to download the cache that stored on the Azure Blob Storage, this maybe affect the reliability and performance.
 .PARAMETER DownloadConcurrency
-Number of parallel downloads (only for Azure SDK).
+Number of parallel downloads of the cache (only for Azure SDK).
 .PARAMETER Timeout
-Maximum time for each download request, by seconds (only for Azure SDK).
+Maximum time for each download request of the cache, by seconds (only for Azure SDK).
 .OUTPUTS
 [String] The key of the cache hit.
 #>
@@ -31,7 +31,7 @@ Function Restore-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_restore-githubactionscache#Restore-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-CacheKey -InputObject $_ }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Keys', 'Name', 'Names')][String[]]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
@@ -48,19 +48,12 @@ Function Restore-Cache {
 		If ($NoOperation) {
 			Return
 		}
-		[String[]]$KeysProceed = @()
-		If ($Key.Count -igt 10) {
-			Write-Warning -Message 'Keys are limit to maximum count of 10! Only first 10 keys will be use.'
-			$KeysProceed += $Key |
-				Select-Object -First 10
-		}
-		Else {
-			$KeysProceed += $Key
-		}
 		[Hashtable]$InputObject = @{
-			PrimaryKey = $KeysProceed[0]
-			RestoreKey = $KeysProceed |
-				Select-Object -SkipIndex 0
+			PrimaryKey = $Key[0]
+			RestoreKey = (
+				$Key |
+					Select-Object -SkipIndex 0
+			) ?? @()
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
 				$LiteralPath |
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
@@ -90,11 +83,11 @@ Key of the cache.
 .PARAMETER Path
 Paths of the cache.
 .PARAMETER LiteralPath
-Cache literal path.
+Literal paths of the cache.
 .PARAMETER UploadChunkSizes
-Maximum chunk size, by KB.
+Maximum chunk size of the cache, by KB.
 .PARAMETER UploadConcurrency
-Number of parallel uploads.
+Number of parallel uploads of the cache.
 .OUTPUTS
 [String] Cache ID.
 #>
@@ -102,7 +95,7 @@ Function Save-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_save-githubactionscache#Save-GitHubActionsCache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-CacheKey -InputObject $_ }, ErrorMessage = '`{0}` is not a valid GitHub Actions cache key, and/or more than 512 characters!')][Alias('Name')][String]$Key,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Name')][String]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSize')][UInt32]$UploadChunkSizes,
@@ -140,9 +133,9 @@ Set-Alias -Name 'Export-Cache' -Value 'Save-Cache' -Option 'ReadOnly' -Scope 'Lo
 .SYNOPSIS
 GitHub Actions (Private) - Test Cache Key
 .DESCRIPTION
-Test GitHub Actions cache key whether is valid.
+Test the key of the GitHub Actions cache whether is valid.
 .PARAMETER InputObject
-GitHub Actions cache key that need to test.
+Key of the GitHub Actions cache that need to test.
 .OUTPUTS
 [Boolean] Test result.
 #>

@@ -13,19 +13,19 @@ GitHub Actions - Expand Tool Cache Compressed File
 .DESCRIPTION
 Expand a compressed archive/file.
 .PARAMETER File
-Compressed archive/file path.
+Path of the compressed archive/file.
 .PARAMETER Destination
-Expand destination path.
+Path for the expand destination.
 .PARAMETER Method
-Method to expand compressed archive/file; Define this value will enforce to use defined method.
+Method to expand compressed archive/file; Define this parameter will enforce to use defined method.
 .PARAMETER 7zrPath
-`7zr` path, for long path support (only when parameter `Method` is `7z`).
+Path of the 7zr, for long path support (only when parameter `Method` is `7z`).
 
 Most `.7z` archives do not have this problem, if `.7z` archive contains very long path, pass the path to `7zr` which will gracefully handle long paths, by default `7zdec` is used because it is a very small program and is bundled with the GitHub Actions NodeJS toolkit, however it does not support long paths, `7zr` is the reduced command line interface, it is smaller than the full command line interface, and it does support long paths, at the time of this writing, it is freely available from the LZMA SDK that is available on the 7-Zip website, be sure to check the current license agreement, if `7zr` is bundled with your action, then the path to `7zr` can be pass to this function.
 .PARAMETER Flag
 Flag to use for expand (only when parameter `Method` is `Tar` or `Xar`).
 .OUTPUTS
-[String] Expand destination path.
+[String] Path of the expand destination.
 #>
 Function Expand-ToolCacheCompressedFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_expand-githubactionstoolcachecompressedfile#Expand-GitHubActionsToolCacheCompressedFile')]
@@ -33,7 +33,7 @@ Function Expand-ToolCacheCompressedFile {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Source')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateSet('7z', 'Auto', 'Automatic', 'Automatically', 'Tar', 'Xar', 'Zip')][String]$Method = 'Automatically',
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateSet('7z', 'Tar', 'Xar', 'Zip')][String]$Method,
 		[String]$7zrPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag
 	)
@@ -51,7 +51,7 @@ Function Expand-ToolCacheCompressedFile {
 			Write-Error -Message "``$File`` is not a valid file path!" -Category 'SyntaxError'
 			Return
 		}
-		If ($Method -imatch '^Auto(?:matic(?:ally)?)?$') {
+		If ($Method.Length -ieq 0) {
 			Switch -RegEx ($File) {
 				'\.7z$' {
 					$Method = '7z'
@@ -100,21 +100,21 @@ GitHub Actions - Find Tool Cache
 .DESCRIPTION
 Find the path of a tool in the local installed tool cache.
 .PARAMETER Name
-Tool name.
+Name of the tool.
 .PARAMETER Version
-Tool version, by Semantic Versioning (SemVer); Default to all versions.
+Version of the tool, by Semantic Versioning (SemVer); Default to all of the versions.
 .PARAMETER Architecture
-Tool architecture; Default to current machine architecture.
+Architecture of the tool; Default to the architecture of the current machine.
 .OUTPUTS
 [String] Path of a version of a tool.
-[String[]] Paths of all versions of a tool.
+[String[]] Paths of all of the versions of a tool.
 #>
 Function Find-ToolCache {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_find-githubactionstoolcache#Find-GitHubActionsToolCache')]
 	[OutputType(([String], [String[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version = '*',
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
@@ -131,10 +131,10 @@ Function Find-ToolCache {
 			Name = $Name
 		}
 		[Boolean]$IsFindAll = $False
-		If ($Version -ieq '*') {
+		If ($Version.Length -ieq 0) {
 			$IsFindAll = $True
 		}
-		ElseIf ($Version.Length -igt 0) {
+		Else {
 			$InputObject.Version = $Version
 		}
 		If ($Architecture.Length -igt 0) {
@@ -150,13 +150,13 @@ GitHub Actions - Invoke Tool Cache Tool Downloader
 .DESCRIPTION
 Download a tool from URI and stream it into a file.
 .PARAMETER Uri
-Tool URI.
+URI of the tool.
 .PARAMETER Destination
-Tool destination path.
+Path for the tool destination.
 .PARAMETER Authorization
-Tool URI request authorization.
+Authorization of the URI request.
 .PARAMETER Header
-Tool URI request header.
+Header of the URI request.
 .OUTPUTS
 [String] Path of the downloaded tool.
 #>
@@ -201,15 +201,15 @@ GitHub Actions - Register Tool Cache Directory
 .DESCRIPTION
 Register a tool directory to cache and install in the tool cache.
 .PARAMETER Source
-Tool directory.
+Path of the tool directory.
 .PARAMETER Name
-Tool name.
+Name for the tool.
 .PARAMETER Version
-Tool version, by Semantic Versioning (SemVer).
+Version for the tool, by Semantic Versioning (SemVer).
 .PARAMETER Architecture
-Tool architecture; Default to current machine architecture.
+Architecture for the tool; Default to the architecture of the current machine.
 .OUTPUTS
-[String] Tool cached path.
+[String] Path of the tool cached.
 #>
 Function Register-ToolCacheDirectory {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachedirectory#Register-GitHubActionsToolCacheDirectory')]
@@ -248,17 +248,17 @@ GitHub Actions - Register Tool Cache File
 .DESCRIPTION
 Register a tool file to cache and install in the tool cache.
 .PARAMETER Source
-Tool file.
+Path of the tool file.
 .PARAMETER Target
-Tool file in the tool cache.
+Path for the tool file in the tool cache.
 .PARAMETER Name
-Tool name.
+Name for the tool.
 .PARAMETER Version
-Tool version, by Semantic Versioning (SemVer).
+Version for the tool, by Semantic Versioning (SemVer).
 .PARAMETER Architecture
-Tool architecture; Default to current machine architecture.
+Architecture for the tool; Default to the architecture of the current machine.
 .OUTPUTS
-[String] Tool cached path.
+[String] Path of the tool cached.
 #>
 Function Register-ToolCacheFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachefile#Register-GitHubActionsToolCacheFile')]

@@ -57,21 +57,21 @@ GitHub Actions - Write Annotation
 .DESCRIPTION
 Print an annotation message to the log.
 .PARAMETER Type
-Annotation type.
+Type of the annotation.
 .PARAMETER Message
-Message that need to log at annotation.
+Message of the annotation.
 .PARAMETER File
-Issue file path.
+Path of the issue file.
 .PARAMETER Line
-Issue file line start.
+Line start of the issue file.
 .PARAMETER Column
-Issue file column start.
+Column start of the issue file.
 .PARAMETER EndLine
-Issue file line end.
+Line end of the issue file.
 .PARAMETER EndColumn
-Issue file column end.
+Column end of the issue file.
 .PARAMETER Title
-Issue title.
+Title of the annotation.
 .OUTPUTS
 [Void]
 #>
@@ -89,18 +89,17 @@ Function Write-Annotation {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
 	)
 	Process {
-		[String]$TypeRaw = ''
 		Switch ($Type.GetHashCode()) {
 			0 {
-				$TypeRaw = 'notice'
+				[String]$TypeRaw = 'notice'
 				Break
 			}
 			1 {
-				$TypeRaw = 'warning'
+				[String]$TypeRaw = 'warning'
 				Break
 			}
 			2 {
-				$TypeRaw = 'error'
+				[String]$TypeRaw = 'error'
 				Break
 			}
 		}
@@ -154,17 +153,17 @@ Print an error message to the log.
 .PARAMETER Message
 Message that need to log at error level.
 .PARAMETER File
-Issue file path.
+Path of the issue file.
 .PARAMETER Line
-Issue file line start.
-.PARAMETER Col
-Issue file column start.
+Line start of the issue file.
+.PARAMETER Column
+Column start of the issue file.
 .PARAMETER EndLine
-Issue file line end.
+Line end of the issue file.
 .PARAMETER EndColumn
-Issue file column end.
+Column end of the issue file.
 .PARAMETER Title
-Issue title.
+Title of the error message.
 .OUTPUTS
 [Void]
 #>
@@ -192,17 +191,17 @@ Print an error message to the log and end the process.
 .PARAMETER Message
 Message that need to log at error level.
 .PARAMETER File
-Issue file path.
+Path of the issue file.
 .PARAMETER Line
-Issue file line start.
-.PARAMETER Col
-Issue file column start.
+Line start of the issue file.
+.PARAMETER Column
+Column start of the issue file.
 .PARAMETER EndLine
-Issue file line end.
+Line end of the issue file.
 .PARAMETER EndColumn
-Issue file column end.
+Column end of the issue file.
 .PARAMETER Title
-Issue title.
+Title of the error message.
 .OUTPUTS
 [Void]
 #>
@@ -229,17 +228,17 @@ Print a notice message to the log.
 .PARAMETER Message
 Message that need to log at notice level.
 .PARAMETER File
-Issue file path.
+Path of the issue file.
 .PARAMETER Line
-Issue file line start.
-.PARAMETER Col
-Issue file column start.
+Line start of the issue file.
+.PARAMETER Column
+Column start of the issue file.
 .PARAMETER EndLine
-Issue file line end.
+Line end of the issue file.
 .PARAMETER EndColumn
-Issue file column end.
+Column end of the issue file.
 .PARAMETER Title
-Issue title.
+Title of the notice message.
 .OUTPUTS
 [Void]
 #>
@@ -266,7 +265,7 @@ GitHub Actions - Write Raw
 .DESCRIPTION
 Print anything to the log without accidentally execute any commands.
 .PARAMETER InputObject
-Object that need to log.
+Item that need to log.
 .PARAMETER GroupTitle
 Title of the log group; This creates an expandable group in the log, and anything are inside this expandable group in the log.
 .OUTPUTS
@@ -303,17 +302,17 @@ Print a warning message to the log.
 .PARAMETER Message
 Message that need to log at warning level.
 .PARAMETER File
-Issue file path.
+Path of the issue file.
 .PARAMETER Line
-Issue file line start.
-.PARAMETER Col
-Issue file column start.
+Line start of the issue file.
+.PARAMETER Column
+Column start of the issue file.
 .PARAMETER EndLine
-Issue file line end.
+Line end of the issue file.
 .PARAMETER EndColumn
-Issue file column end.
+Column end of the issue file.
 .PARAMETER Title
-Issue title.
+Title of the warning message.
 .OUTPUTS
 [Void]
 #>

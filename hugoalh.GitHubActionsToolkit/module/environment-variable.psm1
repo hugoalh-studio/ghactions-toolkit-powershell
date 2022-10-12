@@ -14,13 +14,13 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Add PATH
 .DESCRIPTION
-Add PATH to current step and all subsequent steps in the current job.
+Add PATH to the current step and/or all subsequent steps in the current job.
 .PARAMETER Path
-Path.
+Absolute paths.
 .PARAMETER NoValidator
-Do not check the PATH whether is valid.
+Whether to not check the paths are valid.
 .PARAMETER Scope
-Scope of PATH.
+Scope of the PATHs.
 .OUTPUTS
 [Void]
 #>
@@ -29,14 +29,14 @@ Function Add-PATH {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` must be in single line string!')][Alias('Paths')][String[]]$Path,
-		[Alias('NoValidate', 'SkipValidate', 'SkipValidator')][Switch]$NoValidator,
-		[Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoValidate', 'SkipValidate', 'SkipValidator')][Switch]$NoValidator,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Begin {
 		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)
-		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
 	}
 	Process {
+		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
 		ForEach ($Item In (
 			$Path |
 				Select-Object -Unique
@@ -65,17 +65,17 @@ Function Add-PATH {
 .SYNOPSIS
 GitHub Actions - Set Environment Variable
 .DESCRIPTION
-Set environment variable to current step and all subsequent steps in the current job.
+Set environment variable to the current step and/or all subsequent steps in the current job.
 .PARAMETER InputObject
 Environment variables.
 .PARAMETER Name
-Environment variable name.
+Name of the environment variable.
 .PARAMETER Value
-Environment variable value.
+Value of the environment variable.
 .PARAMETER NoToUpper
-Do not format environment variable name to uppercase.
+Whether to not format names of the environment variable to the uppercase.
 .PARAMETER Scope
-Scope of environment variable.
+Scope of the environment variables.
 .OUTPUTS
 [Void]
 #>
@@ -86,14 +86,14 @@ Function Set-EnvironmentVariable {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-EnvironmentVariableName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Value,
-		[Alias('NoToUppercase')][Switch]$NoToUpper,
-		[Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoToUppercase')][Switch]$NoToUpper,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Begin {
 		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)
-		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
 	}
 	Process {
+		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
 		Switch ($PSCmdlet.ParameterSetName) {
 			'Multiple' {
 				ForEach ($Item In $InputObject.GetEnumerator()) {
@@ -140,9 +140,9 @@ Set-Alias -Name 'Set-Environment' -Value 'Set-EnvironmentVariable' -Option 'Read
 .SYNOPSIS
 GitHub Actions (Private) - Test Environment Variable Name
 .DESCRIPTION
-Test environment variable name whether is valid.
+Test the name of the environment variable whether is valid.
 .PARAMETER InputObject
-Environment variable name that need to test.
+Name of the environment variable that need to test.
 .OUTPUTS
 [Boolean] Test result.
 #>
