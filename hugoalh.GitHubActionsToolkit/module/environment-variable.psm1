@@ -73,7 +73,7 @@ Name of the environment variable.
 .PARAMETER Value
 Value of the environment variable.
 .PARAMETER NoToUpper
-Whether to not format names of the environment variable to the uppercase.
+Whether to not format names of the environment variable to the upper case.
 .PARAMETER Scope
 Scope of the environment variables.
 .OUTPUTS
@@ -86,7 +86,7 @@ Function Set-EnvironmentVariable {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-EnvironmentVariableName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Value,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoToUppercase')][Switch]$NoToUpper,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoToUpperCase')][Switch]$NoToUpper,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Begin {
@@ -134,8 +134,11 @@ Function Set-EnvironmentVariable {
 		}
 	}
 }
-Set-Alias -Name 'Set-Env' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Set-Environment' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
+@(
+	'Set-Env',
+	'Set-Environment'
+) |
+	Set-Alias -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions (Private) - Test Environment Variable Name

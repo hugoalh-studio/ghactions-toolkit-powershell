@@ -9,9 +9,9 @@ GitHub Actions - Internal - New Random Token
 .DESCRIPTION
 Generate a new random token.
 .PARAMETER Length
-Length of the token.
+Length of the random token.
 .PARAMETER WithUpperCase
-Whether to contain upper case letters in the token.
+Whether to contain upper case letters in the random token.
 .OUTPUTS
 [String] A new random token.
 #>

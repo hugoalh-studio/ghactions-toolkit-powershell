@@ -91,9 +91,12 @@ Function Expand-ToolCacheCompressedFile {
 			Write-Output
 	}
 }
-Set-Alias -Name 'Expand-ToolCacheArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Expand-ToolCacheCompressedArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Expand-ToolCacheFile' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
+@(
+	'Expand-ToolCacheArchive',
+	'Expand-ToolCacheCompressedArchive',
+	'Expand-ToolCacheFile'
+) |
+	Set-Alias -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Find Tool Cache

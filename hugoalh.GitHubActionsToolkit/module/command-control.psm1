@@ -18,9 +18,9 @@ Import-Module -Name (
 	'group',
 	'notice',
 	'remove-matcher',
-	'save-state',
+	'save-state',# Legacy
 	'set-env',# Legacy
-	'set-output',
+	'set-output',# Legacy
 	'stop-commands'
 	'warning'
 )
@@ -39,21 +39,24 @@ Function Disable-EchoingCommands {
 	Param ()
 	Write-GitHubActionsCommand -Command 'echo' -Value 'off'
 }
-Set-Alias -Name 'Disable-CommandEcho' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandEchoing' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandsEcho' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandsEchoing' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-EchoCommand' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-EchoCommands' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-EchoingCommand' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandEcho' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandEchoing' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandsEcho' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandsEchoing' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-EchoCommand' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-EchoCommands' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-EchoingCommand' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-EchoingCommands' -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+@(
+	'Disable-CommandEcho',
+	'Disable-CommandEchoing',
+	'Disable-CommandsEcho',
+	'Disable-CommandsEchoing',
+	'Disable-EchoCommand',
+	'Disable-EchoCommands',
+	'Disable-EchoingCommand',
+	'Stop-CommandEcho',
+	'Stop-CommandEchoing',
+	'Stop-CommandsEcho',
+	'Stop-CommandsEchoing',
+	'Stop-EchoCommand',
+	'Stop-EchoCommands',
+	'Stop-EchoingCommand',
+	'Stop-EchoingCommands'
+) |
+	Set-Alias -Value 'Disable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Disable Processing Commands
@@ -73,21 +76,24 @@ Function Disable-ProcessingCommands {
 	Write-GitHubActionsCommand -Command 'stop-commands' -Value $EndToken
 	Write-Output -InputObject $EndToken
 }
-Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandProcessing' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandsProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandsProcessing' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-ProcessCommand' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-ProcessCommands' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-ProcessingCommand' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandProcessing' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandsProcess' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandsProcessing' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-ProcessCommand' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-ProcessCommands' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-ProcessingCommand' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-ProcessingCommands' -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+@(
+	'Disable-CommandProcess',
+	'Disable-CommandProcessing',
+	'Disable-CommandsProcess',
+	'Disable-CommandsProcessing',
+	'Disable-ProcessCommand',
+	'Disable-ProcessCommands',
+	'Disable-ProcessingCommand',
+	'Stop-CommandProcess',
+	'Stop-CommandProcessing',
+	'Stop-CommandsProcess',
+	'Stop-CommandsProcessing',
+	'Stop-ProcessCommand',
+	'Stop-ProcessCommands',
+	'Stop-ProcessingCommand',
+	'Stop-ProcessingCommands'
+) |
+	Set-Alias -Value 'Disable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Enable Echoing Commands
@@ -102,21 +108,24 @@ Function Enable-EchoingCommands {
 	Param ()
 	Write-GitHubActionsCommand -Command 'echo' -Value 'on'
 }
-Set-Alias -Name 'Enable-CommandEcho' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandEchoing' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandsEcho' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandsEchoing' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-EchoCommand' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-EchoCommands' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-EchoingCommand' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandEcho' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandEchoing' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandsEcho' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandsEchoing' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-EchoCommand' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-EchoCommands' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-EchoingCommand' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-EchoingCommands' -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
+@(
+	'Enable-CommandEcho',
+	'Enable-CommandEchoing',
+	'Enable-CommandsEcho',
+	'Enable-CommandsEchoing',
+	'Enable-EchoCommand',
+	'Enable-EchoCommands',
+	'Enable-EchoingCommand',
+	'Start-CommandEcho',
+	'Start-CommandEchoing',
+	'Start-CommandsEcho',
+	'Start-CommandsEchoing',
+	'Start-EchoCommand',
+	'Start-EchoCommands',
+	'Start-EchoingCommand',
+	'Start-EchoingCommands'
+) |
+	Set-Alias -Value 'Enable-EchoingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Enable Processing Commands
@@ -135,26 +144,29 @@ Function Enable-ProcessingCommands {
 	)
 	Write-GitHubActionsCommand -Command $EndToken
 }
-Set-Alias -Name 'Enable-CommandProcess' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandProcessing' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandsProcess' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandsProcessing' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-ProcessCommand' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-ProcessCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-ProcessingCommand' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandProcess' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandProcessing' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandsProcess' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandsProcessing' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-ProcessCommand' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-ProcessCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-ProcessingCommand' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-ProcessingCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
+@(
+	'Enable-CommandProcess',
+	'Enable-CommandProcessing',
+	'Enable-CommandsProcess',
+	'Enable-CommandsProcessing',
+	'Enable-ProcessCommand',
+	'Enable-ProcessCommands',
+	'Enable-ProcessingCommand',
+	'Start-CommandProcess',
+	'Start-CommandProcessing',
+	'Start-CommandsProcess',
+	'Start-CommandsProcessing',
+	'Start-ProcessCommand',
+	'Start-ProcessCommands',
+	'Start-ProcessingCommand',
+	'Start-ProcessingCommands'
+) |
+	Set-Alias -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions (Private) - New Commands End Token
 .DESCRIPTION
-Get a new GitHub Actions commands end token.
+Generate a new GitHub Actions commands end token.
 .OUTPUTS
 [String] A new GitHub Actions commands end token.
 #>

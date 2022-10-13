@@ -6,7 +6,6 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[String[]]$GitHubActionsFileCommandTokensUsed = @()
 <#
 .SYNOPSIS
 GitHub Actions (Private) - Format Command Parameter Value
@@ -50,8 +49,11 @@ Function Format-CommandValue {
 			Write-Output
 	}
 }
-Set-Alias -Name 'Format-CommandContent' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
+@(
+	'Format-CommandContent',
+	'Format-CommandMessage'
+) |
+	Set-Alias -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Command
@@ -106,19 +108,22 @@ Function Write-FileCommand {
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][String]$Value
 	)
 	Process {
-		Add-Content -LiteralPath $LiteralPath -Value $(
-			If ($Value -imatch '^.+$') {
-				Write-Output -InputObject "$($Name)=$($Value)"
+		If ($Value -imatch '^.+$') {
+			Add-Content -LiteralPath $LiteralPath -Value "$Name=$Value" -Confirm:$False -Encoding 'UTF8NoBOM'
+		}
+		Else {
+			[String]$ItemRaw = "$Name=$Value" -ireplace '\r?\n', ''
+			Do {
+				[String]$Token = New-GitHubActionsRandomToken -Length 16
 			}
-			Else {
-				Do {
-					[String]$Token = New-GitHubActionsRandomToken -Length 64
-				}
-				While ( $Token -iin $GitHubActionsFileCommandTokensUsed )
-				$Script:GitHubActionsFileCommandTokensUsed += $Token
-				Write-Output -InputObject "$Name<<$Token`n$($Value -ireplace '\r?\n', "`n")`n$Token"
-			}
-		) -Confirm:$False -Encoding 'UTF8NoBOM'
+			While ( $ItemRaw -imatch [RegEx]::Escape($Token) )
+			@(
+				"$Name<<$Token",
+				$Value -ireplace '\r?\n', "`n",
+				$Token
+			) |
+				Add-Content -LiteralPath $LiteralPath -Confirm:$False -Encoding 'UTF8NoBOM'
+		}
 	}
 }
 Export-ModuleMember -Function @(

@@ -61,15 +61,15 @@ Type of the annotation.
 .PARAMETER Message
 Message of the annotation.
 .PARAMETER File
-Path of the issue file.
+Path of the issue file of the annotation.
 .PARAMETER Line
-Line start of the issue file.
+Line start of the issue file of the annotation.
 .PARAMETER Column
-Column start of the issue file.
+Column start of the issue file of the annotation.
 .PARAMETER EndLine
-Line end of the issue file.
+Line end of the issue file of the annotation.
 .PARAMETER EndColumn
-Column end of the issue file.
+Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the annotation.
 .OUTPUTS
@@ -153,15 +153,15 @@ Print an error message to the log.
 .PARAMETER Message
 Message that need to log at error level.
 .PARAMETER File
-Path of the issue file.
+Path of the issue file of the annotation.
 .PARAMETER Line
-Line start of the issue file.
+Line start of the issue file of the annotation.
 .PARAMETER Column
-Column start of the issue file.
+Column start of the issue file of the annotation.
 .PARAMETER EndLine
-Line end of the issue file.
+Line end of the issue file of the annotation.
 .PARAMETER EndColumn
-Column end of the issue file.
+Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the error message.
 .OUTPUTS
@@ -191,15 +191,15 @@ Print an error message to the log and end the process.
 .PARAMETER Message
 Message that need to log at error level.
 .PARAMETER File
-Path of the issue file.
+Path of the issue file of the annotation.
 .PARAMETER Line
-Line start of the issue file.
+Line start of the issue file of the annotation.
 .PARAMETER Column
-Column start of the issue file.
+Column start of the issue file of the annotation.
 .PARAMETER EndLine
-Line end of the issue file.
+Line end of the issue file of the annotation.
 .PARAMETER EndColumn
-Column end of the issue file.
+Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the error message.
 .OUTPUTS
@@ -228,15 +228,15 @@ Print a notice message to the log.
 .PARAMETER Message
 Message that need to log at notice level.
 .PARAMETER File
-Path of the issue file.
+Path of the issue file of the annotation.
 .PARAMETER Line
-Line start of the issue file.
+Line start of the issue file of the annotation.
 .PARAMETER Column
-Column start of the issue file.
+Column start of the issue file of the annotation.
 .PARAMETER EndLine
-Line end of the issue file.
+Line end of the issue file of the annotation.
 .PARAMETER EndColumn
-Column end of the issue file.
+Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the notice message.
 .OUTPUTS
@@ -302,15 +302,15 @@ Print a warning message to the log.
 .PARAMETER Message
 Message that need to log at warning level.
 .PARAMETER File
-Path of the issue file.
+Path of the issue file of the annotation.
 .PARAMETER Line
-Line start of the issue file.
+Line start of the issue file of the annotation.
 .PARAMETER Column
-Column start of the issue file.
+Column start of the issue file of the annotation.
 .PARAMETER EndLine
-Line end of the issue file.
+Line end of the issue file of the annotation.
 .PARAMETER EndColumn
-Column end of the issue file.
+Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the warning message.
 .OUTPUTS

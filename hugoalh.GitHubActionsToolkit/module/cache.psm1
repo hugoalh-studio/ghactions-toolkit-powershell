@@ -11,9 +11,9 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Restore Cache
 .DESCRIPTION
-Restore cache that shared data from past job in the same workflow.
+Restore cache that shared the data from the past jobs in the same workflow.
 .PARAMETER Key
-Key of the cache.
+Keys of the cache.
 .PARAMETER Path
 Paths of the cache.
 .PARAMETER LiteralPath
@@ -24,6 +24,8 @@ Whether to not use Azure Blob SDK to download the cache that stored on the Azure
 Number of parallel downloads of the cache (only for Azure SDK).
 .PARAMETER Timeout
 Maximum time for each download request of the cache, by seconds (only for Azure SDK).
+.PARAMETER SegmentTimeout
+Maximum time for each segment download request of the cache, by minutes; This allows the segment download to get aborted and hence allow the job to proceed with a cache miss.
 .OUTPUTS
 [String] The key of the cache hit.
 #>
@@ -36,13 +38,15 @@ Function Restore-Cache {
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$DownloadConcurrency,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 900)][UInt16]$Timeout
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 900)][UInt16]$Timeout,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 360)][UInt16]$SegmentTimeout = 60
 	)
 	Begin {
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, only stop this function but not others.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
 		}
+		$Env:SEGMENT_DOWNLOAD_TIMEOUT_MINS = $SegmentTimeout.ToString()
 	}
 	Process {
 		If ($NoOperation) {
@@ -50,15 +54,16 @@ Function Restore-Cache {
 		}
 		[Hashtable]$InputObject = @{
 			PrimaryKey = $Key[0]
-			RestoreKey = (
-				$Key |
-					Select-Object -SkipIndex 0
-			) ?? @()
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
 				$LiteralPath |
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
 			) : $Path
 			UseAzureSdk = !$NotUseAzureSdk.IsPresent
+		}
+		[String[]]$RestoreKey = $Key |
+			Select-Object -SkipIndex 0
+		If ($RestoreKey.Count -igt 0) {
+			$InputObject.RestoreKey = $RestoreKey
 		}
 		If (!$NotUseAzureSdk.IsPresent) {
 			If ($DownloadConcurrency -igt 0) {
@@ -77,7 +82,7 @@ Set-Alias -Name 'Import-Cache' -Value 'Restore-Cache' -Option 'ReadOnly' -Scope 
 .SYNOPSIS
 GitHub Actions - Save cache
 .DESCRIPTION
-Save cache to persist data and/or share with future job in the same workflow.
+Save cache to persist the data and/or share with the future jobs in the same workflow.
 .PARAMETER Key
 Key of the cache.
 .PARAMETER Path
@@ -96,8 +101,8 @@ Function Save-Cache {
 	[OutputType([String])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Name')][String]$Key,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
-		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
+		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSize')][UInt32]$UploadChunkSizes,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency
 	)
@@ -129,27 +134,6 @@ Function Save-Cache {
 	}
 }
 Set-Alias -Name 'Export-Cache' -Value 'Save-Cache' -Option 'ReadOnly' -Scope 'Local'
-<#
-.SYNOPSIS
-GitHub Actions (Private) - Test Cache Key
-.DESCRIPTION
-Test the key of the GitHub Actions cache whether is valid.
-.PARAMETER InputObject
-Key of the GitHub Actions cache that need to test.
-.OUTPUTS
-[Boolean] Test result.
-#>
-Function Test-CacheKey {
-	[CmdletBinding()]
-	[OutputType([Boolean])]
-	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
-	)
-	Process {
-		$InputObject.Length -ile 512 -and $InputObject -imatch '^[^,\n\r]+$' |
-			Write-Output
-	}
-}
 Export-ModuleMember -Function @(
 	'Restore-Cache',
 	'Save-Cache'
