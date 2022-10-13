@@ -37,11 +37,8 @@ Function Add-SecretMask {
 		}
 	}
 }
-@(
-	'Add-Mask',
-	'Add-Secret'
-) |
-	Set-Alias -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Add-Mask' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Add-Secret' -Value 'Add-SecretMask' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Debug Status
@@ -87,13 +84,10 @@ Function Get-WebhookEventPayload {
 	}
 	Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 }
-@(
-	'Get-Event',
-	'Get-Payload',
-	'Get-WebhookEvent',
-	'Get-WebhookPayload'
-) |
-	Set-Alias -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Get-Payload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Get-WebhookEvent' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Get-WebhookPayload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Workflow Run URI

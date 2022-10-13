@@ -134,11 +134,8 @@ Function Set-EnvironmentVariable {
 		}
 	}
 }
-@(
-	'Set-Env',
-	'Set-Environment'
-) |
-	Set-Alias -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Set-Env' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Set-Environment' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions (Private) - Test Environment Variable Name

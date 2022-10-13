@@ -49,11 +49,8 @@ Function Format-CommandValue {
 			Write-Output
 	}
 }
-@(
-	'Format-CommandContent',
-	'Format-CommandMessage'
-) |
-	Set-Alias -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Format-CommandContent' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write Command
