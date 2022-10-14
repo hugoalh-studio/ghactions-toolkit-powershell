@@ -215,7 +215,7 @@ Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptT
 .SYNOPSIS
 GitHub Actions - Get Step Summary
 .DESCRIPTION
-Get step summary that previously added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+Get step summary that previously added/set from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
 .PARAMETER Raw
 Whether to ignore newline characters and output the entire contents of a file in one string with the newlines preserved; By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
 .PARAMETER Sizes
@@ -253,7 +253,7 @@ Function Get-StepSummary {
 .SYNOPSIS
 GitHub Actions - Remove Step Summary
 .DESCRIPTION
-Remove step summary that previously added/setted from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+Remove step summary that previously added/set from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
 .OUTPUTS
 [Void]
 #>
