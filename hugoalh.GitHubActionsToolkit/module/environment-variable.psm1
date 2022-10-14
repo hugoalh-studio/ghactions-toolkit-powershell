@@ -14,7 +14,7 @@ Import-Module -Name (
 .SYNOPSIS
 GitHub Actions - Add PATH
 .DESCRIPTION
-Add PATH to the current step and/or all subsequent steps in the current job.
+Add PATH to the current step and/or all of the subsequent steps in the current job.
 .PARAMETER Path
 Absolute paths.
 .PARAMETER NoValidator
@@ -41,7 +41,7 @@ Function Add-PATH {
 			$Path |
 				Select-Object -Unique
 		)) {
-			If (!$NoValidator.IsPresent -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
+			If (!$NoValidator.IsPresent -and ![System.IO.Path]::IsPathRooted($Item) -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				Continue
 			}
@@ -65,7 +65,7 @@ Function Add-PATH {
 .SYNOPSIS
 GitHub Actions - Set Environment Variable
 .DESCRIPTION
-Set environment variable to the current step and/or all subsequent steps in the current job.
+Set environment variable to the current step and/or all of the subsequent steps in the current job.
 .PARAMETER InputObject
 Environment variables.
 .PARAMETER Name

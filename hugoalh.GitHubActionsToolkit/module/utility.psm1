@@ -15,7 +15,7 @@ Make a secret get masked from the log.
 .PARAMETER Value
 A secret that need to get masked from the log.
 .PARAMETER WithChunks
-Split a secret into chunks to well make a secret get masked from the log.
+Whether to split a secret into chunks to well make a secret get masked from the log.
 .OUTPUTS
 [Void]
 #>
@@ -24,7 +24,7 @@ Function Add-SecretMask {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Key', 'Secret', 'Token')][String]$Value,
-		[Alias('Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
 	)
 	Process {
 		If ($Value.Length -igt 0) {
