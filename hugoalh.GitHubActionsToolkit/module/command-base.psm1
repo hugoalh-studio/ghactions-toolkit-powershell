@@ -116,7 +116,7 @@ Function Write-FileCommand {
 			While ( $ItemRaw -imatch [RegEx]::Escape($Token) )
 			@(
 				"$Name<<$Token",
-				$Value -ireplace '\r?\n', "`n",
+				($Value -ireplace '\r?\n', "`n"),
 				$Token
 			) |
 				Add-Content -LiteralPath $LiteralPath -Confirm:$False -Encoding 'UTF8NoBOM'

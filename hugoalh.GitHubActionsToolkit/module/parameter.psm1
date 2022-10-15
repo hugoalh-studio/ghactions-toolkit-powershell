@@ -3,6 +3,7 @@
 Import-Module -Name (
 	@(
 		'command-base.psm1',
+		'internal\test-parameter-input-object.psm1',
 		'log.psm1'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
@@ -167,10 +168,10 @@ Value of the output.
 [Void]
 #>
 Function Set-Output {
-	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
@@ -178,35 +179,24 @@ Function Set-Output {
 		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_OUTPUT)
 	}
 	Process {
-		Switch ($PSCmdlet.ParameterSetName) {
-			'Multiple' {
-				ForEach ($Item In $InputObject.GetEnumerator()) {
-					If ($Item.Name.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						Return
-					}
-					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions output name!" -Category 'SyntaxError'
-						Return
-					}
-					If ($Item.Value.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						Return
-					}
-					[String]$ItemName = $Item.Name
-					[String]$ItemValue = $Item.Value
-				}
+		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
+			If (
+				$InputObject -is [Hashtable] -or
+				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
+			) {
+				$InputObject.GetEnumerator() |
+					Set-Output
+				Return
 			}
-			'Single' {
-				[String]$ItemName = $Name
-				[String]$ItemValue = $Value
-			}
+			$InputObject |
+				Set-Output
+			Return
 		}
 		If ($Legacy) {
-			Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $ItemName } -Value $ItemValue
+			Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
 		}
 		Else {
-			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Name $ItemName -Value $ItemValue
+			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Name $Name -Value $Value
 		}
 	}
 }
@@ -225,10 +215,10 @@ Value of the state.
 [Void]
 #>
 Function Set-State {
-	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
@@ -236,35 +226,24 @@ Function Set-State {
 		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_STATE)
 	}
 	Process {
-		Switch ($PSCmdlet.ParameterSetName) {
-			'Multiple' {
-				ForEach ($Item In $InputObject.GetEnumerator()) {
-					If ($Item.Name.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						Return
-					}
-					If ($Item.Name -inotmatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') {
-						Write-Error -Message "``$($Item.Name)`` is not a valid GitHub Actions state name!" -Category 'SyntaxError'
-						Return
-					}
-					If ($Item.Value.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						Return
-					}
-					[String]$ItemName = $Item.Name
-					[String]$ItemValue = $Item.Value
-				}
+		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
+			If (
+				$InputObject -is [Hashtable] -or
+				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
+			) {
+				$InputObject.GetEnumerator() |
+					Set-State
+				Return
 			}
-			'Single' {
-				[String]$ItemName = $Name
-				[String]$ItemValue = $Value
-			}
+			$InputObject |
+				Set-State
+			Return
 		}
 		If ($Legacy) {
-			Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $ItemName } -Value $ItemValue
+			Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
 		}
 		Else {
-			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Name $ItemName -Value $ItemValue
+			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Name $Name -Value $Value
 		}
 	}
 }

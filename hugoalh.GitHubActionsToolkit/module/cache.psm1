@@ -46,7 +46,6 @@ Function Restore-Cache {
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
 		}
-		$Env:SEGMENT_DOWNLOAD_TIMEOUT_MINS = $SegmentTimeout.ToString()
 	}
 	Process {
 		If ($NoOperation) {
@@ -73,6 +72,8 @@ Function Restore-Cache {
 				$InputObject.Timeout = $Timeout * 1000
 			}
 		}
+		[System.Environment]::SetEnvironmentVariable('SEGMENT_DOWNLOAD_TIMEOUT_MINS', $SegmentTimeout) |
+			Out-Null
 		(Invoke-GitHubActionsNodeJsWrapper -Path 'cache\restore.js' -InputObject ([PSCustomObject]$InputObject))?.CacheKey |
 			Write-Output
 	}

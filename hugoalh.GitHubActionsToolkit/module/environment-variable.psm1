@@ -2,7 +2,8 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base.psm1'
+		'command-base.psm1',
+		'internal\test-parameter-input-object.psm1'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
 ) -Prefix 'GitHubActions' -Scope 'Local'
@@ -80,10 +81,10 @@ Scope of the environment variables.
 [Void]
 #>
 Function Set-EnvironmentVariable {
-	[CmdletBinding(DefaultParameterSetName = 'Multiple', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsenvironmentvariable#Set-GitHubActionsEnvironmentVariable')]
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsenvironmentvariable#Set-GitHubActionsEnvironmentVariable')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][Hashtable]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-EnvironmentVariableName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Value,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoToUpperCase')][Switch]$NoToUpper,
@@ -93,42 +94,30 @@ Function Set-EnvironmentVariable {
 		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)
 	}
 	Process {
-		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
-		Switch ($PSCmdlet.ParameterSetName) {
-			'Multiple' {
-				ForEach ($Item In $InputObject.GetEnumerator()) {
-					If ($Item.Name.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Name` must be type of string!' -Category 'InvalidType'
-						Continue
-					}
-					If (!(Test-EnvironmentVariableName -InputObject $Item.Name)) {
-						Write-Error -Message "``$($Item.Name)`` is not a valid environment variable name!" -Category 'SyntaxError'
-						Continue
-					}
-					If ($Item.Value.GetType().Name -ine 'String') {
-						Write-Error -Message 'Parameter `Value` must be type of string!' -Category 'InvalidType'
-						Continue
-					}
-					[String]$ItemName = $NoToUpper.IsPresent ? $Item.Name : $Item.Name.ToUpper()
-					[String]$ItemValue = $Item.Value
-				}
+		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
+			If (
+				$InputObject -is [Hashtable] -or
+				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
+			) {
+				$InputObject.GetEnumerator() |
+					Set-EnvironmentVariable -NoToUpper:$NoToUpper.IsPresent -Scope $Scope
+				Return
 			}
-			'Single' {
-				[String]$ItemName = $NoToUpper.IsPresent ? $Name : $Name.ToUpper()
-				[String]$ItemValue = $Value
-			}
+			$InputObject |
+				Set-EnvironmentVariable -NoToUpper:$NoToUpper.IsPresent -Scope $Scope
+			Return
 		}
-		Switch -Exact ($ScopeArray) {
+		Switch -Exact ($Scope.ToString() -isplit ', ') {
 			'Current' {
-				[System.Environment]::SetEnvironmentVariable($ItemName, $ItemValue) |
+				[System.Environment]::SetEnvironmentVariable($Name, $Value) |
 					Out-Null
 			}
 			'Subsequent' {
 				If ($Legacy) {
-					Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $ItemName } -Value $ItemValue
+					Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Name } -Value $Value
 				}
 				Else {
-					Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Name $ItemName -Value $ItemValue
+					Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Name $Name -Value $Value
 				}
 			}
 		}
