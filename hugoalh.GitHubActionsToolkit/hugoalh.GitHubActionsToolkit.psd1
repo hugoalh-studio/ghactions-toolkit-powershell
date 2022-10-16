@@ -70,6 +70,7 @@
 		'Add-StepSummaryLink',
 		'Add-StepSummarySubscriptText',
 		'Add-StepSummarySuperscriptText',
+		'Clear-FileCommand',
 		'Disable-EchoingCommands',
 		'Disable-ProcessingCommands',
 		'Enable-EchoingCommands',
@@ -90,7 +91,6 @@
 		'Invoke-ToolCacheToolDownloader',
 		'Register-ToolCacheDirectory',
 		'Register-ToolCacheFile',
-		'Remove-FileCommand',
 		'Remove-ProblemMatcher',
 		'Remove-StepSummary',
 		'Restore-Cache',
@@ -243,7 +243,7 @@
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
-			Prerelease = 'beta3'
+			Prerelease = 'beta4'
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 			RequireLicenseAcceptance = $False

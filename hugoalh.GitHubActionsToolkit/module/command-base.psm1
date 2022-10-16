@@ -15,6 +15,38 @@ Import-Module -Name (
 }
 <#
 .SYNOPSIS
+GitHub Actions - Clear File Command
+.DESCRIPTION
+Clear the file commands.
+.PARAMETER Type
+Types of the file commands.
+.OUTPUTS
+[Void]
+#>
+Function Clear-FileCommand {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_clear-githubactionsfilecommand#Clear-GitHubActionsFileCommand')]
+	[OutputType([Void])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type
+	)
+	If (($Type -band [GitHubActionsFileCommandTypes]::EnvironmentVariable) -ieq [GitHubActionsFileCommandTypes]::EnvironmentVariable) {
+		Remove-Item -LiteralPath $Env:GITHUB_ENV -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::Output) -ieq [GitHubActionsFileCommandTypes]::Output) {
+		Remove-Item -LiteralPath $Env:GITHUB_OUTPUT -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::Path) -ieq [GitHubActionsFileCommandTypes]::Path) {
+		Remove-Item -LiteralPath $Env:GITHUB_PATH -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::State) -ieq [GitHubActionsFileCommandTypes]::State) {
+		Remove-Item -LiteralPath $Env:GITHUB_STATE -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::StepSummary) -ieq [GitHubActionsFileCommandTypes]::StepSummary) {
+		Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
+	}
+}
+<#
+.SYNOPSIS
 GitHub Actions (Private) - Format Command Parameter Value
 .DESCRIPTION
 Format the command parameter value characters that can cause issues.
@@ -58,38 +90,6 @@ Function Format-CommandValue {
 }
 Set-Alias -Name 'Format-CommandContent' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
-<#
-.SYNOPSIS
-GitHub Actions - Remove File Command
-.DESCRIPTION
-Remove the file commands.
-.PARAMETER Type
-Types of the file commands.
-.OUTPUTS
-[Void]
-#>
-Function Remove-FileCommand {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsfilecommand#Remove-GitHubActionsFileCommand')]
-	[OutputType([Void])]
-	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type
-	)
-	If (($Type -band [GitHubActionsFileCommandTypes]::EnvironmentVariable) -ieq [GitHubActionsFileCommandTypes]::EnvironmentVariable) {
-		Remove-Item -LiteralPath $Env:GITHUB_ENV -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::Output) -ieq [GitHubActionsFileCommandTypes]::Output) {
-		Remove-Item -LiteralPath $Env:GITHUB_OUTPUT -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::Path) -ieq [GitHubActionsFileCommandTypes]::Path) {
-		Remove-Item -LiteralPath $Env:GITHUB_PATH -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::State) -ieq [GitHubActionsFileCommandTypes]::State) {
-		Remove-Item -LiteralPath $Env:GITHUB_STATE -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::StepSummary) -ieq [GitHubActionsFileCommandTypes]::StepSummary) {
-		Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
-	}
-}
 <#
 .SYNOPSIS
 GitHub Actions - Write Command
@@ -163,7 +163,7 @@ Function Write-FileCommand {
 	}
 }
 Export-ModuleMember -Function @(
-	'Remove-FileCommand',
+	'Clear-FileCommand',
 	'Write-Command',
 	'Write-FileCommand'
 )

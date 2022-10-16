@@ -61,6 +61,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Add-GitHubActionsStepSummaryLink`
 - `Add-GitHubActionsStepSummarySubscriptText`
 - `Add-GitHubActionsStepSummarySuperscriptText`
+- `Clear-GitHubActionsFileCommand`
 - `Disable-GitHubActionsEchoingCommands`
 - `Disable-GitHubActionsProcessingCommands`
 - `Enable-GitHubActionsEchoingCommands`
@@ -81,7 +82,6 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Invoke-GitHubActionsToolCacheToolDownloader` 🔘
 - `Register-GitHubActionsToolCacheDirectory` 🔘
 - `Register-GitHubActionsToolCacheFile` 🔘
-- `Remove-GitHubActionsFileCommand`
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
 - `Restore-GitHubActionsCache` 🔘

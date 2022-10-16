@@ -2,6 +2,7 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
+		'command-base.psm1',
 		'utility.psm1'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
@@ -261,11 +262,7 @@ Function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param ()
-	If (!(Test-GitHubActionsEnvironment -StepSummary)) {
-		Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
-		Return
-	}
-	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
+	Clear-GitHubActionsFileCommand -Type 'StepSummary'
 }
 <#
 .SYNOPSIS
