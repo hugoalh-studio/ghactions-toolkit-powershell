@@ -46,10 +46,11 @@ Function Test-NodeJsEnvironment {
 		Write-Verbose -Message 'Test NPM.'
 		Get-Command -Name 'npm' -CommandType 'Application' -ErrorAction 'Stop' |# `Get-Command` will throw error when nothing is found.
 			Out-Null# No need the result.
-		[String[]]$ExpressionNpmVersionResult = npm --version# NPM sometimes display other useless things which unable to suppress.
+		[String]$ExpressionNpmVersionResult = npm --version |
+			Join-String -Separator "`n"
 		If (
 			$ExpressionNpmVersionResult -inotmatch $SemVerRegEx -or
-			$NpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
+			$NpmMinimumVersion -igt [SemVer]::Parse(($ExpressionNpmVersionResult -ireplace '^v', ''))
 		) {
 			Throw
 		}
@@ -72,7 +73,7 @@ Function Test-NodeJsEnvironment {
 			) -cmatch 'MISSING'
 		) {
 			Write-Verbose -Message 'Install/Reinstall NodeJS wrapper API dependencies.'
-			npm ci --no-audit --no-fund |
+			npm ci --ignore-scripts --no-audit --no-fund |
 				Out-Null# No need the result.
 			If ($LASTEXITCODE -ine 0) {
 				Throw
