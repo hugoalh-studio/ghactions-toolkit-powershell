@@ -37,9 +37,9 @@ Function Add-ProblemMatcher {
 .SYNOPSIS
 GitHub Actions - Remove Problem Matcher
 .DESCRIPTION
-Remove problem matcher that previously added from function `Add-GitHubActionsProblemMatcher`.
+Remove problem matcher.
 .PARAMETER Owner
-Owners of the problem matchers that previously added from function `Add-GitHubActionsProblemMatcher`.
+Owners of the problem matchers.
 .OUTPUTS
 [Void]
 #>

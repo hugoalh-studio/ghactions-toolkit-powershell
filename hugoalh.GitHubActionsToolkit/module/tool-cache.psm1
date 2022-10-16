@@ -19,7 +19,7 @@ Path for the expand destination.
 .PARAMETER Method
 Method to expand compressed archive/file; Define this parameter will enforce to use defined method.
 .PARAMETER 7zrPath
-Path of the 7zr, for long path support (only when parameter `Method` is `7z`).
+Path of the 7zr application, for long path support (only when parameter `Method` is `7z`).
 
 Most `.7z` archives do not have this problem, if `.7z` archive contains very long path, pass the path to `7zr` which will gracefully handle long paths, by default `7zdec` is used because it is a very small program and is bundled with the GitHub Actions NodeJS toolkit, however it does not support long paths, `7zr` is the reduced command line interface, it is smaller than the full command line interface, and it does support long paths, at the time of this writing, it is freely available from the LZMA SDK that is available on the 7-Zip website, be sure to check the current license agreement, if `7zr` is bundled with your action, then the path to `7zr` can be pass to this function.
 .PARAMETER Flag
@@ -114,7 +114,7 @@ Function Find-ToolCache {
 	[OutputType(([String], [String[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][String]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
@@ -217,7 +217,7 @@ Function Register-ToolCacheDirectory {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceDirectory')][String]$Source,
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
+		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][String]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
@@ -267,7 +267,7 @@ Function Register-ToolCacheFile {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceFile')][String]$Source,
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('TargetFile')][String]$Target,
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(Mandatory = $True, Position = 3, ValueFromPipelineByPropertyName = $True)][Alias('Ver')][String]$Version,
+		[Parameter(Mandatory = $True, Position = 3, ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][String]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {

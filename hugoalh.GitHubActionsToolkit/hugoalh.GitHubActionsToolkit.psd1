@@ -90,6 +90,7 @@
 		'Invoke-ToolCacheToolDownloader',
 		'Register-ToolCacheDirectory',
 		'Register-ToolCacheFile',
+		'Remove-FileCommand',
 		'Remove-ProblemMatcher',
 		'Remove-StepSummary',
 		'Restore-Cache',

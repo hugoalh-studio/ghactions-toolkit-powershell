@@ -81,6 +81,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Invoke-GitHubActionsToolCacheToolDownloader` 🔘
 - `Register-GitHubActionsToolCacheDirectory` 🔘
 - `Register-GitHubActionsToolCacheFile` 🔘
+- `Remove-GitHubActionsFileCommand`
 - `Remove-GitHubActionsProblemMatcher`
 - `Remove-GitHubActionsStepSummary`
 - `Restore-GitHubActionsCache` 🔘
@@ -99,10 +100,3 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Write-GitHubActionsNotice`
 - `Write-GitHubActionsRaw`
 - `Write-GitHubActionsWarning`
-
-### Example
-
-```ps1
-Set-GitHubActionsOutput -Name 'foo' -Value 'bar'
-#=> ::set-output name=foo::bar
-```

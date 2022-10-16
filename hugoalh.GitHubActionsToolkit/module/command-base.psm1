@@ -6,6 +6,13 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
 ) -Prefix 'GitHubActions' -Scope 'Local'
+[Flags()] Enum GitHubActionsFileCommandTypes {
+	EnvironmentVariable = 1
+	Output = 2
+	Path = 4
+	State = 8
+	StepSummary = 16
+}
 <#
 .SYNOPSIS
 GitHub Actions (Private) - Format Command Parameter Value
@@ -51,6 +58,38 @@ Function Format-CommandValue {
 }
 Set-Alias -Name 'Format-CommandContent' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Format-CommandMessage' -Value 'Format-CommandValue' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
+GitHub Actions - Remove File Command
+.DESCRIPTION
+Remove the file commands.
+.PARAMETER Type
+Types of the file commands.
+.OUTPUTS
+[Void]
+#>
+Function Remove-FileCommand {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsfilecommand#Remove-GitHubActionsFileCommand')]
+	[OutputType([Void])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type
+	)
+	If (($Type -band [GitHubActionsFileCommandTypes]::EnvironmentVariable) -ieq [GitHubActionsFileCommandTypes]::EnvironmentVariable) {
+		Remove-Item -LiteralPath $Env:GITHUB_ENV -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::Output) -ieq [GitHubActionsFileCommandTypes]::Output) {
+		Remove-Item -LiteralPath $Env:GITHUB_OUTPUT -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::Path) -ieq [GitHubActionsFileCommandTypes]::Path) {
+		Remove-Item -LiteralPath $Env:GITHUB_PATH -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::State) -ieq [GitHubActionsFileCommandTypes]::State) {
+		Remove-Item -LiteralPath $Env:GITHUB_STATE -Confirm:$False -ErrorAction 'Continue'
+	}
+	If (($Type -band [GitHubActionsFileCommandTypes]::StepSummary) -ieq [GitHubActionsFileCommandTypes]::StepSummary) {
+		Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
+	}
+}
 <#
 .SYNOPSIS
 GitHub Actions - Write Command
@@ -124,6 +163,7 @@ Function Write-FileCommand {
 	}
 }
 Export-ModuleMember -Function @(
+	'Remove-FileCommand',
 	'Write-Command',
 	'Write-FileCommand'
 )

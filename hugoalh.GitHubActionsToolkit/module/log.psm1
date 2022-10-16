@@ -21,7 +21,7 @@ Enum GitHubActionsAnnotationType {
 .SYNOPSIS
 GitHub Actions - Enter Log Group
 .DESCRIPTION
-Create an expandable group in the log; Anything write to the log between functions `Enter-GitHubActionsLogGroup` and `Exit-GitHubActionsLogGroup` are inside this expandable group in the log.
+Create an expandable group in the log; Anything write to the log are inside this expandable group in the log.
 .PARAMETER Title
 Title of the log group.
 .OUTPUTS

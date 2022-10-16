@@ -24,14 +24,14 @@ Function Add-SecretMask {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Key', 'Secret', 'Token')][String]$Value,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Advance', 'Advanced', 'Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
 	)
 	Process {
 		If ($Value.Length -igt 0) {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 			If ($WithChunks.IsPresent) {
-				$Value -isplit '[\b\n\r\s\t_-]+' |
-					Where-Object -FilterScript { $_ -ine $Value -and $_.Length -ige 4 } |
+				$Value -isplit '[\b\n\r\s\t\\/_-]+' |
+					Where-Object -FilterScript { $_.Length -ige 4 -and $_ -ine $Value } |
 					ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-mask' -Value $_ }
 			}
 		}
@@ -76,13 +76,13 @@ Function Get-WebhookEventPayload {
 		[UInt16]$Depth,# Deprecated, keep as legacy.
 		[Switch]$NoEnumerate# Deprecated, keep as legacy.
 	)
-	If (Test-Environment) {
-		Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
-			ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth 100 -NoEnumerate |
-			Write-Output
+	If (!(Test-Environment)) {
+		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 		Return
 	}
-	Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
+	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
+		ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth 100 -NoEnumerate |
+		Write-Output
 }
 Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-Payload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
@@ -100,11 +100,11 @@ Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
 	[OutputType([String])]
 	Param ()
-	If (Test-Environment) {
-		Write-Output -InputObject "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
+	If (!(Test-Environment)) {
+		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 		Return
 	}
-	Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
+	Write-Output -InputObject "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 }
 Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'
 <#

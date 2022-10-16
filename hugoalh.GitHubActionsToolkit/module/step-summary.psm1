@@ -215,15 +215,15 @@ Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptT
 .SYNOPSIS
 GitHub Actions - Get Step Summary
 .DESCRIPTION
-Get step summary that previously added/set from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+Get the step summary.
 .PARAMETER Raw
 Whether to ignore newline characters and output the entire contents of a file in one string with the newlines preserved; By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
 .PARAMETER Sizes
-Whether to get step summary sizes instead of the contents.
+Whether to get the sizes of the step summary instead of the contents of the step summary.
 .OUTPUTS
 [String] Step summary with the entire contents in one string.
-[String[]] Step summary with separate contents in multiple string by newline characters.
-[UInt32] Step summary sizes.
+[String[]] Step summary with the entire contents in multiple strings separated by newline characters.
+[UInt32] Sizes of the step summary.
 #>
 Function Get-StepSummary {
 	[CmdletBinding(DefaultParameterSetName = 'Content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstepsummary#Get-GitHubActionsStepSummary')]
@@ -253,7 +253,7 @@ Function Get-StepSummary {
 .SYNOPSIS
 GitHub Actions - Remove Step Summary
 .DESCRIPTION
-Remove step summary that previously added/set from functions `Add-GitHubActionsStepSummary` and `Set-GitHubActionsStepSummary`.
+Remove the step summary.
 .OUTPUTS
 [Void]
 #>
@@ -265,7 +265,7 @@ Function Remove-StepSummary {
 		Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
 		Return
 	}
-	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False
+	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
 }
 <#
 .SYNOPSIS

@@ -37,7 +37,6 @@ Function Add-PATH {
 		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)
 	}
 	Process {
-		[String[]]$ScopeArray = $Scope.ToString() -isplit ', '
 		ForEach ($Item In (
 			$Path |
 				Select-Object -Unique
@@ -46,17 +45,15 @@ Function Add-PATH {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				Continue
 			}
-			Switch -Exact ($ScopeArray) {
-				'Current' {
-					Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$Item" -Confirm:$False -NoNewLine
+			If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Current) -ieq [GitHubActionsEnvironmentVariableScopes]::Current) {
+				Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$Item" -Confirm:$False -NoNewLine
+			}
+			If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
+				If ($Legacy) {
+					Write-GitHubActionsCommand -Command 'add-path' -Value $Item
 				}
-				'Subsequent' {
-					If ($Legacy) {
-						Write-GitHubActionsCommand -Command 'add-path' -Value $Item
-					}
-					Else {
-						Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
-					}
+				Else {
+					Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
 				}
 			}
 		}
@@ -107,18 +104,16 @@ Function Set-EnvironmentVariable {
 				Set-EnvironmentVariable -NoToUpper:$NoToUpper.IsPresent -Scope $Scope
 			Return
 		}
-		Switch -Exact ($Scope.ToString() -isplit ', ') {
-			'Current' {
-				[System.Environment]::SetEnvironmentVariable($Name, $Value) |
-					Out-Null
+		If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Current) -ieq [GitHubActionsEnvironmentVariableScopes]::Current) {
+			[System.Environment]::SetEnvironmentVariable($Name, $Value) |
+				Out-Null
+		}
+		If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
+			If ($Legacy) {
+				Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Name } -Value $Value
 			}
-			'Subsequent' {
-				If ($Legacy) {
-					Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Name } -Value $Value
-				}
-				Else {
-					Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Name $Name -Value $Value
-				}
+			Else {
+				Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Name $Name -Value $Value
 			}
 		}
 	}

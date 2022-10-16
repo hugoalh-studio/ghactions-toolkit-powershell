@@ -60,9 +60,9 @@ GitHub Actions - Disable Processing Commands
 .DESCRIPTION
 Disable processing any commands, to allow log anything without accidentally execute any commands.
 .PARAMETER EndToken
-An end token for the function `Enable-GitHubActionsProcessingCommands`.
+An end token for re-enable processing commands.
 .OUTPUTS
-[String] An end token for the function `Enable-GitHubActionsProcessingCommands`.
+[String] An end token for re-enable processing commands.
 #>
 Function Disable-ProcessingCommands {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disable-githubactionsprocessingcommands#Disable-GitHubActionsProcessingCommands')]
@@ -123,7 +123,7 @@ GitHub Actions - Enable Processing Commands
 .DESCRIPTION
 Enable processing any commands, to allow execute any commands.
 .PARAMETER EndToken
-An end token from the function `Disable-GitHubActionsProcessingCommands`.
+An end token from disable processing commands.
 .OUTPUTS
 [Void]
 #>
