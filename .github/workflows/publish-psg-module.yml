@@ -15,23 +15,17 @@ jobs:
       - name: "Checkout Repository"
         uses: "actions/checkout@v3.1.0"
       - name: "Modify PowerShell Repository"
-        id: "modify-powershell-repository"
         run: |
-          Write-Host -Object "::set-output name=installation-policy::$((Get-PSRepository -Name 'PSGallery').InstallationPolicy)"
           Set-PSRepository -Name 'PSGallery' -InstallationPolicy 'Trusted' -Verbose
       - name: "Setup PowerShellGet"
         run: |
-          Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Scope 'AllUsers' -AcceptLicense -Verbose
+          Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Scope 'AllUsers' -AcceptLicense -Confirm:$False -Verbose
       - name: "Update PowerShell Modules"
         run: |
-          Update-Module -Scope 'AllUsers' -AcceptLicense -Verbose
+          Update-Module -Scope 'AllUsers' -AcceptLicense -Confirm:$False -Verbose
       - name: "Test Publish"
         run: |
           Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey 'GUID' -WhatIf -Verbose
       - name: "Publish"
         run: |
           Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
-      - name: "Revert Modify PowerShell Repository"
-        if: "${{steps.modify-powershell-repository.outcome == 'success' && always()}}"
-        run: |
-          Set-PSRepository -Name 'PSGallery' -InstallationPolicy '${{steps.modify-powershell-repository.outputs.installation-policy}}'
