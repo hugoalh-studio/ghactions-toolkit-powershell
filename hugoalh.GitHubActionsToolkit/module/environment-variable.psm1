@@ -73,7 +73,7 @@ Value of the environment variable.
 .PARAMETER NoToUpper
 Whether to not format names of the environment variable to the upper case.
 .PARAMETER Scope
-Scope of the environment variables.
+Scope of the environment variable(s).
 .OUTPUTS
 [Void]
 #>

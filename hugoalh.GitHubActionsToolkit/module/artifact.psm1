@@ -89,7 +89,7 @@ Name of the artifact.
 .PARAMETER CreateSubfolder
 Whether to create a subfolder with artifact name and put the data into there.
 .PARAMETER All
-Import all of the artifacts that shared the data from the past jobs in the same workflow; Always create subfolders.
+Whether to import all of the artifacts that shared the data from the past jobs in the same workflow; Always create subfolders.
 .PARAMETER Destination
 Absolute literal path of the destination of the artifact(s).
 .OUTPUTS

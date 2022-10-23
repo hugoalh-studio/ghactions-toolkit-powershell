@@ -19,13 +19,13 @@ Path for the expand destination.
 .PARAMETER Method
 Method to expand compressed archive/file; Define this parameter will enforce to use defined method.
 .PARAMETER 7zrPath
-Path of the 7zr application, for long path support (only when parameter `Method` is `7z`).
+Literal path of the 7zr application, for long path support (only when parameter `Method` is `7z`).
 
-Most `.7z` archives do not have this problem, if `.7z` archive contains very long path, pass the path to `7zr` which will gracefully handle long paths, by default `7zdec` is used because it is a very small program and is bundled with the GitHub Actions NodeJS toolkit, however it does not support long paths, `7zr` is the reduced command line interface, it is smaller than the full command line interface, and it does support long paths, at the time of this writing, it is freely available from the LZMA SDK that is available on the 7-Zip website, be sure to check the current license agreement, if `7zr` is bundled with your action, then the path to `7zr` can be pass to this function.
+Most `.7z` archives do not have this problem, if `.7z` archive contains very long path, pass the path to 7zr which will gracefully handle long paths, by default 7zdec is used because it is a very small program and is bundled with the GitHub Actions NodeJS toolkit, however it does not support long paths, 7zr is the reduced command line interface, it is smaller than the full command line interface, and it does support long paths, at the time of this writing, it is freely available from the LZMA SDK that is available on the 7-Zip website, be sure to check the current license agreement, if 7zr is bundled with your action, then the path to 7zr can be pass to this function.
 .PARAMETER Flag
 Flag to use for expand (only when parameter `Method` is `Tar` or `Xar`).
 .OUTPUTS
-[String] Path of the expand destination.
+[String] Absolute path of the expand destination.
 #>
 Function Expand-ToolCacheCompressedFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_expand-githubactionstoolcachecompressedfile#Expand-GitHubActionsToolCacheCompressedFile')]
@@ -106,8 +106,8 @@ Version of the tool, by Semantic Versioning (SemVer); Default to all of the vers
 .PARAMETER Architecture
 Architecture of the tool; Default to the architecture of the current machine.
 .OUTPUTS
-[String] Path of a version of a tool.
-[String[]] Paths of all of the versions of a tool.
+[String] Absolute path of a version of a tool.
+[String[]] Absolute paths of all of the versions of a tool.
 #>
 Function Find-ToolCache {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_find-githubactionstoolcache#Find-GitHubActionsToolCache')]
@@ -158,7 +158,7 @@ Authorization of the URI request.
 .PARAMETER Header
 Header of the URI request.
 .OUTPUTS
-[String] Path of the downloaded tool.
+[String] Absolute path of the downloaded tool.
 #>
 Function Invoke-ToolCacheToolDownloader {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invoke-githubactionstoolcachetooldownloader#Invoke-GitHubActionsToolCacheToolDownloader')]
@@ -209,7 +209,7 @@ Version for the tool, by Semantic Versioning (SemVer).
 .PARAMETER Architecture
 Architecture for the tool; Default to the architecture of the current machine.
 .OUTPUTS
-[String] Path of the tool cached.
+[String] Absolute path of the tool cached.
 #>
 Function Register-ToolCacheDirectory {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachedirectory#Register-GitHubActionsToolCacheDirectory')]
@@ -258,7 +258,7 @@ Version for the tool, by Semantic Versioning (SemVer).
 .PARAMETER Architecture
 Architecture for the tool; Default to the architecture of the current machine.
 .OUTPUTS
-[String] Path of the tool cached.
+[String] Absolute path of the tool cached.
 #>
 Function Register-ToolCacheFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachefile#Register-GitHubActionsToolCacheFile')]
