@@ -4,7 +4,7 @@
 This script is help for copy members to the file `hugoalh.GitHubActionsToolkit.psd1` for best performance, and use for debug.
 #>
 [String]$PackageName = 'hugoalh.GitHubActionsToolkit'
-Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "$PackageName.psm1") -Scope 'Local'
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath $PackageName -AdditionalChildPath "$PackageName.psm1") -Scope 'Local'
 [PSCustomObject[]]$PackageCommands = Get-Command -Module $PackageName -ListImported
 ForEach ($CommandType In @('Function', 'Alias')) {
 	$PackageCommands |
