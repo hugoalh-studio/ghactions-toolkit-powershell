@@ -236,6 +236,9 @@
 			# A URL to the main website for this project.
 			ProjectUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell'
 
+			# A literal path to an icon representing this module.
+			Icon = '.\icon.png'
+
 			# A URL to an icon representing this module.
 			IconUri = 'https://i.imgur.com/6qM8z4w.png'
 
