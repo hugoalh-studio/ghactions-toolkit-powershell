@@ -230,6 +230,9 @@
 				'toolkit'
 			)
 
+			# A literal path to the license for this module.
+			License = '.\LICENSE.md'
+
 			# A URL to the license for this module.
 			LicenseUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/blob/main/LICENSE.md'
 
