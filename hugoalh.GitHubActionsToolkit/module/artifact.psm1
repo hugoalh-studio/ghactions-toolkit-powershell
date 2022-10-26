@@ -74,7 +74,7 @@ Function Export-Artifact {
 		If ($RetentionTime -igt 0) {
 			$InputObject.RetentionTIme = $RetentionTime
 		}
-		Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\upload.js' -InputObject ([PSCustomObject]$InputObject) |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/upload' -InputObject ([PSCustomObject]$InputObject) |
 			Write-Output
 	}
 }
@@ -118,13 +118,13 @@ Function Import-Artifact {
 		}
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
-				Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download-all.js' -InputObject ([PSCustomObject]@{
+				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -InputObject ([PSCustomObject]@{
 					Destination = $Destination
 				}) |
 					Write-Output
 			}
 			'Single' {
-				Invoke-GitHubActionsNodeJsWrapper -Path 'artifact\download.js' -InputObject ([PSCustomObject]@{
+				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download' -InputObject ([PSCustomObject]@{
 					Name = $Name
 					Destination = $Destination
 					CreateSubfolder = $CreateSubfolder.IsPresent

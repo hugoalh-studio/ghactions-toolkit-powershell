@@ -7,14 +7,14 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
+[String]$Wrapper = (Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper' -AdditionalChildPath @('dist', 'main.js')) -ireplace '\\', '/'
 <#
 .SYNOPSIS
 GitHub Actions (Private) - Invoke NodeJS Wrapper
 .DESCRIPTION
 Invoke NodeJS wrapper.
-.PARAMETER Path
-Relative literal path of the NodeJS wrapper.
+.PARAMETER Name
+Name of the NodeJS wrapper.
 .PARAMETER InputObject
 Arguments of the NodeJS wrapper.
 .OUTPUTS
@@ -25,28 +25,27 @@ Function Invoke-NodeJsWrapper {
 	[CmdletBinding()]
 	[OutputType(([PSCustomObject], [PSCustomObject[]]))]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][String]$Path,
+		[Parameter(Mandatory = $True, Position = 0)][String]$Name,
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Argument', 'Arguments', 'Input', 'Object', 'Parameter', 'Parameters')][PSCustomObject]$InputObject
 	)
 	If (!(Test-GitHubActionsNodeJsEnvironment)) {
-		Write-Error -Message 'This function requires to invoke with the compatible NodeJS and NPM environment!' -Category 'ResourceUnavailable'
+		Write-Error -Message 'This function requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
 		Return
 	}
-	[String]$WrapperFullName = Join-Path -Path $WrapperRoot -ChildPath $Path
-	If (!(Test-Path -LiteralPath $WrapperFullName -PathType 'Leaf')) {
-		Write-Error -Message "``$Path`` is not an exist and valid NodeJS wrapper path! Most likely some of the files are missing." -Category 'ResourceUnavailable'
+	If (!(Test-Path -LiteralPath $Wrapper -PathType 'Leaf')) {
+		Write-Error -Message 'Wrapper is missing!' -Category 'ResourceUnavailable'
 		Return
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
 	Try {
-		[String[]]$Result = node --no-deprecation --no-warnings "$($WrapperFullName -ireplace '\\', '/')" "$(
+		[String[]]$Result = node --no-deprecation --no-warnings "$Wrapper" "$Name" "$(
 			$InputObject |
 				ConvertTo-Json -Depth 100 -Compress
 		)" "$ResultSeparator"
 		[UInt32]$ResultSkipIndex = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]
-			If ($Item -imatch '^::.+$') {
+			If ($Item -imatch '^::.+?::.*$') {
 				Write-Host -Object $Item
 				$ResultSkipIndex += $ResultIndex
 			}
@@ -64,7 +63,7 @@ Function Invoke-NodeJsWrapper {
 			Write-Output
 	}
 	Catch {
-		Write-Error -Message "Unable to successfully invoke NodeJS wrapper ``$Path``! $_" -Category 'InvalidData'
+		Write-Error -Message "Unable to successfully invoke NodeJS wrapper ``$Name``! $_" -Category 'InvalidData'
 	}
 }
 Export-ModuleMember -Function @(

@@ -74,7 +74,7 @@ Function Restore-Cache {
 		}
 		[System.Environment]::SetEnvironmentVariable('SEGMENT_DOWNLOAD_TIMEOUT_MINS', $SegmentTimeout) |
 			Out-Null
-		(Invoke-GitHubActionsNodeJsWrapper -Path 'cache\restore.js' -InputObject ([PSCustomObject]$InputObject))?.CacheKey |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -InputObject ([PSCustomObject]$InputObject))?.CacheKey |
 			Write-Output
 	}
 }
@@ -130,7 +130,7 @@ Function Save-Cache {
 		If ($UploadConcurrency -igt 0) {
 			$InputObject.UploadConcurrency = $UploadConcurrency
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Path 'cache\save.js' -InputObject ([PSCustomObject]$InputObject))?.CacheId |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -InputObject ([PSCustomObject]$InputObject))?.CacheId |
 			Write-Output
 	}
 }

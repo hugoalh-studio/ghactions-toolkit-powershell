@@ -87,7 +87,7 @@ Function Expand-ToolCacheCompressedFile {
 		If ($Flag.Length -igt 0) {
 			$InputObject.Flag = $Flag
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\extract-$($Method.ToLower()).js" -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -InputObject ([PSCustomObject]$InputObject))?.Path |
 			Write-Output
 	}
 }
@@ -140,7 +140,7 @@ Function Find-ToolCache {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Path "tool-cache\find$($IsFindAll ? '-all-versions' : '').js" -InputObject ([PSCustomObject]$InputObject)
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -InputObject ([PSCustomObject]$InputObject)
 		Write-Output -InputObject ($IsFindAll ? ${ResultRaw}?.Paths : ${ResultRaw}?.Path)
 	}
 }
@@ -191,7 +191,7 @@ Function Invoke-ToolCacheToolDownloader {
 		If ($Header.Count -igt 0) {
 			$InputObject.Header = [PSCustomObject]$Header
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\download-tool.js' -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -InputObject ([PSCustomObject]$InputObject))?.Path |
 			Write-Output
 	}
 }
@@ -238,7 +238,7 @@ Function Register-ToolCacheDirectory {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-directory.js' -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -InputObject ([PSCustomObject]$InputObject))?.Path |
 			Write-Output
 	}
 }
@@ -289,7 +289,7 @@ Function Register-ToolCacheFile {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Path 'tool-cache\cache-file.js' -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -InputObject ([PSCustomObject]$InputObject))?.Path |
 			Write-Output
 	}
 }

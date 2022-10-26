@@ -42,7 +42,7 @@ Function Get-OpenIdConnectToken {
 			If ($Audience.Length -igt 0) {
 				$InputObject.Audience = $Audience
 			}
-			(Invoke-GitHubActionsNodeJsWrapper -Path 'open-id-connect\get-token.js' -InputObject ([PSCustomObject]$InputObject))?.Token |
+			(Invoke-GitHubActionsNodeJsWrapper -Name 'open-id-connect/get-token' -InputObject ([PSCustomObject]$InputObject))?.Token |
 				Write-Output
 			Return
 		}
