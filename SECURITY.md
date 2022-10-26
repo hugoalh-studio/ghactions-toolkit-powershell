@@ -13,6 +13,7 @@
 
 | **Releases / Tags / Versions** | **Status** | **Target - PowerShell** | **Target - NodeJS (Wrapper API)** | **Target - NPM (Wrapper API)** |
 |:-:|:-:|:-:|:-:|:-:|
+| v1.2.X | L | >= v7.2.0 | >= v14.15.0 | *N/A* |
 | v1.1.X | L | >= v7.2.0 | >= v14.15.0 | >= v6.14.8 |
 | v1.1.0 | 👎{🐛} | >= v7.2.0 | >= v14.15.0 | >= v6.14.8 |
 | v1.0.X | 👎{🐛} | >= v7.2.0 | >= v14.15.0 | >= v6.14.8 |
