@@ -13,7 +13,7 @@ jobs:
     runs-on: "windows-latest"
     steps:
       - name: "Checkout Repository"
-        uses: "actions/checkout@v3.1.0"
+        uses: "actions/checkout@v3.3.0"
       - name: "Modify PowerShell Repository"
         run: |
           Set-PSRepository -Name 'PSGallery' -InstallationPolicy 'Trusted' -Verbose
