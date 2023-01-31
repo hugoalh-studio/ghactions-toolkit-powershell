@@ -144,9 +144,10 @@ Function Test-Environment {
 	)
 	If (
 		$Env:CI -ine 'true' -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION_REPOSITORY) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTIONS) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_API_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ENV) -or
@@ -158,13 +159,17 @@ Function Test-Environment {
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_NAME) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_PROTECTED) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_TYPE) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ATTEMPT) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_NUMBER) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SERVER_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SHA) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_REF) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_SHA) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKSPACE) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_ARCH) -or
