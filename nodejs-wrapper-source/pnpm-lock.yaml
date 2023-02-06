@@ -5,7 +5,7 @@ specifiers:
   '@actions/cache': ^3.1.2
   '@actions/core': ^1.10.0
   '@actions/tool-cache': ^2.0.1
-  '@vercel/ncc': ^0.34.0
+  '@vercel/ncc': ^0.36.1
 
 dependencies:
   '@actions/artifact': 1.1.1
@@ -14,7 +14,7 @@ dependencies:
   '@actions/tool-cache': 2.0.1
 
 devDependencies:
-  '@vercel/ncc': 0.34.0
+  '@vercel/ncc': 0.36.1
 
 packages:
 
@@ -216,8 +216,8 @@ packages:
       '@types/node': 18.11.19
     dev: false
 
-  /@vercel/ncc/0.34.0:
-    resolution: {integrity: sha512-G9h5ZLBJ/V57Ou9vz5hI8pda/YQX5HQszCs3AmIus3XzsmRn/0Ptic5otD3xVST8QLKk7AMk7AqpsyQGN7MZ9A==}
+  /@vercel/ncc/0.36.1:
+    resolution: {integrity: sha512-S4cL7Taa9yb5qbv+6wLgiKVZ03Qfkc4jGRuiUQMQ8HGBD5pcNRnHeYM33zBvJE4/zJGjJJ8GScB+WmTsn9mORw==}
     hasBin: true
     dev: true
 
