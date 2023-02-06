@@ -32,7 +32,7 @@ Function Clear-FileCommand {
 		[Alias('Paths')][Switch]$Path,
 		[Alias('States')][Switch]$State,
 		[Alias('Summary')][Switch]$StepSummary,
-		[Parameter(Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type
+		[Parameter(Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type = 0
 	)
 	If (
 		$EnvironmentVariable.IsPresent -or
