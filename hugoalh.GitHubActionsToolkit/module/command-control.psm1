@@ -163,7 +163,7 @@ Function New-CommandsEndToken {
 	[OutputType([String])]
 	Param ()
 	Do {
-		[String]$Result = New-GitHubActionsRandomToken -Length 64
+		[String]$Result = New-GitHubActionsRandomToken
 	}
 	While ( $Result -iin $GitHubActionsCommandsEndTokensUsed )
 	$Script:GitHubActionsCommandsEndTokensUsed += $Result

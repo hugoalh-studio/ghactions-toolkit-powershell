@@ -27,24 +27,45 @@ Function Clear-FileCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_clear-githubactionsfilecommand#Clear-GitHubActionsFileCommand')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type
+		[Alias('Env', 'EnvironmentVariables', 'Var', 'Variable', 'Variables')][Switch]$EnvironmentVariable,
+		[Alias('Outputs')][Switch]$Output,
+		[Alias('Paths')][Switch]$Path,
+		[Alias('States')][Switch]$State,
+		[Alias('Summary')][Switch]$StepSummary,
+		[Parameter(Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type
 	)
-	If (($Type -band [GitHubActionsFileCommandTypes]::EnvironmentVariable) -ieq [GitHubActionsFileCommandTypes]::EnvironmentVariable) {
+	If (
+		$EnvironmentVariable.IsPresent -or
+		($Type -band [GitHubActionsFileCommandTypes]::EnvironmentVariable) -ieq [GitHubActionsFileCommandTypes]::EnvironmentVariable
+	) {
 		Remove-Item -LiteralPath $Env:GITHUB_ENV -Confirm:$False -ErrorAction 'Continue'
 	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::Output) -ieq [GitHubActionsFileCommandTypes]::Output) {
+	If (
+		$Output.IsPresent -or
+		($Type -band [GitHubActionsFileCommandTypes]::Output) -ieq [GitHubActionsFileCommandTypes]::Output
+	) {
 		Remove-Item -LiteralPath $Env:GITHUB_OUTPUT -Confirm:$False -ErrorAction 'Continue'
 	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::Path) -ieq [GitHubActionsFileCommandTypes]::Path) {
+	If (
+		$Path.IsPresent -or
+		($Type -band [GitHubActionsFileCommandTypes]::Path) -ieq [GitHubActionsFileCommandTypes]::Path
+	) {
 		Remove-Item -LiteralPath $Env:GITHUB_PATH -Confirm:$False -ErrorAction 'Continue'
 	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::State) -ieq [GitHubActionsFileCommandTypes]::State) {
+	If (
+		$State.IsPresent -or
+		($Type -band [GitHubActionsFileCommandTypes]::State) -ieq [GitHubActionsFileCommandTypes]::State
+	) {
 		Remove-Item -LiteralPath $Env:GITHUB_STATE -Confirm:$False -ErrorAction 'Continue'
 	}
-	If (($Type -band [GitHubActionsFileCommandTypes]::StepSummary) -ieq [GitHubActionsFileCommandTypes]::StepSummary) {
+	If (
+		$StepSummary.IsPresent -or
+		($Type -band [GitHubActionsFileCommandTypes]::StepSummary) -ieq [GitHubActionsFileCommandTypes]::StepSummary
+	) {
 		Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
 	}
 }
+Set-Alias -Name 'Clear-FileCommands' -Value 'Clear-FileCommand' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions (Private) - Format Command Parameter Value
@@ -150,7 +171,7 @@ Function Write-FileCommand {
 		Else {
 			[String]$ItemRaw = "$Name=$Value" -ireplace '\r?\n', ''
 			Do {
-				[String]$Token = New-GitHubActionsRandomToken -Length 16
+				[String]$Token = New-GitHubActionsRandomToken
 			}
 			While ( $ItemRaw -imatch [RegEx]::Escape($Token) )
 			@(
@@ -166,4 +187,6 @@ Export-ModuleMember -Function @(
 	'Clear-FileCommand',
 	'Write-Command',
 	'Write-FileCommand'
+) -Alias @(
+	'Clear-FileCommands'
 )

@@ -15,7 +15,7 @@ updates:
       separator: "/"
     rebase-strategy: "disabled"
   - package-ecosystem: "npm"
-    directory: "/hugoalh.GitHubActionsToolkit/module/nodejs-wrapper"
+    directory: "/nodejs-wrapper-source"
     schedule:
       interval: "daily"
       time: "00:00"

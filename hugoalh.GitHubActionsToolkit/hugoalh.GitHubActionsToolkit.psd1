@@ -18,7 +18,7 @@
 	CompanyName = 'hugoalh Studio'
 
 	# Copyright statement for this module
-	Copyright = 'MIT © 2021~2022 hugoalh Studio'
+	Copyright = 'MIT © 2021~2023 hugoalh Studio'
 
 	# Description of the functionality provided by this module
 	Description = 'Provide a better and easier way for GitHub Actions to communicate with the runner machine, and the toolkit for developing GitHub Actions in PowerShell.'
@@ -249,7 +249,7 @@
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
-			Prerelease = 'beta1'
+			Prerelease = 'beta2'
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 			RequireLicenseAcceptance = $False

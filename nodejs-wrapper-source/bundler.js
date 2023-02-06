@@ -18,7 +18,7 @@ for (const outputFile of await readOutputDirectory()) {
 	await rm(pathJoin(outputDirectoryFullPath, outputFile.name));
 }
 /* Invoke `ncc` bundler. */
-console.log(await childProcessExec(`ncc build src/main.js --out \"${outputDirectory}\" --no-cache --no-source-map-register --target es2020`));
+console.log(await childProcessExec(`"./node_modules/.bin/ncc.cmd" build src/main.js --out "${outputDirectory}" --no-cache --no-source-map-register --target es2020`));
 /* Fix `ncc` bundler issues, no need to await due to no race conditions. */
 for (const outputFile of await readOutputDirectory()) {
 	const outputFileFullPath = pathJoin(outputDirectoryFullPath, outputFile.name);

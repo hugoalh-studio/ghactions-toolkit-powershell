@@ -176,7 +176,7 @@ Function Set-Output {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
 	Begin {
-		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_OUTPUT)
+		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_OUTPUT)
 	}
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
@@ -192,7 +192,7 @@ Function Set-Output {
 				Set-Output
 			Return
 		}
-		If ($Legacy) {
+		If ($UseLegacyMethod) {
 			Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
 		}
 		Else {
@@ -223,7 +223,7 @@ Function Set-State {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
 	Begin {
-		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_STATE)
+		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_STATE)
 	}
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
@@ -239,7 +239,7 @@ Function Set-State {
 				Set-State
 			Return
 		}
-		If ($Legacy) {
+		If ($UseLegacyMethod) {
 			Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
 		}
 		Else {

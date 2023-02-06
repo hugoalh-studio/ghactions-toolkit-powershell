@@ -34,7 +34,7 @@ Function Add-PATH {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Begin {
-		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)
+		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)
 	}
 	Process {
 		ForEach ($Item In (
@@ -49,7 +49,7 @@ Function Add-PATH {
 				Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$Item" -Confirm:$False -NoNewLine
 			}
 			If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
-				If ($Legacy) {
+				If ($UseLegacyMethod) {
 					Write-GitHubActionsCommand -Command 'add-path' -Value $Item
 				}
 				Else {
@@ -88,7 +88,7 @@ Function Set-EnvironmentVariable {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Begin {
-		[Boolean]$Legacy = [String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)
+		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)
 	}
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
@@ -109,7 +109,7 @@ Function Set-EnvironmentVariable {
 				Out-Null
 		}
 		If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
-			If ($Legacy) {
+			If ($UseLegacyMethod) {
 				Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Name } -Value $Value
 			}
 			Else {

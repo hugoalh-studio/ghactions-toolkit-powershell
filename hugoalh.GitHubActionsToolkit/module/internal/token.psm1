@@ -19,7 +19,7 @@ Function New-RandomToken {
 	[CmdletBinding()]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateRange(1, [UInt32]::MaxValue)][UInt32]$Length = 8,
+		[Parameter(Position = 0)][ValidateRange(1, [UInt32]::MaxValue)][UInt32]$Length = 16,
 		[Alias('UpperCase')][Switch]$WithUpperCase
 	)
 	[Char[]]$Pool = $PoolLowerCase + $PoolNumber + ($WithUpperCase.IsPresent ? $PoolUpperCase : @()) |
