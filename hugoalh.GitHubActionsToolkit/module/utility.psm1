@@ -136,18 +136,18 @@ Function Test-Environment {
 	Param (
 		[Switch]$Artifact,
 		[Switch]$Cache,
-		[Alias('Oidc')][Switch]$OpenIdConnect,
+		[Alias('Oidc', 'OpenId')][Switch]$OpenIdConnect,
 		[Switch]$StepSummary,
 		[Switch]$ToolCache,
 		[Alias('Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!'
 	)
-	If (
+	If (# Some conditions were disabled to provide compatibility, enable those when with runner requirement.
 		$Env:CI -ine 'true' -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION_REPOSITORY) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTIONS) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_API_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ENV) -or
@@ -159,8 +159,8 @@ Function Test-Environment {
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_NAME) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_PROTECTED) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_TYPE) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ATTEMPT) -or
