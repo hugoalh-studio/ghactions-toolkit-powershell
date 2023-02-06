@@ -168,8 +168,8 @@ Function Test-Environment {
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_NUMBER) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SERVER_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SHA) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_REF) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_SHA) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_REF) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_SHA) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKSPACE) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_ARCH) -or
