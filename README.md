@@ -60,7 +60,6 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Add-GitHubActionsStepSummaryLink`
 - `Add-GitHubActionsStepSummarySubscriptText`
 - `Add-GitHubActionsStepSummarySuperscriptText`
-- `Clear-GitHubActionsFileCommand`
 - `Disable-GitHubActionsEchoingCommands`
 - `Disable-GitHubActionsProcessingCommands`
 - `Enable-GitHubActionsEchoingCommands`

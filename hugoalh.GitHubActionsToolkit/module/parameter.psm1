@@ -2,11 +2,11 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base.psm1',
-		'internal\test-parameter-input-object.psm1',
-		'log.psm1'
+		'command-base',
+		'internal\test-parameter-input-object',
+		'log'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS

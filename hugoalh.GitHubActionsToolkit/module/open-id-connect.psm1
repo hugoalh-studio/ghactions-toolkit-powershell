@@ -2,11 +2,11 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'log.psm1',
-		'nodejs-invoke.psm1',
-		'utility.psm1'
+		'log',
+		'nodejs-invoke',
+		'utility'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS

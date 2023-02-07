@@ -126,7 +126,6 @@
 		'Add-StepSummaryRaw',
 		'Add-StepSummarySubscript',
 		'Add-StepSummarySuperscript',
-		'Clear-FileCommands',
 		'Disable-CommandEcho',
 		'Disable-CommandEchoing',
 		'Disable-CommandProcess',

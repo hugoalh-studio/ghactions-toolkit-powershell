@@ -2,15 +2,15 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'internal\token.psm1',
-		'nodejs-test.psm1'
+		'internal\new-random-token',
+		'nodejs-test'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
 [String]$Wrapper = (Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper' -AdditionalChildPath @('dist', 'main.js')) -ireplace '\\', '/'
 <#
 .SYNOPSIS
-GitHub Actions (Private) - Invoke NodeJS Wrapper
+GitHub Actions - Invoke NodeJS Wrapper
 .DESCRIPTION
 Invoke NodeJS wrapper.
 .PARAMETER Name

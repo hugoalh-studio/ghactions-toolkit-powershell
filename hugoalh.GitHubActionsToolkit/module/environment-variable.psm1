@@ -2,10 +2,10 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base.psm1',
-		'internal\test-parameter-input-object.psm1'
+		'command-base',
+		'internal\test-parameter-input-object'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
 [Flags()] Enum GitHubActionsEnvironmentVariableScopes {
 	Current = 1
@@ -122,7 +122,7 @@ Set-Alias -Name 'Set-Env' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -S
 Set-Alias -Name 'Set-Environment' -Value 'Set-EnvironmentVariable' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Private) - Test Environment Variable Name
+GitHub Actions - Test Environment Variable Name
 .DESCRIPTION
 Test the name of the environment variable whether is valid.
 .PARAMETER InputObject

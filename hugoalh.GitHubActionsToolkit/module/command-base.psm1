@@ -2,17 +2,10 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'internal\token.psm1'
+		'internal\new-random-token'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[Flags()] Enum GitHubActionsFileCommandTypes {
-	EnvironmentVariable = 1
-	Output = 2
-	Path = 4
-	State = 8
-	StepSummary = 16
-}
 <#
 .SYNOPSIS
 GitHub Actions - Clear File Command
@@ -23,52 +16,16 @@ Types of the file commands.
 .OUTPUTS
 [Void]
 #>
-Function Clear-FileCommand {
+Function Clear-FileCommand {# Deprecated, keep as legacy.
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_clear-githubactionsfilecommand#Clear-GitHubActionsFileCommand')]
 	[OutputType([Void])]
 	Param (
-		[Alias('Env', 'EnvironmentVariables', 'Var', 'Variable', 'Variables')][Switch]$EnvironmentVariable,
-		[Alias('Outputs')][Switch]$Output,
-		[Alias('Paths')][Switch]$Path,
-		[Alias('States')][Switch]$State,
-		[Alias('Summary')][Switch]$StepSummary,
-		[Parameter(Position = 0)][Alias('Types')][GitHubActionsFileCommandTypes]$Type = 0# Deprecated, keep as legacy.
+		[Parameter(Position = 0)][Alias('Types')]$Type
 	)
-	If (
-		$EnvironmentVariable.IsPresent -or
-		($Type -band [GitHubActionsFileCommandTypes]::EnvironmentVariable) -ieq [GitHubActionsFileCommandTypes]::EnvironmentVariable
-	) {
-		Remove-Item -LiteralPath $Env:GITHUB_ENV -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (
-		$Output.IsPresent -or
-		($Type -band [GitHubActionsFileCommandTypes]::Output) -ieq [GitHubActionsFileCommandTypes]::Output
-	) {
-		Remove-Item -LiteralPath $Env:GITHUB_OUTPUT -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (
-		$Path.IsPresent -or
-		($Type -band [GitHubActionsFileCommandTypes]::Path) -ieq [GitHubActionsFileCommandTypes]::Path
-	) {
-		Remove-Item -LiteralPath $Env:GITHUB_PATH -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (
-		$State.IsPresent -or
-		($Type -band [GitHubActionsFileCommandTypes]::State) -ieq [GitHubActionsFileCommandTypes]::State
-	) {
-		Remove-Item -LiteralPath $Env:GITHUB_STATE -Confirm:$False -ErrorAction 'Continue'
-	}
-	If (
-		$StepSummary.IsPresent -or
-		($Type -band [GitHubActionsFileCommandTypes]::StepSummary) -ieq [GitHubActionsFileCommandTypes]::StepSummary
-	) {
-		Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
-	}
 }
-Set-Alias -Name 'Clear-FileCommands' -Value 'Clear-FileCommand' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Private) - Format Command Parameter Value
+GitHub Actions - Format Command Parameter Value
 .DESCRIPTION
 Format the command parameter value characters that can cause issues.
 .PARAMETER InputObject
@@ -90,7 +47,7 @@ Function Format-CommandParameterValue {
 Set-Alias -Name 'Format-CommandPropertyValue' -Value 'Format-CommandParameterValue' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Private) - Format Command Value
+GitHub Actions - Format Command Value
 .DESCRIPTION
 Format the command value characters that can cause issues.
 .PARAMETER InputObject
@@ -144,7 +101,7 @@ Function Write-Command {
 }
 <#
 .SYNOPSIS
-GitHub Actions (Private) - Write File Command
+GitHub Actions - Write File Command
 .DESCRIPTION
 Write file command to communicate with the runner machine.
 .PARAMETER LiteralPath
@@ -187,6 +144,4 @@ Export-ModuleMember -Function @(
 	'Clear-FileCommand',
 	'Write-Command',
 	'Write-FileCommand'
-) -Alias @(
-	'Clear-FileCommands'
 )

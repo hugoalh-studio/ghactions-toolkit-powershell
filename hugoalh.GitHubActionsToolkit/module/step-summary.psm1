@@ -2,10 +2,10 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base.psm1',
-		'utility.psm1'
+		'command-base',
+		'utility'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
@@ -262,7 +262,7 @@ Function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_remove-githubactionsstepsummary#Remove-GitHubActionsStepSummary')]
 	[OutputType([Void])]
 	Param ()
-	Clear-GitHubActionsFileCommand -Type 'StepSummary'
+	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
 }
 <#
 .SYNOPSIS

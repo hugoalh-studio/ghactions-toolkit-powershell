@@ -2,15 +2,15 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base.psm1',
-		'internal\token.psm1'
+		'command-base',
+		'internal\new-random-token'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
 [String[]]$GitHubActionsCommands = @(
 	'add-mask',
 	'add-matcher',
-	'add-path',# Legacy
+	'add-path',# Legacy.
 	'debug',
 	'echo',
 	'endgroup',
@@ -18,9 +18,9 @@ Import-Module -Name (
 	'group',
 	'notice',
 	'remove-matcher',
-	'save-state',# Legacy
-	'set-env',# Legacy
-	'set-output',# Legacy
+	'save-state',# Legacy.
+	'set-env',# Legacy.
+	'set-output',# Legacy.
 	'stop-commands'
 	'warning'
 )
@@ -152,7 +152,7 @@ Set-Alias -Name 'Start-ProcessingCommand' -Value 'Enable-ProcessingCommands' -Op
 Set-Alias -Name 'Start-ProcessingCommands' -Value 'Enable-ProcessingCommands' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions (Private) - New Commands End Token
+GitHub Actions - New Commands End Token
 .DESCRIPTION
 Generate a new GitHub Actions commands end token.
 .OUTPUTS
@@ -171,7 +171,7 @@ Function New-CommandsEndToken {
 }
 <#
 .SYNOPSIS
-GitHub Actions (Private) - Test Processing Commands End Token
+GitHub Actions - Test Processing Commands End Token
 .DESCRIPTION
 Test the GitHub Actions processing commands end token whether is valid.
 .PARAMETER InputObject
