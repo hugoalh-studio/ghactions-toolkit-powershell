@@ -11,8 +11,6 @@ Import-Module -Name (
 GitHub Actions - Clear File Command
 .DESCRIPTION
 Clear the file commands.
-.PARAMETER Type
-Types of the file commands.
 .OUTPUTS
 [Void]
 #>
@@ -114,7 +112,7 @@ Value.
 [Void]
 #>
 Function Write-FileCommand {
-	[CmdletBinding()]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_write-githubactionsfilecommand#Write-GitHubActionsFileCommand')]
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][String]$LiteralPath,

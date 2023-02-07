@@ -18,8 +18,8 @@ Function Test-NodeJsEnvironment {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies,# Deprecated, keep as legacy.
-		[Alias('Redo')][Switch]$Retest
+		[Alias('Redo')][Switch]$Retest,
+		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies# Deprecated, keep as legacy.
 	)
 	If ($EnvironmentTested -and !$Retest.IsPresent) {
 		Write-Verbose -Message 'Previously tested NodeJS environment; Return previous result.'
