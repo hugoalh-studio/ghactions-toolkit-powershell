@@ -106,6 +106,7 @@
 		'Write-Debug',
 		'Write-Error',
 		'Write-Fail',
+		'Write-FileCommand',
 		'Write-Notice',
 		'Write-Raw',
 		'Write-Warning'

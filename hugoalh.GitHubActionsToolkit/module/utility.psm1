@@ -136,13 +136,13 @@ Function Test-Environment {
 	Param (
 		[Switch]$Artifact,
 		[Switch]$Cache,
-		[Alias('Oidc', 'OpenId')][Switch]$OpenIdConnect,
+		[Alias('Oidc')][Switch]$OpenIdConnect,
 		[Switch]$StepSummary,
 		[Switch]$ToolCache,
 		[Alias('Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!'
 	)
-	If (# Some conditions were disabled to provide compatibility, enable those when with runner requirement.
+	If (# Some conditions are disabled to provide compatibility, enable those when with runner requirement.
 		$Env:CI -ine 'true' -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION_REPOSITORY) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
