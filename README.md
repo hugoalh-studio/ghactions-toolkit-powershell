@@ -91,7 +91,6 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Test-GitHubActionsEnvironment`
 - `Test-GitHubActionsNodeJsEnvironment`
 - `Write-GitHubActionsAnnotation`
-- `Write-GitHubActionsCommand`
 - `Write-GitHubActionsDebug`
 - `Write-GitHubActionsError`
 - `Write-GitHubActionsFail`

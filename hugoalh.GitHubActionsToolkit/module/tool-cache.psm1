@@ -38,7 +38,7 @@ Function Expand-ToolCacheCompressedFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
@@ -118,7 +118,7 @@ Function Find-ToolCache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
@@ -170,7 +170,7 @@ Function Invoke-ToolCacheToolDownloader {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
@@ -221,7 +221,7 @@ Function Register-ToolCacheDirectory {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
@@ -271,7 +271,7 @@ Function Register-ToolCacheFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}

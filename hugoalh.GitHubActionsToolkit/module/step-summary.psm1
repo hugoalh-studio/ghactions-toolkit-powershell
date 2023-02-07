@@ -31,7 +31,7 @@ Function Add-StepSummary {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$NoNewLine
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
 		}
@@ -288,7 +288,7 @@ Function Set-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
 		}

@@ -39,7 +39,7 @@ Function Export-Artifact {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('RetentionDay')][Byte]$RetentionTime
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
 		}
@@ -107,7 +107,7 @@ Function Import-Artifact {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Dest', 'Path', 'Target')][String]$Destination = $Env:GITHUB_WORKSPACE
 	)
 	Begin {
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, only stop this function but not others.
+		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
 		}
