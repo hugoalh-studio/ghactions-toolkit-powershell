@@ -2179,7 +2179,7 @@ exports.digestForStream = digestForStream;
 
 /***/ }),
 
-/***/ 5185:
+/***/ 4609:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2202,9 +2202,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7733));
 const path = __importStar(__nccwpck_require__(1017));
-const utils = __importStar(__nccwpck_require__(2018));
-const cacheHttpClient = __importStar(__nccwpck_require__(123));
-const tar_1 = __nccwpck_require__(7364);
+const utils = __importStar(__nccwpck_require__(2707));
+const cacheHttpClient = __importStar(__nccwpck_require__(1598));
+const tar_1 = __nccwpck_require__(973);
 class ValidationError extends Error {
     constructor(message) {
         super(message);
@@ -2399,7 +2399,7 @@ exports.saveCache = saveCache;
 
 /***/ }),
 
-/***/ 123:
+/***/ 1598:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2426,10 +2426,10 @@ const auth_1 = __nccwpck_require__(6931);
 const crypto = __importStar(__nccwpck_require__(6113));
 const fs = __importStar(__nccwpck_require__(7147));
 const url_1 = __nccwpck_require__(7310);
-const utils = __importStar(__nccwpck_require__(2018));
-const downloadUtils_1 = __nccwpck_require__(5634);
-const options_1 = __nccwpck_require__(7855);
-const requestUtils_1 = __nccwpck_require__(7738);
+const utils = __importStar(__nccwpck_require__(2707));
+const downloadUtils_1 = __nccwpck_require__(6898);
+const options_1 = __nccwpck_require__(4090);
+const requestUtils_1 = __nccwpck_require__(8536);
 const versionSalt = '1.0';
 function getCacheApiUrl(resource) {
     const baseUrl = process.env['ACTIONS_CACHE_URL'] || '';
@@ -2646,7 +2646,7 @@ exports.saveCache = saveCache;
 
 /***/ }),
 
-/***/ 2018:
+/***/ 2707:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2683,7 +2683,7 @@ const path = __importStar(__nccwpck_require__(1017));
 const semver = __importStar(__nccwpck_require__(3496));
 const util = __importStar(__nccwpck_require__(3837));
 const uuid_1 = __nccwpck_require__(1090);
-const constants_1 = __nccwpck_require__(7810);
+const constants_1 = __nccwpck_require__(2114);
 // From https://github.com/actions/toolkit/blob/main/packages/tool-cache/src/tool-cache.ts#L23
 function createTempDirectory() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2758,12 +2758,13 @@ function unlinkFile(filePath) {
     });
 }
 exports.unlinkFile = unlinkFile;
-function getVersion(app) {
+function getVersion(app, additionalArgs = []) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.debug(`Checking ${app} --version`);
         let versionOutput = '';
+        additionalArgs.push('--version');
+        core.debug(`Checking ${app} ${additionalArgs.join(' ')}`);
         try {
-            yield exec.exec(`${app} --version`, [], {
+            yield exec.exec(`${app}`, additionalArgs, {
                 ignoreReturnCode: true,
                 silent: true,
                 listeners: {
@@ -2783,19 +2784,14 @@ function getVersion(app) {
 // Use zstandard if possible to maximize cache performance
 function getCompressionMethod() {
     return __awaiter(this, void 0, void 0, function* () {
-        const versionOutput = yield getVersion('zstd');
+        const versionOutput = yield getVersion('zstd', ['--quiet']);
         const version = semver.clean(versionOutput);
-        if (!versionOutput.toLowerCase().includes('zstd command line interface')) {
-            // zstd is not installed
+        core.debug(`zstd version: ${version}`);
+        if (versionOutput === '') {
             return constants_1.CompressionMethod.Gzip;
         }
-        else if (!version || semver.lt(version, 'v1.3.2')) {
-            // zstd is installed but using a version earlier than v1.3.2
-            // v1.3.2 is required to use the `--long` options in zstd
-            return constants_1.CompressionMethod.ZstdWithoutLong;
-        }
         else {
-            return constants_1.CompressionMethod.Zstd;
+            return constants_1.CompressionMethod.ZstdWithoutLong;
         }
     });
 }
@@ -2832,7 +2828,7 @@ exports.isGhes = isGhes;
 
 /***/ }),
 
-/***/ 7810:
+/***/ 2114:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -2873,7 +2869,7 @@ exports.ManifestFilename = 'manifest.txt';
 
 /***/ }),
 
-/***/ 5634:
+/***/ 6898:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2901,9 +2897,9 @@ const buffer = __importStar(__nccwpck_require__(4300));
 const fs = __importStar(__nccwpck_require__(7147));
 const stream = __importStar(__nccwpck_require__(2781));
 const util = __importStar(__nccwpck_require__(3837));
-const utils = __importStar(__nccwpck_require__(2018));
-const constants_1 = __nccwpck_require__(7810);
-const requestUtils_1 = __nccwpck_require__(7738);
+const utils = __importStar(__nccwpck_require__(2707));
+const constants_1 = __nccwpck_require__(2114);
+const requestUtils_1 = __nccwpck_require__(8536);
 const abort_controller_1 = __nccwpck_require__(4992);
 /**
  * Pipes the body of a HTTP response to a stream
@@ -3130,7 +3126,7 @@ const promiseWithTimeout = (timeoutMs, promise) => __awaiter(void 0, void 0, voi
 
 /***/ }),
 
-/***/ 7738:
+/***/ 8536:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -3153,7 +3149,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7733));
 const http_client_1 = __nccwpck_require__(3569);
-const constants_1 = __nccwpck_require__(7810);
+const constants_1 = __nccwpck_require__(2114);
 function isSuccessStatusCode(statusCode) {
     if (!statusCode) {
         return false;
@@ -3256,7 +3252,7 @@ exports.retryHttpClientResponse = retryHttpClientResponse;
 
 /***/ }),
 
-/***/ 7364:
+/***/ 973:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -3281,8 +3277,8 @@ const exec_1 = __nccwpck_require__(1757);
 const io = __importStar(__nccwpck_require__(1318));
 const fs_1 = __nccwpck_require__(7147);
 const path = __importStar(__nccwpck_require__(1017));
-const utils = __importStar(__nccwpck_require__(2018));
-const constants_1 = __nccwpck_require__(7810);
+const utils = __importStar(__nccwpck_require__(2707));
+const constants_1 = __nccwpck_require__(2114);
 const IS_WINDOWS = process.platform === 'win32';
 // Returns tar path and type: BSD or GNU
 function getTarPath() {
@@ -3517,7 +3513,7 @@ exports.createTar = createTar;
 
 /***/ }),
 
-/***/ 7855:
+/***/ 4090:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -68421,7 +68417,7 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 /* harmony import */ var _actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(514);
 /* harmony import */ var _actions_artifact__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(5833);
 /* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(7733);
-/* harmony import */ var _actions_cache__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(5185);
+/* harmony import */ var _actions_cache__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(4609);
 
 
 
