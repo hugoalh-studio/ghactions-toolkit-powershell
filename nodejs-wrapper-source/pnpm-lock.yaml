@@ -37,7 +37,7 @@ packages:
       '@actions/io': 1.1.2
       '@azure/abort-controller': 1.1.0
       '@azure/ms-rest-js': 2.6.4
-      '@azure/storage-blob': 12.12.0
+      '@azure/storage-blob': 12.13.0
       semver: 6.3.0
       uuid: 3.4.0
     transitivePeerDependencies:
@@ -100,8 +100,8 @@ packages:
       tslib: 2.5.0
     dev: false
 
-  /@azure/core-http/2.3.1:
-    resolution: {integrity: sha512-cur03BUwV0Tbv81bQBOLafFB02B6G++K6F2O3IMl8pSE2QlXm3cu11bfyBNlDUKi5U+xnB3GC63ae3athhkx6Q==}
+  /@azure/core-http/3.0.0:
+    resolution: {integrity: sha512-BxI2SlGFPPz6J1XyZNIVUf0QZLBKFX+ViFjKOkzqD18J1zOINIQ8JSBKKr+i+v8+MB6LacL6Nn/sP/TE13+s2Q==}
     engines: {node: '>=14.0.0'}
     dependencies:
       '@azure/abort-controller': 1.1.0
@@ -114,7 +114,6 @@ packages:
       form-data: 4.0.0
       node-fetch: 2.6.9
       process: 0.11.10
-      tough-cookie: 4.1.2
       tslib: 2.5.0
       tunnel: 0.0.6
       uuid: 8.3.2
@@ -178,12 +177,12 @@ packages:
       - encoding
     dev: false
 
-  /@azure/storage-blob/12.12.0:
-    resolution: {integrity: sha512-o/Mf6lkyYG/eBW4/hXB9864RxVNmAkcKHjsGR6Inlp5hupa3exjSyH2KjO3tLO//YGA+tS+17hM2bxRl9Sn16g==}
-    engines: {node: '>=12.0.0'}
+  /@azure/storage-blob/12.13.0:
+    resolution: {integrity: sha512-t3Q2lvBMJucgTjQcP5+hvEJMAsJSk0qmAnjDLie2td017IiduZbbC9BOcFfmwzR6y6cJdZOuewLCNFmEx9IrXA==}
+    engines: {node: '>=14.0.0'}
     dependencies:
       '@azure/abort-controller': 1.1.0
-      '@azure/core-http': 2.3.1
+      '@azure/core-http': 3.0.0
       '@azure/core-lro': 2.5.1
       '@azure/core-paging': 1.5.0
       '@azure/core-tracing': 1.0.0-preview.13
@@ -202,18 +201,18 @@ packages:
   /@types/node-fetch/2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 18.14.0
+      '@types/node': 18.14.2
       form-data: 3.0.1
     dev: false
 
-  /@types/node/18.14.0:
-    resolution: {integrity: sha512-5EWrvLmglK+imbCJY0+INViFWUHg1AHel1sq4ZVSfdcNqGy9Edv3UB9IIzzg+xPaUcAgZYcfVs2fBcwDeZzU0A==}
+  /@types/node/18.14.2:
+    resolution: {integrity: sha512-1uEQxww3DaghA0RxqHx0O0ppVlo43pJhepY51OxuQIKHpjbnYLA7vcdwioNPzIqmC2u3I/dmylcqjlh0e7AyUA==}
     dev: false
 
   /@types/tunnel/0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
     dependencies:
-      '@types/node': 18.14.0
+      '@types/node': 18.14.2
     dev: false
 
   /@vercel/ncc/0.36.1:
@@ -382,14 +381,6 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /querystringify/2.2.0:
-    resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
-    dev: false
-
-  /requires-port/1.0.0:
-    resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
-    dev: false
-
   /rimraf/3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
@@ -428,16 +419,6 @@ packages:
       punycode: 2.3.0
     dev: false
 
-  /tough-cookie/4.1.2:
-    resolution: {integrity: sha512-G9fqXWoYFZgTc2z8Q5zaHy/vJMjm+WV0AkAeHxVCQiEB1b+dGvWzFW6QV07cY5jQ5gRkeid2qIkzkxUnmoQZUQ==}
-    engines: {node: '>=6'}
-    dependencies:
-      psl: 1.9.0
-      punycode: 2.3.0
-      universalify: 0.2.0
-      url-parse: 1.5.10
-    dev: false
-
   /tr46/0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
     dev: false
@@ -453,18 +434,6 @@ packages:
   /tunnel/0.0.6:
     resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
     engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
-    dev: false
-
-  /universalify/0.2.0:
-    resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
-    engines: {node: '>= 4.0.0'}
-    dev: false
-
-  /url-parse/1.5.10:
-    resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
-    dependencies:
-      querystringify: 2.2.0
-      requires-port: 1.0.0
     dev: false
 
   /uuid/3.4.0:
