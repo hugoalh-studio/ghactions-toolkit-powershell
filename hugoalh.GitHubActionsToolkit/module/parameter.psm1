@@ -34,7 +34,7 @@ Whether to trim the value of the input(s).
 [String] Value of the input.
 #>
 Function Get-Input {
-	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsinput#Get-GitHubActionsInput')]
+	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsinput')]
 	[OutputType([String], ParameterSetName = 'One')]
 	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
 	Param (
@@ -107,7 +107,7 @@ Whether to trim the value of the state(s).
 [String] Value of the state.
 #>
 Function Get-State {
-	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsstate#Get-GitHubActionsState')]
+	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsstate')]
 	[OutputType([String], ParameterSetName = 'One')]
 	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
 	Param (
@@ -168,7 +168,7 @@ Value of the output.
 [Void]
 #>
 Function Set-Output {
-	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsoutput#Set-GitHubActionsOutput')]
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsoutput')]
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
@@ -215,7 +215,7 @@ Value of the state.
 [Void]
 #>
 Function Set-State {
-	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_set-githubactionsstate#Set-GitHubActionsState')]
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsstate')]
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,

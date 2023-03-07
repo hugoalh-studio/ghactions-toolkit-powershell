@@ -28,7 +28,7 @@ Retention time of the artifact, by days.
 [PSCustomObject] Metadata of the exported artifact.
 #>
 Function Export-Artifact {
-	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_export-githubactionsartifact#Export-GitHubActionsArtifact')]
+	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_exportgithubactionsartifact')]
 	[OutputType([PSCustomObject])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][String]$Name,
@@ -97,7 +97,7 @@ Absolute literal path of the destination of the artifact(s).
 [PSCustomObject[]] Metadata of the imported artifacts.
 #>
 Function Import-Artifact {
-	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_import-githubactionsartifact#Import-GitHubActionsArtifact')]
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_importgithubactionsartifact')]
 	[OutputType([PSCustomObject[]], ParameterSetName = 'All')]
 	[OutputType([PSCustomObject], ParameterSetName = 'Single')]
 	Param (

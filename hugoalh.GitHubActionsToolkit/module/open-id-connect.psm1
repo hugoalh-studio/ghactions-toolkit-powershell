@@ -21,7 +21,7 @@ Whether to use NodeJS wrapper edition instead of PowerShell edition.
 [String] A JSON Web Token (JWT) ID token.
 #>
 Function Get-OpenIdConnectToken {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsopenidconnecttoken#Get-GitHubActionsOpenIdConnectToken')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsopenidconnecttoken')]
 	[OutputType([String])]
 	Param (
 		[Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][String]$Audience,

@@ -20,7 +20,7 @@ Whether to split a secret into chunks to well make a secret get masked from the 
 [Void]
 #>
 Function Add-SecretMask {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_add-githubactionssecretmask#Add-GitHubActionsSecretMask')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_addgithubactionssecretmask')]
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Key', 'Secret', 'Token')][String]$Value,
@@ -48,7 +48,7 @@ Get the debug status of the runner.
 [Boolean] Debug status.
 #>
 Function Get-IsDebug {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsisdebug#Get-GitHubActionsIsDebug')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsisdebug')]
 	[OutputType([Boolean])]
 	Param ()
 	(
@@ -69,7 +69,7 @@ Whether to output as hashtable instead of object.
 [PSCustomObject] Webhook event payload as object.
 #>
 Function Get-WebhookEventPayload {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionswebhookeventpayload#Get-GitHubActionsWebhookEventPayload')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionswebhookeventpayload')]
 	[OutputType(([Hashtable], [PSCustomObject]))]
 	Param (
 		[Alias('ToHashtable')][Switch]$AsHashtable,
@@ -97,7 +97,7 @@ Get the URI of the workflow run.
 [String] URI of the workflow run.
 #>
 Function Get-WorkflowRunUri {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_get-githubactionsworkflowrunuri#Get-GitHubActionsWorkflowRunUri')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsworkflowrunuri')]
 	[OutputType([String])]
 	Param ()
 	If (!(Test-Environment)) {
@@ -131,7 +131,7 @@ Message when the requirement is mandatory but not fulfill.
 [Void] Nothing when the requirement is mandatory.
 #>
 Function Test-Environment {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_test-githubactionsenvironment#Test-GitHubActionsEnvironment')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_testgithubactionsenvironment')]
 	[OutputType(([Boolean], [Void]))]
 	Param (
 		[Switch]$Artifact,

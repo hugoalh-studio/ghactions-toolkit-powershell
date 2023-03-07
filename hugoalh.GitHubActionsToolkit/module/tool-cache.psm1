@@ -28,7 +28,7 @@ Flag to use for expand (only when parameter `Method` is `Tar` or `Xar`).
 [String] Absolute path of the expand destination.
 #>
 Function Expand-ToolCacheCompressedFile {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_expand-githubactionstoolcachecompressedfile#Expand-GitHubActionsToolCacheCompressedFile')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_expandgithubactionstoolcachecompressedfile')]
 	[OutputType([String])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Source')][String]$File,
@@ -110,7 +110,7 @@ Architecture of the tool; Default to the architecture of the current machine.
 [String[]] Absolute paths of all of the versions of a tool.
 #>
 Function Find-ToolCache {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_find-githubactionstoolcache#Find-GitHubActionsToolCache')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_findgithubactionstoolcache')]
 	[OutputType(([String], [String[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
@@ -161,7 +161,7 @@ Header of the URI request.
 [String] Absolute path of the downloaded tool.
 #>
 Function Invoke-ToolCacheToolDownloader {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invoke-githubactionstoolcachetooldownloader#Invoke-GitHubActionsToolCacheToolDownloader')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invokegithubactionstoolcachetooldownloader')]
 	[OutputType([String])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ ($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$') }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Source', 'Url')][Uri]$Uri,
@@ -212,7 +212,7 @@ Architecture for the tool; Default to the architecture of the current machine.
 [String] Absolute path of the tool cached.
 #>
 Function Register-ToolCacheDirectory {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachedirectory#Register-GitHubActionsToolCacheDirectory')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_registergithubactionstoolcachedirectory')]
 	[OutputType([String])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceDirectory')][String]$Source,
@@ -261,7 +261,7 @@ Architecture for the tool; Default to the architecture of the current machine.
 [String] Absolute path of the tool cached.
 #>
 Function Register-ToolCacheFile {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_register-githubactionstoolcachefile#Register-GitHubActionsToolCacheFile')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_registergithubactionstoolcachefile')]
 	[OutputType([String])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceFile')][String]$Source,
