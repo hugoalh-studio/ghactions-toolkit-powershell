@@ -1403,7 +1403,7 @@ const util_1 = __nccwpck_require__(3837);
 const url_1 = __nccwpck_require__(7310);
 const perf_hooks_1 = __nccwpck_require__(4074);
 const status_reporter_1 = __nccwpck_require__(80);
-const http_client_1 = __nccwpck_require__(3569);
+const http_client_1 = __nccwpck_require__(7794);
 const http_manager_1 = __nccwpck_require__(1760);
 const upload_gzip_1 = __nccwpck_require__(8921);
 const requestUtils_1 = __nccwpck_require__(4580);
@@ -1902,8 +1902,8 @@ exports.digestForStream = exports.sleep = exports.getProperRetention = exports.r
 const crypto_1 = __importDefault(__nccwpck_require__(6113));
 const fs_1 = __nccwpck_require__(7147);
 const core_1 = __nccwpck_require__(7733);
-const http_client_1 = __nccwpck_require__(3569);
-const auth_1 = __nccwpck_require__(6931);
+const http_client_1 = __nccwpck_require__(7794);
+const auth_1 = __nccwpck_require__(4610);
 const config_variables_1 = __nccwpck_require__(4233);
 const crc64_1 = __importDefault(__nccwpck_require__(3477));
 /**
@@ -2421,8 +2421,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7733));
-const http_client_1 = __nccwpck_require__(3569);
-const auth_1 = __nccwpck_require__(6931);
+const http_client_1 = __nccwpck_require__(7794);
+const auth_1 = __nccwpck_require__(4610);
 const crypto = __importStar(__nccwpck_require__(6113));
 const fs = __importStar(__nccwpck_require__(7147));
 const url_1 = __nccwpck_require__(7310);
@@ -2891,7 +2891,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7733));
-const http_client_1 = __nccwpck_require__(3569);
+const http_client_1 = __nccwpck_require__(7794);
 const storage_blob_1 = __nccwpck_require__(3929);
 const buffer = __importStar(__nccwpck_require__(4300));
 const fs = __importStar(__nccwpck_require__(7147));
@@ -3148,7 +3148,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7733));
-const http_client_1 = __nccwpck_require__(3569);
+const http_client_1 = __nccwpck_require__(7794);
 const constants_1 = __nccwpck_require__(2114);
 function isSuccessStatusCode(statusCode) {
     if (!statusCode) {
@@ -4112,8 +4112,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OidcClient = void 0;
-const http_client_1 = __nccwpck_require__(3569);
-const auth_1 = __nccwpck_require__(6931);
+const http_client_1 = __nccwpck_require__(7794);
+const auth_1 = __nccwpck_require__(4610);
 const core_1 = __nccwpck_require__(7733);
 class OidcClient {
     static createHttpClient(allowRetry = true, maxRetry = 10) {
@@ -6366,7 +6366,7 @@ exports.SearchState = SearchState;
 
 /***/ }),
 
-/***/ 6931:
+/***/ 4610:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -6453,7 +6453,7 @@ exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHand
 
 /***/ }),
 
-/***/ 3569:
+/***/ 7794:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -6490,7 +6490,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpClient = exports.isHttps = exports.HttpClientResponse = exports.HttpClientError = exports.getProxyUrl = exports.MediaTypes = exports.Headers = exports.HttpCodes = void 0;
 const http = __importStar(__nccwpck_require__(3685));
 const https = __importStar(__nccwpck_require__(5687));
-const pm = __importStar(__nccwpck_require__(2242));
+const pm = __importStar(__nccwpck_require__(1116));
 const tunnel = __importStar(__nccwpck_require__(4249));
 var HttpCodes;
 (function (HttpCodes) {
@@ -7064,7 +7064,7 @@ const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCa
 
 /***/ }),
 
-/***/ 2242:
+/***/ 1116:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -7095,6 +7095,10 @@ function checkBypass(reqUrl) {
     if (!reqUrl.hostname) {
         return false;
     }
+    const reqHost = reqUrl.hostname;
+    if (isLoopbackAddress(reqHost)) {
+        return true;
+    }
     const noProxy = process.env['no_proxy'] || process.env['NO_PROXY'] || '';
     if (!noProxy) {
         return false;
@@ -7120,13 +7124,24 @@ function checkBypass(reqUrl) {
         .split(',')
         .map(x => x.trim().toUpperCase())
         .filter(x => x)) {
-        if (upperReqHosts.some(x => x === upperNoProxyItem)) {
+        if (upperNoProxyItem === '*' ||
+            upperReqHosts.some(x => x === upperNoProxyItem ||
+                x.endsWith(`.${upperNoProxyItem}`) ||
+                (upperNoProxyItem.startsWith('.') &&
+                    x.endsWith(`${upperNoProxyItem}`)))) {
             return true;
         }
     }
     return false;
 }
 exports.checkBypass = checkBypass;
+function isLoopbackAddress(host) {
+    const hostLower = host.toLowerCase();
+    return (hostLower === 'localhost' ||
+        hostLower.startsWith('127.') ||
+        hostLower.startsWith('[::1]') ||
+        hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
+}
 //# sourceMappingURL=proxy.js.map
 
 /***/ }),
@@ -7927,7 +7942,7 @@ const fs = __importStar(__nccwpck_require__(7147));
 const mm = __importStar(__nccwpck_require__(2842));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-const httpm = __importStar(__nccwpck_require__(3569));
+const httpm = __importStar(__nccwpck_require__(7794));
 const semver = __importStar(__nccwpck_require__(3496));
 const stream = __importStar(__nccwpck_require__(2781));
 const util = __importStar(__nccwpck_require__(3837));
