@@ -31,7 +31,9 @@ Function Add-StepSummary {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$NoNewLine
 	)
 	Begin {
+		<# [DISABLED] Issue in GitHub Actions runner
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
+		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
 		}
@@ -234,10 +236,12 @@ Function Get-StepSummary {
 		[Parameter(ParameterSetName = 'Content')][Switch]$Raw,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
+	<# [DISABLED] Issue in GitHub Actions runner
 	If (!(Test-GitHubActionsEnvironment -StepSummary)) {
 		Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
 		Return
 	}
+	#>
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
 			Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw.IsPresent -Encoding 'UTF8NoBOM' |
@@ -288,7 +292,9 @@ Function Set-StepSummary {
 		[Switch]$NoNewLine
 	)
 	Begin {
+		<# [DISABLED] Issue in GitHub Actions runner
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -StepSummary)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
+		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions step summary resources!' -Category 'ResourceUnavailable'
 		}

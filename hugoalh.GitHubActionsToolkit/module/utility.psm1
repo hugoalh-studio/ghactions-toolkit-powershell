@@ -76,10 +76,12 @@ Function Get-WebhookEventPayload {
 		[UInt16]$Depth,# Deprecated, keep as legacy.
 		[Switch]$NoEnumerate# Deprecated, keep as legacy.
 	)
+	<# [DISABLED] Issue in GitHub Actions runner
 	If (!(Test-Environment)) {
 		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 		Return
 	}
+	#>
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
 		ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth 100 -NoEnumerate |
 		Write-Output
@@ -100,10 +102,12 @@ Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsworkflowrunuri')]
 	[OutputType([String])]
 	Param ()
+	<# [DISABLED] Issue in GitHub Actions runner
 	If (!(Test-Environment)) {
 		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 		Return
 	}
+	#>
 	Write-Output -InputObject "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 }
 Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'

@@ -43,7 +43,9 @@ Function Restore-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$LookUp
 	)
 	Begin {
+		<# [DISABLED] Issue in GitHub Actions runner
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
+		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
 		}
@@ -109,7 +111,9 @@ Function Save-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency
 	)
 	Begin {
+		<# [DISABLED] Issue in GitHub Actions runner
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
+		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
 		}
