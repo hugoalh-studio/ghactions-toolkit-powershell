@@ -53,6 +53,8 @@ switch (wrapperName) {
 		{
 			const result = await ghactionsCacheRestoreCache(inputs.Path, inputs.PrimaryKey, inputs.RestoreKey, {
 				downloadConcurrency: inputs.DownloadConcurrency,
+				lookupOnly: inputs.LookUp,
+				segmentTimeoutInMs: inputs.SegmentTimeout,
 				timeoutInMs: inputs.Timeout,
 				useAzureSdk: inputs.UseAzureSdk
 			}).catch(errorHandle);

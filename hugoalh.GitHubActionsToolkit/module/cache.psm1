@@ -38,8 +38,9 @@ Function Restore-Cache {
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$DownloadConcurrency,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 900)][UInt16]$Timeout,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 360)][UInt16]$SegmentTimeout = 60
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 7200)][UInt16]$Timeout,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 7200)][UInt16]$SegmentTimeout,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$LookUp
 	)
 	Begin {
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
@@ -58,22 +59,22 @@ Function Restore-Cache {
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
 			) : $Path
 			UseAzureSdk = !$NotUseAzureSdk.IsPresent
+			LookUp = $LookUp.IsPresent
 		}
 		[String[]]$RestoreKey = $Key |
 			Select-Object -SkipIndex 0
 		If ($RestoreKey.Count -igt 0) {
 			$InputObject.RestoreKey = $RestoreKey
 		}
-		If (!$NotUseAzureSdk.IsPresent) {
-			If ($DownloadConcurrency -igt 0) {
-				$InputObject.DownloadConcurrency = $DownloadConcurrency
-			}
-			If ($Timeout -igt 0) {
-				$InputObject.Timeout = $Timeout * 1000
-			}
+		If ($DownloadConcurrency -igt 0) {
+			$InputObject.DownloadConcurrency = $DownloadConcurrency
 		}
-		[System.Environment]::SetEnvironmentVariable('SEGMENT_DOWNLOAD_TIMEOUT_MINS', $SegmentTimeout) |
-			Out-Null
+		If ($SegmentTimeout -igt 0) {
+			$InputObject.SegmentTimeout = $SegmentTimeout * 1000
+		}
+		If ($Timeout -igt 0) {
+			$InputObject.Timeout = $Timeout * 1000
+		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -InputObject ([PSCustomObject]$InputObject))?.CacheKey |
 			Write-Output
 	}

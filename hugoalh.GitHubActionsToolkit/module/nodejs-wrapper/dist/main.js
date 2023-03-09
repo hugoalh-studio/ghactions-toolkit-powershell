@@ -2179,7 +2179,7 @@ exports.digestForStream = digestForStream;
 
 /***/ }),
 
-/***/ 4609:
+/***/ 3868:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2202,9 +2202,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7733));
 const path = __importStar(__nccwpck_require__(1017));
-const utils = __importStar(__nccwpck_require__(2707));
-const cacheHttpClient = __importStar(__nccwpck_require__(1598));
-const tar_1 = __nccwpck_require__(973);
+const utils = __importStar(__nccwpck_require__(5628));
+const cacheHttpClient = __importStar(__nccwpck_require__(6765));
+const tar_1 = __nccwpck_require__(6905);
 class ValidationError extends Error {
     constructor(message) {
         super(message);
@@ -2278,6 +2278,10 @@ function restoreCache(paths, primaryKey, restoreKeys, options, enableCrossOsArch
             if (!(cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.archiveLocation)) {
                 // Cache not found
                 return undefined;
+            }
+            if (options === null || options === void 0 ? void 0 : options.lookupOnly) {
+                core.info('Lookup only - skipping download');
+                return cacheEntry.cacheKey;
             }
             archivePath = path.join(yield utils.createTempDirectory(), utils.getCacheFileName(compressionMethod));
             core.debug(`Archive Path: ${archivePath}`);
@@ -2399,7 +2403,7 @@ exports.saveCache = saveCache;
 
 /***/ }),
 
-/***/ 1598:
+/***/ 6765:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2426,10 +2430,10 @@ const auth_1 = __nccwpck_require__(4610);
 const crypto = __importStar(__nccwpck_require__(6113));
 const fs = __importStar(__nccwpck_require__(7147));
 const url_1 = __nccwpck_require__(7310);
-const utils = __importStar(__nccwpck_require__(2707));
-const downloadUtils_1 = __nccwpck_require__(6898);
-const options_1 = __nccwpck_require__(4090);
-const requestUtils_1 = __nccwpck_require__(8536);
+const utils = __importStar(__nccwpck_require__(5628));
+const downloadUtils_1 = __nccwpck_require__(5096);
+const options_1 = __nccwpck_require__(677);
+const requestUtils_1 = __nccwpck_require__(7369);
 const versionSalt = '1.0';
 function getCacheApiUrl(resource) {
     const baseUrl = process.env['ACTIONS_CACHE_URL'] || '';
@@ -2646,7 +2650,7 @@ exports.saveCache = saveCache;
 
 /***/ }),
 
-/***/ 2707:
+/***/ 5628:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2683,7 +2687,7 @@ const path = __importStar(__nccwpck_require__(1017));
 const semver = __importStar(__nccwpck_require__(3496));
 const util = __importStar(__nccwpck_require__(3837));
 const uuid_1 = __nccwpck_require__(1090);
-const constants_1 = __nccwpck_require__(2114);
+const constants_1 = __nccwpck_require__(6691);
 // From https://github.com/actions/toolkit/blob/main/packages/tool-cache/src/tool-cache.ts#L23
 function createTempDirectory() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2828,7 +2832,7 @@ exports.isGhes = isGhes;
 
 /***/ }),
 
-/***/ 2114:
+/***/ 6691:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -2869,7 +2873,7 @@ exports.ManifestFilename = 'manifest.txt';
 
 /***/ }),
 
-/***/ 6898:
+/***/ 5096:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -2897,9 +2901,9 @@ const buffer = __importStar(__nccwpck_require__(4300));
 const fs = __importStar(__nccwpck_require__(7147));
 const stream = __importStar(__nccwpck_require__(2781));
 const util = __importStar(__nccwpck_require__(3837));
-const utils = __importStar(__nccwpck_require__(2707));
-const constants_1 = __nccwpck_require__(2114);
-const requestUtils_1 = __nccwpck_require__(8536);
+const utils = __importStar(__nccwpck_require__(5628));
+const constants_1 = __nccwpck_require__(6691);
+const requestUtils_1 = __nccwpck_require__(7369);
 const abort_controller_1 = __nccwpck_require__(4992);
 /**
  * Pipes the body of a HTTP response to a stream
@@ -3126,7 +3130,7 @@ const promiseWithTimeout = (timeoutMs, promise) => __awaiter(void 0, void 0, voi
 
 /***/ }),
 
-/***/ 8536:
+/***/ 7369:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -3149,7 +3153,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7733));
 const http_client_1 = __nccwpck_require__(7794);
-const constants_1 = __nccwpck_require__(2114);
+const constants_1 = __nccwpck_require__(6691);
 function isSuccessStatusCode(statusCode) {
     if (!statusCode) {
         return false;
@@ -3252,7 +3256,7 @@ exports.retryHttpClientResponse = retryHttpClientResponse;
 
 /***/ }),
 
-/***/ 973:
+/***/ 6905:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -3277,8 +3281,8 @@ const exec_1 = __nccwpck_require__(1757);
 const io = __importStar(__nccwpck_require__(1318));
 const fs_1 = __nccwpck_require__(7147);
 const path = __importStar(__nccwpck_require__(1017));
-const utils = __importStar(__nccwpck_require__(2707));
-const constants_1 = __nccwpck_require__(2114);
+const utils = __importStar(__nccwpck_require__(5628));
+const constants_1 = __nccwpck_require__(6691);
 const IS_WINDOWS = process.platform === 'win32';
 // Returns tar path and type: BSD or GNU
 function getTarPath() {
@@ -3513,7 +3517,7 @@ exports.createTar = createTar;
 
 /***/ }),
 
-/***/ 4090:
+/***/ 677:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -3559,7 +3563,8 @@ function getDownloadOptions(copy) {
         useAzureSdk: true,
         downloadConcurrency: 8,
         timeoutInMs: 30000,
-        segmentTimeoutInMs: 3600000
+        segmentTimeoutInMs: 3600000,
+        lookupOnly: false
     };
     if (copy) {
         if (typeof copy.useAzureSdk === 'boolean') {
@@ -3574,6 +3579,9 @@ function getDownloadOptions(copy) {
         if (typeof copy.segmentTimeoutInMs === 'number') {
             result.segmentTimeoutInMs = copy.segmentTimeoutInMs;
         }
+        if (typeof copy.lookupOnly === 'boolean') {
+            result.lookupOnly = copy.lookupOnly;
+        }
     }
     const segmentDownloadTimeoutMins = process.env['SEGMENT_DOWNLOAD_TIMEOUT_MINS'];
     if (segmentDownloadTimeoutMins &&
@@ -3586,6 +3594,7 @@ function getDownloadOptions(copy) {
     core.debug(`Request timeout (ms): ${result.timeoutInMs}`);
     core.debug(`Cache segment download timeout mins env var: ${process.env['SEGMENT_DOWNLOAD_TIMEOUT_MINS']}`);
     core.debug(`Segment download timeout (ms): ${result.segmentTimeoutInMs}`);
+    core.debug(`Lookup only: ${result.lookupOnly}`);
     return result;
 }
 exports.getDownloadOptions = getDownloadOptions;
@@ -64155,7 +64164,7 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 /* harmony import */ var _actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(514);
 /* harmony import */ var _actions_artifact__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(5833);
 /* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(7733);
-/* harmony import */ var _actions_cache__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(4609);
+/* harmony import */ var _actions_cache__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(3868);
 
 
 
@@ -64211,6 +64220,8 @@ switch (wrapperName) {
 		{
 			const result = await (0,_actions_cache__WEBPACK_IMPORTED_MODULE_3__.restoreCache)(inputs.Path, inputs.PrimaryKey, inputs.RestoreKey, {
 				downloadConcurrency: inputs.DownloadConcurrency,
+				lookupOnly: inputs.LookUp,
+				segmentTimeoutInMs: inputs.SegmentTimeout,
 				timeoutInMs: inputs.Timeout,
 				useAzureSdk: inputs.UseAzureSdk
 			}).catch(errorHandle);
