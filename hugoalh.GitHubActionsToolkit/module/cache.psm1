@@ -26,6 +26,8 @@ Number of parallel downloads of the cache (only for Azure SDK).
 Maximum time for each download request of the cache, by seconds (only for Azure SDK).
 .PARAMETER SegmentTimeout
 Maximum time for each segment download request of the cache, by minutes; This allows the segment download to get aborted and hence allow the job to proceed with a cache miss.
+.PARAMETER LookUp
+Weather to skip downloading the cache entry, and only check if a matching cache entry exists and return the cache key if it does.
 .OUTPUTS
 [String] The key of the cache hit.
 #>
