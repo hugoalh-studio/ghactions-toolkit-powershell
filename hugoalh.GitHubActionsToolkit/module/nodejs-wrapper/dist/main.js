@@ -64294,14 +64294,17 @@ function errorHandle(reason) {
 	console.error(reason?.message ?? reason);
 	return process.exit(1);
 }
+function resultHandle(result) {
+	return Buffer.from(JSON.stringify(result), "utf8").toString("base64");
+}
 const [wrapperName, inputsRaw, delimiter] = process.argv.slice(2);
-const inputs = JSON.parse(inputsRaw);
+const inputs = JSON.parse(Buffer.from(inputsRaw, "base64").toString("utf8"));
 switch (wrapperName) {
 	case "artifact/download":
 		{
 			const result = await (0,_actions_artifact__WEBPACK_IMPORTED_MODULE_1__/* .create */ .U)().downloadArtifact(inputs.Name, inputs.Destination, { createArtifactFolder: inputs.CreateSubfolder }).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({
+			console.log(resultHandle({
 				Name: result.artifactName,
 				Path: result.downloadPath
 			}));
@@ -64311,7 +64314,7 @@ switch (wrapperName) {
 		{
 			const result = await (0,_actions_artifact__WEBPACK_IMPORTED_MODULE_1__/* .create */ .U)().downloadAllArtifacts(inputs.Destination).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify(result.map((value) => {
+			console.log(resultHandle(result.map((value) => {
 				return {
 					Name: value.artifactName,
 					Path: value.downloadPath
@@ -64326,7 +64329,7 @@ switch (wrapperName) {
 				retentionDays: inputs.RetentionTime
 			}).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({
+			console.log(resultHandle({
 				FailedItem: result.failedItems,
 				FailedItems: result.failedItems,
 				Item: result.artifactItems,
@@ -64347,7 +64350,7 @@ switch (wrapperName) {
 				useAzureSdk: inputs.UseAzureSdk
 			}).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ CacheKey: result ?? null }));
+			console.log(resultHandle({ CacheKey: result ?? null }));
 		}
 		break;
 	case "cache/save":
@@ -64357,77 +64360,77 @@ switch (wrapperName) {
 				uploadConcurrency: inputs.UploadConcurrency
 			}).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ CacheId: result }));
+			console.log(resultHandle({ CacheId: result }));
 		}
 		break;
 	case "open-id-connect/get-token":
 		{
 			const result = await (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getIDToken)(inputs.Audience).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Token: result }));
+			console.log(resultHandle({ Token: result }));
 		}
 		break;
 	case "tool-cache/cache-directory":
 		{
 			const result = await (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.cacheDir)(inputs.Source, inputs.Name, inputs.Version, inputs.Architecture).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/cache-file":
 		{
 			const result = await (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.cacheFile)(inputs.Source, inputs.Target, inputs.Name, inputs.Version, inputs.Architecture).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/download-tool":
 		{
 			const result = await (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.downloadTool)(inputs.Uri, inputs.Destination, inputs.Authorization, inputs.Header).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/extract-7z":
 		{
 			const result = await (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.extract7z)(inputs.File, inputs.Destination, inputs["7zrPath"]).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/extract-tar":
 		{
 			const result = await (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.extractTar)(inputs.File, inputs.Destination, inputs.Flag).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/extract-xar":
 		{
 			const result = await (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.extractXar)(inputs.File, inputs.Destination, inputs.Flag).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/extract-zip":
 		{
 			const result = await (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.extractZip)(inputs.File, inputs.Destination).catch(errorHandle);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/find":
 		{
 			const result = (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.find)(inputs.Name, inputs.Version, inputs.Architecture);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Path: result }));
+			console.log(resultHandle({ Path: result }));
 		}
 		break;
 	case "tool-cache/find-all-versions":
 		{
 			const result = (0,_actions_tool_cache__WEBPACK_IMPORTED_MODULE_0__.findAllVersions)(inputs.Name, inputs.Architecture);
 			console.log(delimiter);
-			console.log(JSON.stringify({ Paths: result }));
+			console.log(resultHandle({ Paths: result }));
 		}
 		break;
 	default:

@@ -38,10 +38,10 @@ Function Invoke-NodeJsWrapper {
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
 	Try {
-		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperPath`" `"$Name`" `"$(
+		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperPath`" `"$Name`" `"$([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((
 			$InputObject |
 				ConvertTo-Json -Depth 100 -Compress
-		)`" `"$ResultSeparator`""
+		))))`" `"$ResultSeparator`""
 		[UInt32]$ResultSkipIndex = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]
@@ -57,8 +57,7 @@ Function Invoke-NodeJsWrapper {
 					Join-String -Separator "`n"
 			)"
 		}
-		$Result[($Result.IndexOf($ResultSeparator) + 1)..($Result.Count - 1)] |
-			Join-String -Separator "`n" |
+		[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($Result[$Result.IndexOf($ResultSeparator) + 1])) |
 			ConvertFrom-Json -Depth 100 |
 			Write-Output
 	}
