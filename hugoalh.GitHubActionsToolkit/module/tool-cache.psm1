@@ -91,7 +91,7 @@ Function Expand-ToolCacheCompressedFile {
 		If ($Flag.Length -igt 0) {
 			$InputObject.Flag = $Flag
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -InputObject $InputObject)?.Path |
 			Write-Output
 	}
 }
@@ -148,7 +148,7 @@ Function Find-ToolCache {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -InputObject ([PSCustomObject]$InputObject)
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -InputObject $InputObject
 		Write-Output -InputObject ($IsFindAll ? ${ResultRaw}?.Paths : ${ResultRaw}?.Path)
 	}
 }
@@ -203,7 +203,7 @@ Function Invoke-ToolCacheToolDownloader {
 		If ($Header.Count -igt 0) {
 			$InputObject.Header = [PSCustomObject]$Header
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -InputObject $InputObject)?.Path |
 			Write-Output
 	}
 }
@@ -254,7 +254,7 @@ Function Register-ToolCacheDirectory {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -InputObject $InputObject)?.Path |
 			Write-Output
 	}
 }
@@ -309,7 +309,7 @@ Function Register-ToolCacheFile {
 		If ($Architecture.Length -igt 0) {
 			$InputObject.Architecture = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -InputObject ([PSCustomObject]$InputObject))?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -InputObject $InputObject)?.Path |
 			Write-Output
 	}
 }

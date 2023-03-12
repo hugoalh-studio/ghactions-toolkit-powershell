@@ -7,7 +7,7 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[String]$Wrapper = (Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper' -AdditionalChildPath @('dist', 'main.js')) -ireplace '\\', '/'
+[String]$WrapperPath = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper' -AdditionalChildPath @('dist', 'main.js')
 <#
 .SYNOPSIS
 GitHub Actions - Invoke NodeJS Wrapper
@@ -26,22 +26,22 @@ Function Invoke-NodeJsWrapper {
 	[OutputType(([PSCustomObject], [PSCustomObject[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Name,
-		[Parameter(Mandatory = $True, Position = 1)][Alias('Argument', 'Arguments', 'Input', 'Object', 'Parameter', 'Parameters')][PSCustomObject]$InputObject
+		[Parameter(Mandatory = $True, Position = 1)][Alias('Argument', 'Arguments', 'Input', 'Object', 'Parameter', 'Parameters')][Hashtable]$InputObject
 	)
 	If (!(Test-GitHubActionsNodeJsEnvironment)) {
 		Write-Error -Message 'This function requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
 		Return
 	}
-	If (!(Test-Path -LiteralPath $Wrapper -PathType 'Leaf')) {
+	If (!(Test-Path -LiteralPath $WrapperPath -PathType 'Leaf')) {
 		Write-Error -Message 'Wrapper is missing!' -Category 'ResourceUnavailable'
 		Return
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
 	Try {
-		[String[]]$Result = node --no-deprecation --no-warnings "$Wrapper" "$Name" "$(
+		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperPath`" `"$Name`" `"$(
 			$InputObject |
 				ConvertTo-Json -Depth 100 -Compress
-		)" "$ResultSeparator"
+		)`" `"$ResultSeparator`""
 		[UInt32]$ResultSkipIndex = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
 			[String]$Item = $Result[$ResultIndex]

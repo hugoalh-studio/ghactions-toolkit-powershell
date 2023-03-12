@@ -81,7 +81,7 @@ Function Restore-Cache {
 		If ($Timeout -igt 0) {
 			$InputObject.Timeout = $Timeout * 1000
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -InputObject ([PSCustomObject]$InputObject))?.CacheKey |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -InputObject $InputObject)?.CacheKey |
 			Write-Output
 	}
 }
@@ -141,7 +141,7 @@ Function Save-Cache {
 		If ($UploadConcurrency -igt 0) {
 			$InputObject.UploadConcurrency = $UploadConcurrency
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -InputObject ([PSCustomObject]$InputObject))?.CacheId |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -InputObject $InputObject)?.CacheId |
 			Write-Output
 	}
 }
