@@ -2,14 +2,14 @@ lockfileVersion: 5.4
 
 specifiers:
   '@actions/artifact': ^1.1.1
-  '@actions/cache': ^3.2.0
+  '@actions/cache': ^3.2.1
   '@actions/core': ^1.10.0
   '@actions/tool-cache': ^2.0.1
   '@vercel/ncc': ^0.36.1
 
 dependencies:
   '@actions/artifact': 1.1.1
-  '@actions/cache': 3.2.0
+  '@actions/cache': 3.2.1
   '@actions/core': 1.10.0
   '@actions/tool-cache': 2.0.1
 
@@ -27,8 +27,8 @@ packages:
       tmp-promise: 3.0.3
     dev: false
 
-  /@actions/cache/3.2.0:
-    resolution: {integrity: sha512-bCjN0+gPLaZZbpOoeK/1ve7J5MO+zv8FpcdKOWF3Tb9to0bWDpvgn9D2c/lC22oPUtHnCWQhLNVMfsWF4OBhNw==}
+  /@actions/cache/3.2.1:
+    resolution: {integrity: sha512-QurbMiY//02+0kN1adJkMHN44RcZ5kAXfhSnKUZmtSmhMTNqLitGArG1xOkt93NNyByTlLGAc5wIOF/dZ2ENOQ==}
     dependencies:
       '@actions/core': 1.10.0
       '@actions/exec': 1.1.1
@@ -201,18 +201,18 @@ packages:
   /@types/node-fetch/2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 18.14.6
+      '@types/node': 18.15.0
       form-data: 3.0.1
     dev: false
 
-  /@types/node/18.14.6:
-    resolution: {integrity: sha512-93+VvleD3mXwlLI/xASjw0FzKcwzl3OdTCzm1LaRfqgS21gfFtK3zDXM5Op9TeeMsJVOaJ2VRDpT9q4Y3d0AvA==}
+  /@types/node/18.15.0:
+    resolution: {integrity: sha512-z6nr0TTEOBGkzLGmbypWOGnpSpSIBorEhC4L+4HeQ2iezKCi4f77kyslRwvHeNitymGQ+oFyIWGP96l/DPSV9w==}
     dev: false
 
   /@types/tunnel/0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
     dependencies:
-      '@types/node': 18.14.6
+      '@types/node': 18.15.0
     dev: false
 
   /@vercel/ncc/0.36.1:
