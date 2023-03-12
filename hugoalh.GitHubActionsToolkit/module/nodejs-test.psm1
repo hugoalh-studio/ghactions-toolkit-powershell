@@ -15,7 +15,7 @@ Whether to redo this test by ignore the cached test result.
 [Boolean] Test result.
 #>
 Function Test-NodeJsEnvironment {
-	[CmdletBinding()]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_testgithubactionsnodejsenvironment')]
 	[OutputType([Boolean])]
 	Param (
 		[Alias('Redo')][Switch]$Retest,
@@ -29,8 +29,7 @@ Function Test-NodeJsEnvironment {
 	$Script:EnvironmentResult = $False
 	$Script:EnvironmentTested = $False
 	Try {
-		Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop' |# `Get-Command` will throw error when nothing is found.
-			Out-Null# No need the result.
+		$Null = Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
 		[String]$ExpressionNodeJsVersionResult = node --no-deprecation --no-warnings --version |
 			Join-String -Separator "`n"
 		If (

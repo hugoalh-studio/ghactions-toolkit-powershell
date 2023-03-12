@@ -105,8 +105,7 @@ Function Set-EnvironmentVariable {
 			Return
 		}
 		If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Current) -ieq [GitHubActionsEnvironmentVariableScopes]::Current) {
-			[System.Environment]::SetEnvironmentVariable($Name, $Value) |
-				Out-Null
+			$Null = [System.Environment]::SetEnvironmentVariable($Name, $Value)
 		}
 		If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
 			If ($UseLegacyMethod) {
