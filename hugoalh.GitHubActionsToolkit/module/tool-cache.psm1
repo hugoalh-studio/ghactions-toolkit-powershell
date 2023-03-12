@@ -38,17 +38,19 @@ Function Expand-ToolCacheCompressedFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		If (!(Test-Path -LiteralPath $File -PathType 'Leaf')) {
 			Write-Error -Message "``$File`` is not a valid file path!" -Category 'SyntaxError'
 			Return
@@ -120,17 +122,19 @@ Function Find-ToolCache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		[Hashtable]$InputObject = @{
 			Name = $Name
 		}
@@ -174,17 +178,19 @@ Function Invoke-ToolCacheToolDownloader {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		[Hashtable]$InputObject = @{
 			Uri = $Uri.ToString()
 		}
@@ -227,17 +233,19 @@ Function Register-ToolCacheDirectory {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		[Hashtable]$InputObject = @{
 			Source = $Source
 			Name = $Name
@@ -279,17 +287,19 @@ Function Register-ToolCacheFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -ToolCache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions tool cache resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		[Hashtable]$InputObject = @{
 			Source = $Source
 			Target = $Target

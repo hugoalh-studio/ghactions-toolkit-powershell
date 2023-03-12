@@ -63,7 +63,7 @@ Function Invoke-NodeJsWrapper {
 			Write-Output
 	}
 	Catch {
-		Write-Error -Message "Unable to successfully invoke NodeJS wrapper ``$Name``! $_" -Category 'InvalidData'
+		Write-Error -Message "Unable to successfully invoke NodeJS wrapper ``$Name``: $_" -Category 'InvalidData'
 	}
 }
 Export-ModuleMember -Function @(

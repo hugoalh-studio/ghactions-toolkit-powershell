@@ -76,12 +76,10 @@ Function Get-WebhookEventPayload {
 		[UInt16]$Depth,# Deprecated, keep as legacy.
 		[Switch]$NoEnumerate# Deprecated, keep as legacy.
 	)
-	<# [DISABLED] Issue in GitHub Actions runner
 	If (!(Test-Environment)) {
 		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 		Return
 	}
-	#>
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
 		ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth 100 -NoEnumerate |
 		Write-Output
@@ -102,12 +100,10 @@ Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsworkflowrunuri')]
 	[OutputType([String])]
 	Param ()
-	<# [DISABLED] Issue in GitHub Actions runner
 	If (!(Test-Environment)) {
 		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
 		Return
 	}
-	#>
 	Write-Output -InputObject "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 }
 Set-Alias -Name 'Get-WorkflowRunUrl' -Value 'Get-WorkflowRunUri' -Option 'ReadOnly' -Scope 'Local'
@@ -146,13 +142,12 @@ Function Test-Environment {
 		[Alias('Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!'
 	)
-	If (# Some conditions are disabled to provide compatibility, enable those when with runner requirement.
-		$Env:CI -ine 'true' -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION_REPOSITORY) -or
+	If (# Some conditions are disabled to provide compatibility, will enable those when with runner version requirement.
+		($Env:CI -ine 'true') -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTIONS) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
+		($Env:GITHUB_ACTIONS -ine 'true') -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_API_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ENV) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_EVENT_NAME) -or
@@ -163,18 +158,18 @@ Function Test-Environment {
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_NAME) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_PROTECTED) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_TYPE) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER) -or
+		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ATTEMPT) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_NUMBER) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SERVER_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SHA) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW) -or
 		# [String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_REF) -or
 		# [String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_SHA) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKSPACE) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_ARCH) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_NAME) -or

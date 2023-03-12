@@ -71,7 +71,7 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Find-GitHubActionsToolCache` 🔘
 - `Get-GitHubActionsInput`
 - `Get-GitHubActionsIsDebug`
-- `Get-GitHubActionsOpenIdConnectToken`
+- `Get-GitHubActionsOpenIdConnectToken` 🔘
 - `Get-GitHubActionsState`
 - `Get-GitHubActionsStepSummary`
 - `Get-GitHubActionsWebhookEventPayload`

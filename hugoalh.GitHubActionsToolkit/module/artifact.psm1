@@ -39,17 +39,19 @@ Function Export-Artifact {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('RetentionDay')][Byte]$RetentionTime
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		Switch ($PSCmdlet.ParameterSetName) {
 			'LiteralPath' {
 				[String[]]$PathsProceed = $LiteralPath |
@@ -109,17 +111,19 @@ Function Import-Artifact {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Dest', 'Path', 'Target')][String]$Destination = $Env:GITHUB_WORKSPACE
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
 				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -InputObject ([PSCustomObject]@{

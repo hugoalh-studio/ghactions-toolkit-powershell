@@ -43,17 +43,19 @@ Function Restore-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$LookUp
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		[Hashtable]$InputObject = @{
 			PrimaryKey = $Key[0]
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
@@ -111,17 +113,19 @@ Function Save-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency
 	)
 	Begin {
-		<# [DISABLED] Issue in GitHub Actions runner
+		<# [DISABLED] NodeJS wrapper operation
 		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		#>
 		If ($NoOperation) {
 			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
 		}
+		#>
 	}
 	Process {
+		<# [DISABLED] NodeJS wrapper operation
 		If ($NoOperation) {
 			Return
 		}
+		#>
 		[Hashtable]$InputObject = @{
 			Key = $Key
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (

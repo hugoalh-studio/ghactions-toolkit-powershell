@@ -143,6 +143,6 @@ switch (wrapperName) {
 		}
 		break;
 	default:
-		errorHandle(`\`${wrapperName}\` is not a known NodeJS wrapper name! This is most likely a mistake made by the contributors, please report with this information.`);
+		errorHandle(`\`${wrapperName}\` is not a valid NodeJS wrapper name! Most likely a mistake made by the contributors, please report this issue.`);
 		break;
 }
