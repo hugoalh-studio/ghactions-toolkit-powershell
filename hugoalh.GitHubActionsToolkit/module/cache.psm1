@@ -2,7 +2,7 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'nodejs-invoke',
+		'nodejs-wrapper',
 		'utility'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
@@ -44,20 +44,7 @@ Function Restore-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 7200)][UInt16]$SegmentTimeout,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$LookUp
 	)
-	Begin {
-		<# [DISABLED] NodeJS wrapper operation
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		If ($NoOperation) {
-			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
-		}
-		#>
-	}
 	Process {
-		<# [DISABLED] NodeJS wrapper operation
-		If ($NoOperation) {
-			Return
-		}
-		#>
 		[Hashtable]$InputObject = @{
 			PrimaryKey = $Key[0]
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
@@ -114,20 +101,7 @@ Function Save-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSize')][UInt32]$UploadChunkSizes,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency
 	)
-	Begin {
-		<# [DISABLED] NodeJS wrapper operation
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Cache)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		If ($NoOperation) {
-			Write-Error -Message 'Unable to get GitHub Actions cache resources!' -Category 'ResourceUnavailable'
-		}
-		#>
-	}
 	Process {
-		<# [DISABLED] NodeJS wrapper operation
-		If ($NoOperation) {
-			Return
-		}
-		#>
 		[Hashtable]$InputObject = @{
 			Key = $Key
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (

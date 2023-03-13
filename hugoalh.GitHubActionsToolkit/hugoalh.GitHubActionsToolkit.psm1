@@ -7,7 +7,7 @@
 	'command-control',
 	'environment-variable',
 	'log',
-	'nodejs-test',
+	'nodejs-wrapper',
 	'open-id-connect',
 	'parameter',
 	'problem-matcher',

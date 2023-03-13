@@ -2,7 +2,7 @@
 #Requires -Version 7.2
 Import-Module -Name (
 	@(
-		'nodejs-invoke',
+		'nodejs-wrapper',
 		'utility'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
@@ -38,20 +38,7 @@ Function Export-Artifact {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ContinueOnError')][Switch]$ContinueOnIssue,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('RetentionDay')][Byte]$RetentionTime
 	)
-	Begin {
-		<# [DISABLED] NodeJS wrapper operation
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		If ($NoOperation) {
-			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
-		}
-		#>
-	}
 	Process {
-		<# [DISABLED] NodeJS wrapper operation
-		If ($NoOperation) {
-			Return
-		}
-		#>
 		Switch ($PSCmdlet.ParameterSetName) {
 			'LiteralPath' {
 				[String[]]$PathsProceed = $LiteralPath |
@@ -110,20 +97,7 @@ Function Import-Artifact {
 		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Dest', 'Path', 'Target')][String]$Destination = $Env:GITHUB_WORKSPACE
 	)
-	Begin {
-		<# [DISABLED] NodeJS wrapper operation
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -Artifact)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		If ($NoOperation) {
-			Write-Error -Message 'Unable to get GitHub Actions artifact resources!' -Category 'ResourceUnavailable'
-		}
-		#>
-	}
 	Process {
-		<# [DISABLED] NodeJS wrapper operation
-		If ($NoOperation) {
-			Return
-		}
-		#>
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
 				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -InputObject @{

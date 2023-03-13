@@ -3,7 +3,7 @@
 Import-Module -Name (
 	@(
 		'log',
-		'nodejs-invoke',
+		'nodejs-wrapper',
 		'utility'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
@@ -25,20 +25,7 @@ Function Get-OpenIdConnectToken {
 		[Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][String]$Audience,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NodeJs', 'NodeJsWrapper', 'UseNodeJs')][Switch]$UseNodeJsWrapper# Deprecated, keep as legacy.
 	)
-	Begin {
-		<# [DISABLED] NodeJS wrapper operation
-		[Boolean]$NoOperation = !(Test-GitHubActionsEnvironment -OpenIDConnect)# When the requirements are not fulfill, use this variable to skip this function but keep continue invoke the script.
-		If ($NoOperation) {
-			Write-Error -Message 'Unable to get GitHub Actions OpenID Connect (OIDC) resources!' -Category 'ResourceUnavailable'
-		}
-		#>
-	}
 	Process {
-		<# [DISABLED] NodeJS wrapper operation
-		If ($NoOperation) {
-			Return
-		}
-		#>
 		[Hashtable]$InputObject = @{}
 		If ($Audience.Length -igt 0) {
 			$InputObject.Audience = $Audience

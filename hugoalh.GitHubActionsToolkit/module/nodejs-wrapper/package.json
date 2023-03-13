@@ -1,5 +1,5 @@
 {
-	"name": "@hugoalh/ghactions-toolkit-powershell-nodejs-wrapper-distribution",
+	"name": "@hugoalh/ghactions-toolkit-powershell-nodejs-wrapper",
 	"version": "1.3.2",
 	"description": "A PowerShell module to provide a better and easier way for GitHub Actions to communicate with the runner machine, and the toolkit for developing GitHub Actions in PowerShell.",
 	"keywords": [
@@ -16,13 +16,19 @@
 	"license": "MIT",
 	"author": "hugoalh",
 	"type": "module",
-	"main": "./dist/main.js",
+	"main": "./lib/main.js",
 	"exports": {
-		"import": "./dist/main.js"
+		"import": "./lib/main.js"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/hugoalh-studio/ghactions-toolkit-powershell.git"
+	},
+	"dependencies": {
+		"@actions/artifact": "^1.1.1",
+		"@actions/cache": "^3.2.1",
+		"@actions/core": "^1.10.0",
+		"@actions/tool-cache": "^2.0.1"
 	},
 	"engines": {
 		"node": ">=14.15.0"

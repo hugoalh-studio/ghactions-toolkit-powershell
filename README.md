@@ -29,7 +29,7 @@ For the full documentation, please visit the [GitHub Repository Wiki](https://gi
 
 - PowerShell >= v7.2.0
 - NodeJS >= v14.15.0 (only for NodeJS wrapper API)
-- NPM >= v6.14.8 (only for NodeJS wrapper API, < v1.2.0)
+- NPM >= v6.14.8 (only for NodeJS wrapper API)
 
 ```ps1
 Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
