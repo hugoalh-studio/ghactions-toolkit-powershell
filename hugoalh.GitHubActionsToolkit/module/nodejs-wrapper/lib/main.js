@@ -9,7 +9,16 @@ function base64ToUTF8(item) {
 	return Buffer.from(item, "base64").toString("utf8");
 }
 function errorHandle(reason) {
-	console.error(reason?.message ?? reason);
+	let message;
+	if (typeof reason.message === "undefined") {
+		message = reason;
+	} else {
+		message = reason.message;
+		if (typeof reason.stack === "undefined") {
+			message = `\n${reason.stack}`
+		}
+	}
+	console.error(message);
 	return process.exit(1);
 }
 function resultHandle(result) {
