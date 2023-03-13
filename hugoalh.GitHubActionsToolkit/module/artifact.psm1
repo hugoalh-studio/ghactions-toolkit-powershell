@@ -56,16 +56,16 @@ Function Export-Artifact {
 				}
 			}
 		}
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			Name = $Name
 			Path = $PathsProceed
 			BaseRoot = $BaseRoot
 			ContinueOnIssue = $ContinueOnIssue.IsPresent
 		}
 		If ($RetentionTime -igt 0) {
-			$InputObject.RetentionTIme = $RetentionTime
+			$Argument.RetentionTIme = $RetentionTime
 		}
-		Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/upload' -InputObject $InputObject |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/upload' -Argument $Argument |
 			Write-Output
 	}
 }
@@ -100,13 +100,13 @@ Function Import-Artifact {
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
-				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -InputObject @{
+				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -Argument @{
 					Destination = $Destination
 				} |
 					Write-Output
 			}
 			'Single' {
-				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download' -InputObject @{
+				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download' -Argument @{
 					Name = $Name
 					Destination = $Destination
 					CreateSubfolder = $CreateSubfolder.IsPresent

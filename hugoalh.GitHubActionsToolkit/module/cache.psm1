@@ -45,7 +45,7 @@ Function Restore-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$LookUp
 	)
 	Process {
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			PrimaryKey = $Key[0]
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
 				$LiteralPath |
@@ -57,18 +57,18 @@ Function Restore-Cache {
 		[String[]]$RestoreKey = $Key |
 			Select-Object -SkipIndex 0
 		If ($RestoreKey.Count -igt 0) {
-			$InputObject.RestoreKey = $RestoreKey
+			$Argument.RestoreKey = $RestoreKey
 		}
 		If ($DownloadConcurrency -igt 0) {
-			$InputObject.DownloadConcurrency = $DownloadConcurrency
+			$Argument.DownloadConcurrency = $DownloadConcurrency
 		}
 		If ($SegmentTimeout -igt 0) {
-			$InputObject.SegmentTimeout = $SegmentTimeout * 1000
+			$Argument.SegmentTimeout = $SegmentTimeout * 1000
 		}
 		If ($Timeout -igt 0) {
-			$InputObject.Timeout = $Timeout * 1000
+			$Argument.Timeout = $Timeout * 1000
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -InputObject $InputObject)?.CacheKey |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -Argument $Argument)?.CacheKey |
 			Write-Output
 	}
 }
@@ -102,7 +102,7 @@ Function Save-Cache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency
 	)
 	Process {
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			Key = $Key
 			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
 				$LiteralPath |
@@ -110,12 +110,12 @@ Function Save-Cache {
 			) : $Path
 		}
 		If ($UploadChunkSizes -igt 0) {
-			$InputObject.UploadChunkSizes = $UploadChunkSizes * 1KB
+			$Argument.UploadChunkSizes = $UploadChunkSizes * 1KB
 		}
 		If ($UploadConcurrency -igt 0) {
-			$InputObject.UploadConcurrency = $UploadConcurrency
+			$Argument.UploadConcurrency = $UploadConcurrency
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -InputObject $InputObject)?.CacheId |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -Argument $Argument)?.CacheId |
 			Write-Output
 	}
 }

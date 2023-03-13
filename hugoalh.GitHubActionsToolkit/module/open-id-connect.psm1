@@ -26,11 +26,11 @@ Function Get-OpenIdConnectToken {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NodeJs', 'NodeJsWrapper', 'UseNodeJs')][Switch]$UseNodeJsWrapper# Deprecated, keep as legacy.
 	)
 	Process {
-		[Hashtable]$InputObject = @{}
+		[Hashtable]$Argument = @{}
 		If ($Audience.Length -igt 0) {
-			$InputObject.Audience = $Audience
+			$Argument.Audience = $Audience
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'open-id-connect/get-token' -InputObject $InputObject)?.Token |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'open-id-connect/get-token' -Argument $Argument)?.Token |
 			Write-Output
 	}
 }

@@ -66,19 +66,19 @@ Function Expand-ToolCacheCompressedFile {
 				}
 			}
 		}
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			File = $File
 		}
 		If ($Destination.Length -igt 0) {
-			$InputObject.Destination = $Destination
+			$Argument.Destination = $Destination
 		}
 		If ($7zrPath.Length -igt 0) {
-			$InputObject['7zrPath'] = $7zrPath
+			$Argument['7zrPath'] = $7zrPath
 		}
 		If ($Flag.Length -igt 0) {
-			$InputObject.Flag = $Flag
+			$Argument.Flag = $Flag
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -InputObject $InputObject)?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -Argument $Argument)?.Path |
 			Write-Output
 	}
 }
@@ -109,20 +109,17 @@ Function Find-ToolCache {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Process {
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			Name = $Name
 		}
-		[Boolean]$IsFindAll = $False
-		If ($Version.Length -ieq 0) {
-			$IsFindAll = $True
-		}
-		Else {
-			$InputObject.Version = $Version
+		[Boolean]$IsFindAll = $Version.Length -ieq 0
+		If (!$IsFindAll) {
+			$Argument.Version = $Version
 		}
 		If ($Architecture.Length -igt 0) {
-			$InputObject.Architecture = $Architecture
+			$Argument.Architecture = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -InputObject $InputObject
+		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -Argument $Argument
 		Write-Output -InputObject ($IsFindAll ? ${ResultRaw}?.Paths : ${ResultRaw}?.Path)
 	}
 }
@@ -152,19 +149,19 @@ Function Invoke-ToolCacheToolDownloader {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header
 	)
 	Process {
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			Uri = $Uri.ToString()
 		}
 		If ($Destination.Length -igt 0) {
-			$InputObject.Destination = $Destination
+			$Argument.Destination = $Destination
 		}
 		If ($Authorization.Length -igt 0) {
-			$InputObject.Authorization = $Authorization
+			$Argument.Authorization = $Authorization
 		}
 		If ($Header.Count -igt 0) {
-			$InputObject.Header = [PSCustomObject]$Header
+			$Argument.Header = [PSCustomObject]$Header
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -InputObject $InputObject)?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -Argument $Argument)?.Path |
 			Write-Output
 	}
 }
@@ -194,15 +191,15 @@ Function Register-ToolCacheDirectory {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Process {
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			Source = $Source
 			Name = $Name
 			Version = $Version
 		}
 		If ($Architecture.Length -igt 0) {
-			$InputObject.Architecture = $Architecture
+			$Argument.Architecture = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -InputObject $InputObject)?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -Argument $Argument)?.Path |
 			Write-Output
 	}
 }
@@ -235,16 +232,16 @@ Function Register-ToolCacheFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Process {
-		[Hashtable]$InputObject = @{
+		[Hashtable]$Argument = @{
 			Source = $Source
 			Target = $Target
 			Name = $Name
 			Version = $Version
 		}
 		If ($Architecture.Length -igt 0) {
-			$InputObject.Architecture = $Architecture
+			$Argument.Architecture = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -InputObject $InputObject)?.Path |
+		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -Argument $Argument)?.Path |
 			Write-Output
 	}
 }

@@ -8,12 +8,52 @@ Import-Module -Name (
 ) -Prefix 'GitHubActions' -Scope 'Local'
 [Boolean]$IsTested = $False
 [Boolean]$ResultDependencies = $False
-[Boolean]$ResultTest = $False
+[Boolean]$ResultEnvironment = $False
 [SemVer]$NodeJsMinimumVersion = [SemVer]::Parse('14.15.0')
 [SemVer]$NpmMinimumVersion = [SemVer]::Parse('6.14.8')
+[SemVer]$PnpmMinimumVersion = [SemVer]::Parse('7.28.0')
 [RegEx]$SemVerRegEx = 'v?\d+\.\d+\.\d+'
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
-[String]$WrapperPath = Join-Path -Path $WrapperRoot -ChildPath 'lib' -AdditionalChildPath @('main.js')
+[String]$WrapperMetaPath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
+[String]$WrapperScriptPath = Join-Path -Path $WrapperRoot -ChildPath 'lib' -AdditionalChildPath @('main.js')
+<#
+.SYNOPSIS
+GitHub Actions - Internal - Convert From Base64 String To Utf8 String
+.PARAMETER InputObject
+String that need decode from base64.
+.OUTPUTS
+[String] An decoded string.
+#>
+Function Convert-FromBase64StringToUtf8String {
+	[CmdletBinding()]
+	[OutputType([String])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
+	)
+	Process {
+		[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($InputObject)) |
+			Write-Output
+	}
+}
+<#
+.SYNOPSIS
+GitHub Actions - Internal - Convert From Utf8 String To Base64 String
+.PARAMETER InputObject
+String that need encode to base64.
+.OUTPUTS
+[String] An encoded string.
+#>
+Function Convert-FromUtf8StringToBase64String {
+	[CmdletBinding()]
+	[OutputType([String])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
+	)
+	Process {
+		[System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($InputObject)) |
+			Write-Output
+	}
+}
 <#
 .SYNOPSIS
 GitHub Actions - Invoke NodeJS Wrapper
@@ -21,7 +61,7 @@ GitHub Actions - Invoke NodeJS Wrapper
 Invoke NodeJS wrapper.
 .PARAMETER Name
 Name of the NodeJS wrapper.
-.PARAMETER InputObject
+.PARAMETER Argument
 Arguments of the NodeJS wrapper.
 .OUTPUTS
 [PSCustomObject] Result of the NodeJS wrapper.
@@ -32,30 +72,38 @@ Function Invoke-NodeJsWrapper {
 	[OutputType(([PSCustomObject], [PSCustomObject[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Name,
-		[Parameter(Mandatory = $True, Position = 1)][Alias('Argument', 'Arguments', 'Input', 'Object', 'Parameter', 'Parameters')][Hashtable]$InputObject
+		[Parameter(Mandatory = $True, Position = 1)][Alias('Arguments')][Hashtable]$Argument,
+		[Alias('Debug')][Switch]$LocalDebug
 	)
-	If (!(Test-NodeJsEnvironment)) {
-		Write-Error -Message 'This function requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
-		Return
-	}
-	If (!(Test-Path -LiteralPath $WrapperPath -PathType 'Leaf')) {
-		Write-Error -Message 'Wrapper is missing!' -Category 'ResourceUnavailable'
-		Return
+	If (!$LocalDebug.IsPresent) {
+		If (!(Test-NodeJsEnvironment)) {
+			Write-Error -Message 'This function depends and requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
+			Return
+		}
+		If (!(Test-Path -LiteralPath $WrapperMetaPath -PathType 'Leaf')) {
+			Write-Error -Message 'Wrapper meta is missing!' -Category 'ResourceUnavailable'
+			Return
+		}
+		If (!(Test-Path -LiteralPath $WrapperScriptPath -PathType 'Leaf')) {
+			Write-Error -Message 'Wrapper script is missing!' -Category 'ResourceUnavailable'
+			Return
+		}
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
 	Try {
-		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperPath`" `"$Name`" `"$([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((
-			$InputObject |
-				ConvertTo-Json -Depth 100 -Compress
-		))))`" `"$ResultSeparator`""
+		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperScriptPath`" $(Convert-FromUtf8StringToBase64String -InputObject $Name) $(
+			$Argument |
+				ConvertTo-Json -Depth 100 -Compress |
+				Convert-FromUtf8StringToBase64String
+		) $(Convert-FromUtf8StringToBase64String -InputObject $ResultSeparator)"
 		[UInt32[]]$ResultSkipIndexes = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
-			[String]$Item = $Result[$ResultIndex]
-			If ($Item -imatch '^::.+?::.*$') {
-				Write-Host -Object $Item
+			[String]$ResultLine = $Result[$ResultIndex]
+			If ($ResultLine -imatch '^::.+?::.*$') {
+				Write-Host -Object $ResultLine
 				$ResultSkipIndexes += $ResultIndex
 			}
-			If ($Item -ieq $ResultSeparator) {
+			If ($ResultLine -ieq $ResultSeparator) {
 				$ResultSkipIndexes += @($ResultIndex..($Result.Count - 1))
 				Break
 			}
@@ -67,7 +115,8 @@ Function Invoke-NodeJsWrapper {
 					Join-String -Separator "`n"
 			)"
 		}
-		[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($Result[$Result.IndexOf($ResultSeparator) + 1])) |
+		$Result[$Result.Count - 1] |
+			Convert-FromBase64StringToUtf8String |
 			ConvertFrom-Json -Depth 100 |
 			Write-Output
 	}
@@ -96,7 +145,7 @@ Function Test-NodeJsEnvironment {
 	)
 	If ($IsTested -and !$Retest.IsPresent -and !$ReinstallDependencies.IsPresent) {
 		Write-Verbose -Message 'Previously tested NodeJS environment; Return previous result.'
-		Write-Output -InputObject ($ResultDependencies -and $ResultTest)
+		Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
 		Return
 	}
 	$Script:IsTested = $False
@@ -104,9 +153,9 @@ Function Test-NodeJsEnvironment {
 		$Script:ResultDependencies = $False
 	}
 	If ($Retest.IsPresent) {
-		$Script:ResultTest = $False
+		$Script:ResultEnvironment = $False
 	}
-	If (!$ResultTest) {
+	If (!$ResultEnvironment) {
 		Try {
 			Try {
 				$Null = Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
@@ -150,20 +199,28 @@ Function Test-NodeJsEnvironment {
 		Catch {
 			Write-Verbose -Message $_
 			$Script:IsTested = $True
-			$Script:ResultTest = $False
-			Write-Output -InputObject ($ResultDependencies -and $ResultTest)
+			$Script:ResultEnvironment = $False
+			Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
 			Return
 		}
 	}
-	$Script:ResultTest = $True
+	$Script:ResultEnvironment = $True
 	If (!$ResultDependencies) {
 		Try {
 			Try {
 				$Null = Get-Command -Name 'pnpm' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
+				[String]$PnpmVersionStdOut = pnpm --version |
+					Join-String -Separator "`n"
+				If (
+					$PnpmVersionStdOut -inotmatch $SemVerRegEx -or
+					$PnpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
+				) {
+					Throw
+				}
 			}
 			Catch {
 				Try {
-					$Null = npm install --global pnpm
+					$Null = npm install --global pnpm@latest
 				}
 				Catch {
 					Throw 'Unable to install PNPM!'
@@ -190,13 +247,13 @@ Function Test-NodeJsEnvironment {
 			Write-Verbose -Message $_
 			$Script:IsTested = $True
 			$Script:ResultDependencies = $False
-			Write-Output -InputObject ($ResultDependencies -and $ResultTest)
+			Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
 			Return
 		}
 	}
 	$Script:IsTested = $True
 	$Script:ResultDependencies = $True
-	Write-Output -InputObject ($ResultDependencies -and $ResultTest)
+	Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
 }
 Export-ModuleMember -Function @(
 	'Invoke-NodeJsWrapper',

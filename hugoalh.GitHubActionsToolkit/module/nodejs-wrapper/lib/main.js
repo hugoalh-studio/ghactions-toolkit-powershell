@@ -1,17 +1,36 @@
 import { cacheDir as ghactionsToolCacheCacheDirectory, cacheFile as ghactionsToolCacheCacheFile, downloadTool as ghactionToolCacheDownloadTool, extract7z as ghactionToolCacheExtract7z, extractTar as ghactionToolCacheExtractTar, extractXar as ghactionToolCacheExtractXar, extractZip as ghactionToolCacheExtractZip, find as ghactionsToolCacheFind, findAllVersions as ghactionsToolCacheFindAllVersions } from "@actions/tool-cache";
 import { create as ghactionsArtifact } from "@actions/artifact";
-import { getIDToken as ghactionsGetOpenIDConnectToken } from "@actions/core";
+import { debug as ghactionsDebug, getIDToken as ghactionsGetOpenIDConnectToken } from "@actions/core";
 import { restoreCache as ghactionsCacheRestoreCache, saveCache as ghactionsCacheSaveCache } from "@actions/cache";
+function base64FromUTF8(item) {
+	return Buffer.from(item, "utf8").toString("base64");
+}
+function base64ToUTF8(item) {
+	return Buffer.from(item, "base64").toString("utf8");
+}
 function errorHandle(reason) {
 	console.error(reason?.message ?? reason);
 	return process.exit(1);
 }
 function resultHandle(result) {
-	return Buffer.from(JSON.stringify(result), "utf8").toString("base64");
+	return base64FromUTF8(JSON.stringify(result));
 }
-const [wrapperName, inputsRaw, delimiter] = process.argv.slice(2);
-const inputs = JSON.parse(Buffer.from(inputsRaw, "base64").toString("utf8"));
+let [wrapperName, inputsRaw, delimiter] = process.argv.slice(2);
+[wrapperName, inputsRaw, delimiter] = [wrapperName, inputsRaw, delimiter].map((value) => {
+	return base64ToUTF8(value);
+});
+const inputs = JSON.parse(inputsRaw);
 switch (wrapperName) {
+	case "__debug":
+		{
+			ghactionsDebug(inputs.Message);
+			console.log(delimiter);
+			console.log(resultHandle({
+				Message: "Hello, world!",
+				Message2: "Good day, world!"
+			}));
+		}
+		break;
 	case "artifact/download":
 		{
 			const result = await ghactionsArtifact().downloadArtifact(inputs.Name, inputs.Destination, { createArtifactFolder: inputs.CreateSubfolder }).catch(errorHandle);
