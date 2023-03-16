@@ -2,11 +2,8 @@ import { cacheDir as ghactionsToolCacheCacheDirectory, cacheFile as ghactionsToo
 import { create as ghactionsArtifact } from "@actions/artifact";
 import { debug as ghactionsDebug, getIDToken as ghactionsGetOpenIDConnectToken } from "@actions/core";
 import { restoreCache as ghactionsCacheRestoreCache, saveCache as ghactionsCacheSaveCache } from "@actions/cache";
-function base64FromUTF8(item) {
-	return Buffer.from(item, "utf8").toString("base64");
-}
-function base64ToUTF8(item) {
-	return Buffer.from(item, "base64").toString("utf8");
+function encodeConvert(item, from, to) {
+	return Buffer.from(item, from).toString(to);
 }
 function errorHandle(reason) {
 	let message;
@@ -22,11 +19,11 @@ function errorHandle(reason) {
 	return process.exit(1);
 }
 function resultHandle(result) {
-	return base64FromUTF8(JSON.stringify(result));
+	return encodeConvert(JSON.stringify(result), "utf8", "base64");
 }
 let [wrapperName, inputsRaw, delimiter] = process.argv.slice(2);
 [wrapperName, inputsRaw, delimiter] = [wrapperName, inputsRaw, delimiter].map((value) => {
-	return base64ToUTF8(value);
+	return encodeConvert(value, "base64", "utf8");
 });
 const inputs = JSON.parse(inputsRaw);
 switch (wrapperName) {

@@ -15,7 +15,7 @@ Import-Module -Name (
 [RegEx]$SemVerRegEx = 'v?\d+\.\d+\.\d+'
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
 [String]$WrapperMetaPath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
-[String]$WrapperScriptPath = Join-Path -Path $WrapperRoot -ChildPath 'lib' -AdditionalChildPath @('main.js')
+[String]$WrapperScriptPath = Join-Path -Path $WrapperRoot -ChildPath 'unbundled.js'
 <#
 .SYNOPSIS
 GitHub Actions - Internal - Convert From Base64 String To Utf8 String
@@ -89,7 +89,7 @@ Function Invoke-NodeJsWrapper {
 			Return
 		}
 	}
-	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken -Length 32)====="
+	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken)====="
 	Try {
 		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperScriptPath`" $(Convert-FromUtf8StringToBase64String -InputObject $Name) $(
 			$Argument |

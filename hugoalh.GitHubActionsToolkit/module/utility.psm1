@@ -52,8 +52,8 @@ Function Get-IsDebug {
 	[OutputType([Boolean])]
 	Param ()
 	(
-		$Env:RUNNER_DEBUG -ieq 'true' -or
-		$Env:RUNNER_DEBUG -ieq '1'
+		$Env:RUNNER_DEBUG -ieq '1' -or
+		$Env:RUNNER_DEBUG -ieq 'true'
 	) |
 		Write-Output
 }
