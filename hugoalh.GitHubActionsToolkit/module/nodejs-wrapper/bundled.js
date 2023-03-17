@@ -2732,7 +2732,7 @@ exports.isGhes = exports.assertDefined = exports.getGnuTarPathOnWindows = export
 const core = __importStar(__nccwpck_require__(7733));
 const exec = __importStar(__nccwpck_require__(1757));
 const glob = __importStar(__nccwpck_require__(5440));
-const io = __importStar(__nccwpck_require__(1318));
+const io = __importStar(__nccwpck_require__(8629));
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const semver = __importStar(__nccwpck_require__(3496));
@@ -3382,7 +3382,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTar = exports.extractTar = exports.listTar = void 0;
 const exec_1 = __nccwpck_require__(1757);
-const io = __importStar(__nccwpck_require__(1318));
+const io = __importStar(__nccwpck_require__(8629));
 const fs_1 = __nccwpck_require__(7147);
 const path = __importStar(__nccwpck_require__(1017));
 const utils = __importStar(__nccwpck_require__(3390));
@@ -4856,8 +4856,8 @@ const os = __importStar(__nccwpck_require__(2037));
 const events = __importStar(__nccwpck_require__(2361));
 const child = __importStar(__nccwpck_require__(2081));
 const path = __importStar(__nccwpck_require__(1017));
-const io = __importStar(__nccwpck_require__(1318));
-const ioUtil = __importStar(__nccwpck_require__(2628));
+const io = __importStar(__nccwpck_require__(8629));
+const ioUtil = __importStar(__nccwpck_require__(2548));
 const timers_1 = __nccwpck_require__(9512);
 /* eslint-disable @typescript-eslint/unbound-method */
 const IS_WINDOWS = process.platform === 'win32';
@@ -7276,7 +7276,7 @@ function isLoopbackAddress(host) {
 
 /***/ }),
 
-/***/ 2628:
+/***/ 2548:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -7310,11 +7310,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rename = exports.readlink = exports.readdir = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
+exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
-_a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
+_a = fs.promises
+// export const {open} = 'fs'
+, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
+// export const {open} = 'fs'
 exports.IS_WINDOWS = process.platform === 'win32';
+// See https://github.com/nodejs/node/blob/d0153aee367422d0858105abec186da4dff0a0c5/deps/uv/include/uv/win.h#L691
+exports.UV_FS_O_EXLOCK = 0x10000000;
+exports.READONLY = fs.constants.O_RDONLY;
 function exists(fsPath) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -7459,7 +7465,7 @@ exports.getCmdPath = getCmdPath;
 
 /***/ }),
 
-/***/ 1318:
+/***/ 8629:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -7494,12 +7500,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
 const assert_1 = __nccwpck_require__(9491);
-const childProcess = __importStar(__nccwpck_require__(2081));
 const path = __importStar(__nccwpck_require__(1017));
-const util_1 = __nccwpck_require__(3837);
-const ioUtil = __importStar(__nccwpck_require__(2628));
-const exec = util_1.promisify(childProcess.exec);
-const execFile = util_1.promisify(childProcess.execFile);
+const ioUtil = __importStar(__nccwpck_require__(2548));
 /**
  * Copies a file or folder.
  * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
@@ -7580,61 +7582,23 @@ exports.mv = mv;
 function rmRF(inputPath) {
     return __awaiter(this, void 0, void 0, function* () {
         if (ioUtil.IS_WINDOWS) {
-            // Node doesn't provide a delete operation, only an unlink function. This means that if the file is being used by another
-            // program (e.g. antivirus), it won't be deleted. To address this, we shell out the work to rd/del.
             // Check for invalid characters
             // https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file
             if (/[*"<>|]/.test(inputPath)) {
                 throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
             }
-            try {
-                const cmdPath = ioUtil.getCmdPath();
-                if (yield ioUtil.isDirectory(inputPath, true)) {
-                    yield exec(`${cmdPath} /s /c "rd /s /q "%inputPath%""`, {
-                        env: { inputPath }
-                    });
-                }
-                else {
-                    yield exec(`${cmdPath} /s /c "del /f /a "%inputPath%""`, {
-                        env: { inputPath }
-                    });
-                }
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-            // Shelling out fails to remove a symlink folder with missing source, this unlink catches that
-            try {
-                yield ioUtil.unlink(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
         }
-        else {
-            let isDir = false;
-            try {
-                isDir = yield ioUtil.isDirectory(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-                return;
-            }
-            if (isDir) {
-                yield execFile(`rm`, [`-rf`, `${inputPath}`]);
-            }
-            else {
-                yield ioUtil.unlink(inputPath);
-            }
+        try {
+            // note if path does not exist, error is silent
+            yield ioUtil.rm(inputPath, {
+                force: true,
+                maxRetries: 3,
+                recursive: true,
+                retryDelay: 300
+            });
+        }
+        catch (err) {
+            throw new Error(`File was unable to be removed ${err}`);
         }
     });
 }
@@ -8067,7 +8031,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.evaluateVersions = exports.isExplicitVersion = exports.findFromManifest = exports.getManifestFromRepo = exports.findAllVersions = exports.find = exports.cacheFile = exports.cacheDir = exports.extractZip = exports.extractXar = exports.extractTar = exports.extract7z = exports.downloadTool = exports.HTTPError = void 0;
 const core = __importStar(__nccwpck_require__(7733));
-const io = __importStar(__nccwpck_require__(1318));
+const io = __importStar(__nccwpck_require__(8629));
 const fs = __importStar(__nccwpck_require__(7147));
 const mm = __importStar(__nccwpck_require__(2842));
 const os = __importStar(__nccwpck_require__(2037));
@@ -15943,7 +15907,7 @@ exports.getPagedAsyncIterator = getPagedAsyncIterator;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var api = __nccwpck_require__(6676);
+var api = __nccwpck_require__(9317);
 
 // Copyright (c) Microsoft Corporation.
 (function (SpanKind) {
@@ -41723,7 +41687,7 @@ exports.newPipeline = newPipeline;
 
 /***/ }),
 
-/***/ 8136:
+/***/ 4560:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -41744,9 +41708,9 @@ exports.newPipeline = newPipeline;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ContextAPI = void 0;
-const NoopContextManager_1 = __nccwpck_require__(4269);
-const global_utils_1 = __nccwpck_require__(2204);
-const diag_1 = __nccwpck_require__(1317);
+const NoopContextManager_1 = __nccwpck_require__(4261);
+const global_utils_1 = __nccwpck_require__(1426);
+const diag_1 = __nccwpck_require__(667);
 const API_NAME = 'context';
 const NOOP_CONTEXT_MANAGER = new NoopContextManager_1.NoopContextManager();
 /**
@@ -41810,7 +41774,7 @@ exports.ContextAPI = ContextAPI;
 
 /***/ }),
 
-/***/ 1317:
+/***/ 667:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -41831,10 +41795,10 @@ exports.ContextAPI = ContextAPI;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DiagAPI = void 0;
-const ComponentLogger_1 = __nccwpck_require__(9270);
-const logLevelLogger_1 = __nccwpck_require__(4756);
-const types_1 = __nccwpck_require__(7584);
-const global_utils_1 = __nccwpck_require__(2204);
+const ComponentLogger_1 = __nccwpck_require__(501);
+const logLevelLogger_1 = __nccwpck_require__(6918);
+const types_1 = __nccwpck_require__(9778);
+const global_utils_1 = __nccwpck_require__(1426);
 const API_NAME = 'diag';
 /**
  * Singleton object which represents the entry point to the OpenTelemetry internal
@@ -41909,7 +41873,7 @@ exports.DiagAPI = DiagAPI;
 
 /***/ }),
 
-/***/ 9210:
+/***/ 3045:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -41930,9 +41894,9 @@ exports.DiagAPI = DiagAPI;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MetricsAPI = void 0;
-const NoopMeterProvider_1 = __nccwpck_require__(3040);
-const global_utils_1 = __nccwpck_require__(2204);
-const diag_1 = __nccwpck_require__(1317);
+const NoopMeterProvider_1 = __nccwpck_require__(6848);
+const global_utils_1 = __nccwpck_require__(1426);
+const diag_1 = __nccwpck_require__(667);
 const API_NAME = 'metrics';
 /**
  * Singleton object which represents the entry point to the OpenTelemetry Metrics API
@@ -41976,7 +41940,7 @@ exports.MetricsAPI = MetricsAPI;
 
 /***/ }),
 
-/***/ 2651:
+/***/ 4784:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -41997,12 +41961,12 @@ exports.MetricsAPI = MetricsAPI;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PropagationAPI = void 0;
-const global_utils_1 = __nccwpck_require__(2204);
-const NoopTextMapPropagator_1 = __nccwpck_require__(4103);
-const TextMapPropagator_1 = __nccwpck_require__(7923);
-const context_helpers_1 = __nccwpck_require__(7509);
-const utils_1 = __nccwpck_require__(5998);
-const diag_1 = __nccwpck_require__(1317);
+const global_utils_1 = __nccwpck_require__(1426);
+const NoopTextMapPropagator_1 = __nccwpck_require__(200);
+const TextMapPropagator_1 = __nccwpck_require__(3138);
+const context_helpers_1 = __nccwpck_require__(8108);
+const utils_1 = __nccwpck_require__(2919);
+const diag_1 = __nccwpck_require__(667);
 const API_NAME = 'propagation';
 const NOOP_TEXT_MAP_PROPAGATOR = new NoopTextMapPropagator_1.NoopTextMapPropagator();
 /**
@@ -42071,7 +42035,7 @@ exports.PropagationAPI = PropagationAPI;
 
 /***/ }),
 
-/***/ 4113:
+/***/ 1926:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42092,11 +42056,11 @@ exports.PropagationAPI = PropagationAPI;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TraceAPI = void 0;
-const global_utils_1 = __nccwpck_require__(2204);
-const ProxyTracerProvider_1 = __nccwpck_require__(9344);
-const spancontext_utils_1 = __nccwpck_require__(783);
-const context_utils_1 = __nccwpck_require__(3257);
-const diag_1 = __nccwpck_require__(1317);
+const global_utils_1 = __nccwpck_require__(1426);
+const ProxyTracerProvider_1 = __nccwpck_require__(9002);
+const spancontext_utils_1 = __nccwpck_require__(2426);
+const context_utils_1 = __nccwpck_require__(2954);
+const diag_1 = __nccwpck_require__(667);
 const API_NAME = 'trace';
 /**
  * Singleton object which represents the entry point to the OpenTelemetry Tracing API
@@ -42156,7 +42120,7 @@ exports.TraceAPI = TraceAPI;
 
 /***/ }),
 
-/***/ 7509:
+/***/ 8108:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42177,8 +42141,8 @@ exports.TraceAPI = TraceAPI;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deleteBaggage = exports.setBaggage = exports.getActiveBaggage = exports.getBaggage = void 0;
-const context_1 = __nccwpck_require__(8136);
-const context_2 = __nccwpck_require__(3997);
+const context_1 = __nccwpck_require__(4560);
+const context_2 = __nccwpck_require__(8630);
 /**
  * Baggage key
  */
@@ -42225,7 +42189,7 @@ exports.deleteBaggage = deleteBaggage;
 
 /***/ }),
 
-/***/ 8279:
+/***/ 7401:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -42286,7 +42250,7 @@ exports.BaggageImpl = BaggageImpl;
 
 /***/ }),
 
-/***/ 3491:
+/***/ 4282:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -42315,7 +42279,7 @@ exports.baggageEntryMetadataSymbol = Symbol('BaggageEntryMetadata');
 
 /***/ }),
 
-/***/ 5998:
+/***/ 2919:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42336,9 +42300,9 @@ exports.baggageEntryMetadataSymbol = Symbol('BaggageEntryMetadata');
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.baggageEntryMetadataFromString = exports.createBaggage = void 0;
-const diag_1 = __nccwpck_require__(1317);
-const baggage_impl_1 = __nccwpck_require__(8279);
-const symbol_1 = __nccwpck_require__(3491);
+const diag_1 = __nccwpck_require__(667);
+const baggage_impl_1 = __nccwpck_require__(7401);
+const symbol_1 = __nccwpck_require__(4282);
 const diag = diag_1.DiagAPI.instance();
 /**
  * Create a new Baggage with optional entries
@@ -42372,7 +42336,7 @@ exports.baggageEntryMetadataFromString = baggageEntryMetadataFromString;
 
 /***/ }),
 
-/***/ 3259:
+/***/ 6476:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42395,14 +42359,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.context = void 0;
 // Split module-level variable definition into separate files to allow
 // tree-shaking on each api instance.
-const context_1 = __nccwpck_require__(8136);
+const context_1 = __nccwpck_require__(4560);
 /** Entrypoint for context API */
 exports.context = context_1.ContextAPI.getInstance();
 //# sourceMappingURL=context-api.js.map
 
 /***/ }),
 
-/***/ 4269:
+/***/ 4261:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42423,7 +42387,7 @@ exports.context = context_1.ContextAPI.getInstance();
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NoopContextManager = void 0;
-const context_1 = __nccwpck_require__(3997);
+const context_1 = __nccwpck_require__(8630);
 class NoopContextManager {
     active() {
         return context_1.ROOT_CONTEXT;
@@ -42446,7 +42410,7 @@ exports.NoopContextManager = NoopContextManager;
 
 /***/ }),
 
-/***/ 3997:
+/***/ 8630:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -42507,7 +42471,7 @@ exports.ROOT_CONTEXT = new BaseContext();
 
 /***/ }),
 
-/***/ 3729:
+/***/ 4906:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42530,7 +42494,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.diag = void 0;
 // Split module-level variable definition into separate files to allow
 // tree-shaking on each api instance.
-const diag_1 = __nccwpck_require__(1317);
+const diag_1 = __nccwpck_require__(667);
 /**
  * Entrypoint for Diag API.
  * Defines Diagnostic handler used for internal diagnostic logging operations.
@@ -42542,7 +42506,7 @@ exports.diag = diag_1.DiagAPI.instance();
 
 /***/ }),
 
-/***/ 9270:
+/***/ 501:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42563,7 +42527,7 @@ exports.diag = diag_1.DiagAPI.instance();
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DiagComponentLogger = void 0;
-const global_utils_1 = __nccwpck_require__(2204);
+const global_utils_1 = __nccwpck_require__(1426);
 /**
  * Component Logger which is meant to be used as part of any component which
  * will add automatically additional namespace in front of the log message.
@@ -42607,7 +42571,7 @@ function logProxy(funcName, namespace, args) {
 
 /***/ }),
 
-/***/ 6071:
+/***/ 42:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -42670,7 +42634,7 @@ exports.DiagConsoleLogger = DiagConsoleLogger;
 
 /***/ }),
 
-/***/ 4756:
+/***/ 6918:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42691,7 +42655,7 @@ exports.DiagConsoleLogger = DiagConsoleLogger;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createLogLevelDiagLogger = void 0;
-const types_1 = __nccwpck_require__(7584);
+const types_1 = __nccwpck_require__(9778);
 function createLogLevelDiagLogger(maxLevel, logger) {
     if (maxLevel < types_1.DiagLogLevel.NONE) {
         maxLevel = types_1.DiagLogLevel.NONE;
@@ -42721,7 +42685,7 @@ exports.createLogLevelDiagLogger = createLogLevelDiagLogger;
 
 /***/ }),
 
-/***/ 7584:
+/***/ 9778:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -42771,7 +42735,7 @@ var DiagLogLevel;
 
 /***/ }),
 
-/***/ 6676:
+/***/ 9317:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42792,59 +42756,59 @@ var DiagLogLevel;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.trace = exports.propagation = exports.metrics = exports.diag = exports.context = exports.INVALID_SPAN_CONTEXT = exports.INVALID_TRACEID = exports.INVALID_SPANID = exports.isValidSpanId = exports.isValidTraceId = exports.isSpanContextValid = exports.createTraceState = exports.TraceFlags = exports.SpanStatusCode = exports.SpanKind = exports.SamplingDecision = exports.ProxyTracerProvider = exports.ProxyTracer = exports.defaultTextMapSetter = exports.defaultTextMapGetter = exports.ValueType = exports.createNoopMeter = exports.DiagLogLevel = exports.DiagConsoleLogger = exports.ROOT_CONTEXT = exports.createContextKey = exports.baggageEntryMetadataFromString = void 0;
-var utils_1 = __nccwpck_require__(5998);
+var utils_1 = __nccwpck_require__(2919);
 Object.defineProperty(exports, "baggageEntryMetadataFromString", ({ enumerable: true, get: function () { return utils_1.baggageEntryMetadataFromString; } }));
 // Context APIs
-var context_1 = __nccwpck_require__(3997);
+var context_1 = __nccwpck_require__(8630);
 Object.defineProperty(exports, "createContextKey", ({ enumerable: true, get: function () { return context_1.createContextKey; } }));
 Object.defineProperty(exports, "ROOT_CONTEXT", ({ enumerable: true, get: function () { return context_1.ROOT_CONTEXT; } }));
 // Diag APIs
-var consoleLogger_1 = __nccwpck_require__(6071);
+var consoleLogger_1 = __nccwpck_require__(42);
 Object.defineProperty(exports, "DiagConsoleLogger", ({ enumerable: true, get: function () { return consoleLogger_1.DiagConsoleLogger; } }));
-var types_1 = __nccwpck_require__(7584);
+var types_1 = __nccwpck_require__(9778);
 Object.defineProperty(exports, "DiagLogLevel", ({ enumerable: true, get: function () { return types_1.DiagLogLevel; } }));
 // Metrics APIs
-var NoopMeter_1 = __nccwpck_require__(3662);
+var NoopMeter_1 = __nccwpck_require__(2343);
 Object.defineProperty(exports, "createNoopMeter", ({ enumerable: true, get: function () { return NoopMeter_1.createNoopMeter; } }));
-var Metric_1 = __nccwpck_require__(2751);
+var Metric_1 = __nccwpck_require__(1197);
 Object.defineProperty(exports, "ValueType", ({ enumerable: true, get: function () { return Metric_1.ValueType; } }));
 // Propagation APIs
-var TextMapPropagator_1 = __nccwpck_require__(7923);
+var TextMapPropagator_1 = __nccwpck_require__(3138);
 Object.defineProperty(exports, "defaultTextMapGetter", ({ enumerable: true, get: function () { return TextMapPropagator_1.defaultTextMapGetter; } }));
 Object.defineProperty(exports, "defaultTextMapSetter", ({ enumerable: true, get: function () { return TextMapPropagator_1.defaultTextMapSetter; } }));
-var ProxyTracer_1 = __nccwpck_require__(9233);
+var ProxyTracer_1 = __nccwpck_require__(3076);
 Object.defineProperty(exports, "ProxyTracer", ({ enumerable: true, get: function () { return ProxyTracer_1.ProxyTracer; } }));
-var ProxyTracerProvider_1 = __nccwpck_require__(9344);
+var ProxyTracerProvider_1 = __nccwpck_require__(9002);
 Object.defineProperty(exports, "ProxyTracerProvider", ({ enumerable: true, get: function () { return ProxyTracerProvider_1.ProxyTracerProvider; } }));
-var SamplingResult_1 = __nccwpck_require__(5263);
+var SamplingResult_1 = __nccwpck_require__(7905);
 Object.defineProperty(exports, "SamplingDecision", ({ enumerable: true, get: function () { return SamplingResult_1.SamplingDecision; } }));
-var span_kind_1 = __nccwpck_require__(3627);
+var span_kind_1 = __nccwpck_require__(8512);
 Object.defineProperty(exports, "SpanKind", ({ enumerable: true, get: function () { return span_kind_1.SpanKind; } }));
-var status_1 = __nccwpck_require__(1099);
+var status_1 = __nccwpck_require__(345);
 Object.defineProperty(exports, "SpanStatusCode", ({ enumerable: true, get: function () { return status_1.SpanStatusCode; } }));
-var trace_flags_1 = __nccwpck_require__(9029);
+var trace_flags_1 = __nccwpck_require__(2475);
 Object.defineProperty(exports, "TraceFlags", ({ enumerable: true, get: function () { return trace_flags_1.TraceFlags; } }));
-var utils_2 = __nccwpck_require__(8213);
+var utils_2 = __nccwpck_require__(5596);
 Object.defineProperty(exports, "createTraceState", ({ enumerable: true, get: function () { return utils_2.createTraceState; } }));
-var spancontext_utils_1 = __nccwpck_require__(783);
+var spancontext_utils_1 = __nccwpck_require__(2426);
 Object.defineProperty(exports, "isSpanContextValid", ({ enumerable: true, get: function () { return spancontext_utils_1.isSpanContextValid; } }));
 Object.defineProperty(exports, "isValidTraceId", ({ enumerable: true, get: function () { return spancontext_utils_1.isValidTraceId; } }));
 Object.defineProperty(exports, "isValidSpanId", ({ enumerable: true, get: function () { return spancontext_utils_1.isValidSpanId; } }));
-var invalid_span_constants_1 = __nccwpck_require__(4628);
+var invalid_span_constants_1 = __nccwpck_require__(1661);
 Object.defineProperty(exports, "INVALID_SPANID", ({ enumerable: true, get: function () { return invalid_span_constants_1.INVALID_SPANID; } }));
 Object.defineProperty(exports, "INVALID_TRACEID", ({ enumerable: true, get: function () { return invalid_span_constants_1.INVALID_TRACEID; } }));
 Object.defineProperty(exports, "INVALID_SPAN_CONTEXT", ({ enumerable: true, get: function () { return invalid_span_constants_1.INVALID_SPAN_CONTEXT; } }));
 // Split module-level variable definition into separate files to allow
 // tree-shaking on each api instance.
-const context_api_1 = __nccwpck_require__(3259);
+const context_api_1 = __nccwpck_require__(6476);
 Object.defineProperty(exports, "context", ({ enumerable: true, get: function () { return context_api_1.context; } }));
-const diag_api_1 = __nccwpck_require__(3729);
+const diag_api_1 = __nccwpck_require__(4906);
 Object.defineProperty(exports, "diag", ({ enumerable: true, get: function () { return diag_api_1.diag; } }));
-const metrics_api_1 = __nccwpck_require__(9882);
+const metrics_api_1 = __nccwpck_require__(9238);
 Object.defineProperty(exports, "metrics", ({ enumerable: true, get: function () { return metrics_api_1.metrics; } }));
-const propagation_api_1 = __nccwpck_require__(7607);
+const propagation_api_1 = __nccwpck_require__(3688);
 Object.defineProperty(exports, "propagation", ({ enumerable: true, get: function () { return propagation_api_1.propagation; } }));
-const trace_api_1 = __nccwpck_require__(7984);
+const trace_api_1 = __nccwpck_require__(3166);
 Object.defineProperty(exports, "trace", ({ enumerable: true, get: function () { return trace_api_1.trace; } }));
 // Default export.
 exports["default"] = {
@@ -42858,7 +42822,7 @@ exports["default"] = {
 
 /***/ }),
 
-/***/ 2204:
+/***/ 1426:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42879,9 +42843,9 @@ exports["default"] = {
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.unregisterGlobal = exports.getGlobal = exports.registerGlobal = void 0;
-const platform_1 = __nccwpck_require__(1840);
-const version_1 = __nccwpck_require__(8227);
-const semver_1 = __nccwpck_require__(753);
+const platform_1 = __nccwpck_require__(7336);
+const version_1 = __nccwpck_require__(8567);
+const semver_1 = __nccwpck_require__(9494);
 const major = version_1.VERSION.split('.')[0];
 const GLOBAL_OPENTELEMETRY_API_KEY = Symbol.for(`opentelemetry.js.api.${major}`);
 const _global = platform_1._globalThis;
@@ -42898,7 +42862,7 @@ function registerGlobal(type, instance, diag, allowOverride = false) {
     }
     if (api.version !== version_1.VERSION) {
         // All registered APIs must be of the same version exactly
-        const err = new Error('@opentelemetry/api: All API registration versions must match');
+        const err = new Error(`@opentelemetry/api: Registration of version v${api.version} for ${type} does not match previously registered API v${version_1.VERSION}`);
         diag.error(err.stack || err.message);
         return false;
     }
@@ -42928,7 +42892,7 @@ exports.unregisterGlobal = unregisterGlobal;
 
 /***/ }),
 
-/***/ 753:
+/***/ 9494:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -42949,7 +42913,7 @@ exports.unregisterGlobal = unregisterGlobal;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isCompatible = exports._makeCompatibilityCheck = void 0;
-const version_1 = __nccwpck_require__(8227);
+const version_1 = __nccwpck_require__(8567);
 const re = /^(\d+)\.(\d+)\.(\d+)(-(.+))?$/;
 /**
  * Create a function to test an API version to see if it is compatible with the provided ownVersion.
@@ -43056,7 +43020,7 @@ exports.isCompatible = _makeCompatibilityCheck(version_1.VERSION);
 
 /***/ }),
 
-/***/ 9882:
+/***/ 9238:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43079,14 +43043,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.metrics = void 0;
 // Split module-level variable definition into separate files to allow
 // tree-shaking on each api instance.
-const metrics_1 = __nccwpck_require__(9210);
+const metrics_1 = __nccwpck_require__(3045);
 /** Entrypoint for metrics API */
 exports.metrics = metrics_1.MetricsAPI.getInstance();
 //# sourceMappingURL=metrics-api.js.map
 
 /***/ }),
 
-/***/ 2751:
+/***/ 1197:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -43117,7 +43081,7 @@ var ValueType;
 
 /***/ }),
 
-/***/ 3662:
+/***/ 2343:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -43239,7 +43203,7 @@ exports.createNoopMeter = createNoopMeter;
 
 /***/ }),
 
-/***/ 3040:
+/***/ 6848:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43260,7 +43224,7 @@ exports.createNoopMeter = createNoopMeter;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NOOP_METER_PROVIDER = exports.NoopMeterProvider = void 0;
-const NoopMeter_1 = __nccwpck_require__(3662);
+const NoopMeter_1 = __nccwpck_require__(2343);
 /**
  * An implementation of the {@link MeterProvider} which returns an impotent Meter
  * for all calls to `getMeter`
@@ -43276,7 +43240,7 @@ exports.NOOP_METER_PROVIDER = new NoopMeterProvider();
 
 /***/ }),
 
-/***/ 1840:
+/***/ 7336:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -43306,12 +43270,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(1086), exports);
+__exportStar(__nccwpck_require__(6454), exports);
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 9250:
+/***/ 6830:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -43339,7 +43303,7 @@ exports._globalThis = typeof globalThis === 'object' ? globalThis : global;
 
 /***/ }),
 
-/***/ 1086:
+/***/ 6454:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -43369,12 +43333,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(9250), exports);
+__exportStar(__nccwpck_require__(6830), exports);
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 7607:
+/***/ 3688:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43397,14 +43361,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.propagation = void 0;
 // Split module-level variable definition into separate files to allow
 // tree-shaking on each api instance.
-const propagation_1 = __nccwpck_require__(2651);
+const propagation_1 = __nccwpck_require__(4784);
 /** Entrypoint for propagation API */
 exports.propagation = propagation_1.PropagationAPI.getInstance();
 //# sourceMappingURL=propagation-api.js.map
 
 /***/ }),
 
-/***/ 4103:
+/***/ 200:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -43444,7 +43408,7 @@ exports.NoopTextMapPropagator = NoopTextMapPropagator;
 
 /***/ }),
 
-/***/ 7923:
+/***/ 3138:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -43491,7 +43455,7 @@ exports.defaultTextMapSetter = {
 
 /***/ }),
 
-/***/ 7984:
+/***/ 3166:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43514,14 +43478,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.trace = void 0;
 // Split module-level variable definition into separate files to allow
 // tree-shaking on each api instance.
-const trace_1 = __nccwpck_require__(4113);
+const trace_1 = __nccwpck_require__(1926);
 /** Entrypoint for trace API */
 exports.trace = trace_1.TraceAPI.getInstance();
 //# sourceMappingURL=trace-api.js.map
 
 /***/ }),
 
-/***/ 8337:
+/***/ 7046:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43542,7 +43506,7 @@ exports.trace = trace_1.TraceAPI.getInstance();
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NonRecordingSpan = void 0;
-const invalid_span_constants_1 = __nccwpck_require__(4628);
+const invalid_span_constants_1 = __nccwpck_require__(1661);
 /**
  * The NonRecordingSpan is the default {@link Span} that is used when no Span
  * implementation is available. All operations are no-op including context
@@ -43590,7 +43554,7 @@ exports.NonRecordingSpan = NonRecordingSpan;
 
 /***/ }),
 
-/***/ 5978:
+/***/ 5129:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43611,10 +43575,10 @@ exports.NonRecordingSpan = NonRecordingSpan;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NoopTracer = void 0;
-const context_1 = __nccwpck_require__(8136);
-const context_utils_1 = __nccwpck_require__(3257);
-const NonRecordingSpan_1 = __nccwpck_require__(8337);
-const spancontext_utils_1 = __nccwpck_require__(783);
+const context_1 = __nccwpck_require__(4560);
+const context_utils_1 = __nccwpck_require__(2954);
+const NonRecordingSpan_1 = __nccwpck_require__(7046);
+const spancontext_utils_1 = __nccwpck_require__(2426);
 const contextApi = context_1.ContextAPI.getInstance();
 /**
  * No-op implementations of {@link Tracer}.
@@ -43671,7 +43635,7 @@ function isSpanContext(spanContext) {
 
 /***/ }),
 
-/***/ 7960:
+/***/ 5430:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43692,7 +43656,7 @@ function isSpanContext(spanContext) {
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NoopTracerProvider = void 0;
-const NoopTracer_1 = __nccwpck_require__(5978);
+const NoopTracer_1 = __nccwpck_require__(5129);
 /**
  * An implementation of the {@link TracerProvider} which returns an impotent
  * Tracer for all calls to `getTracer`.
@@ -43709,7 +43673,7 @@ exports.NoopTracerProvider = NoopTracerProvider;
 
 /***/ }),
 
-/***/ 9233:
+/***/ 3076:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43730,7 +43694,7 @@ exports.NoopTracerProvider = NoopTracerProvider;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProxyTracer = void 0;
-const NoopTracer_1 = __nccwpck_require__(5978);
+const NoopTracer_1 = __nccwpck_require__(5129);
 const NOOP_TRACER = new NoopTracer_1.NoopTracer();
 /**
  * Proxy tracer provided by the proxy tracer provider
@@ -43770,7 +43734,7 @@ exports.ProxyTracer = ProxyTracer;
 
 /***/ }),
 
-/***/ 9344:
+/***/ 9002:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43791,8 +43755,8 @@ exports.ProxyTracer = ProxyTracer;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProxyTracerProvider = void 0;
-const ProxyTracer_1 = __nccwpck_require__(9233);
-const NoopTracerProvider_1 = __nccwpck_require__(7960);
+const ProxyTracer_1 = __nccwpck_require__(3076);
+const NoopTracerProvider_1 = __nccwpck_require__(5430);
 const NOOP_TRACER_PROVIDER = new NoopTracerProvider_1.NoopTracerProvider();
 /**
  * Tracer provider which provides {@link ProxyTracer}s.
@@ -43830,7 +43794,7 @@ exports.ProxyTracerProvider = ProxyTracerProvider;
 
 /***/ }),
 
-/***/ 5263:
+/***/ 7905:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -43878,7 +43842,7 @@ var SamplingDecision;
 
 /***/ }),
 
-/***/ 3257:
+/***/ 2954:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43899,9 +43863,9 @@ var SamplingDecision;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getSpanContext = exports.setSpanContext = exports.deleteSpan = exports.setSpan = exports.getActiveSpan = exports.getSpan = void 0;
-const context_1 = __nccwpck_require__(3997);
-const NonRecordingSpan_1 = __nccwpck_require__(8337);
-const context_2 = __nccwpck_require__(8136);
+const context_1 = __nccwpck_require__(8630);
+const NonRecordingSpan_1 = __nccwpck_require__(7046);
+const context_2 = __nccwpck_require__(4560);
 /**
  * span key
  */
@@ -43966,7 +43930,7 @@ exports.getSpanContext = getSpanContext;
 
 /***/ }),
 
-/***/ 8362:
+/***/ 5133:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -43987,7 +43951,7 @@ exports.getSpanContext = getSpanContext;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TraceStateImpl = void 0;
-const tracestate_validators_1 = __nccwpck_require__(7175);
+const tracestate_validators_1 = __nccwpck_require__(3022);
 const MAX_TRACE_STATE_ITEMS = 32;
 const MAX_TRACE_STATE_LEN = 512;
 const LIST_MEMBERS_SEPARATOR = ',';
@@ -44075,7 +44039,7 @@ exports.TraceStateImpl = TraceStateImpl;
 
 /***/ }),
 
-/***/ 7175:
+/***/ 3022:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -44127,7 +44091,7 @@ exports.validateValue = validateValue;
 
 /***/ }),
 
-/***/ 8213:
+/***/ 5596:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -44148,7 +44112,7 @@ exports.validateValue = validateValue;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTraceState = void 0;
-const tracestate_impl_1 = __nccwpck_require__(8362);
+const tracestate_impl_1 = __nccwpck_require__(5133);
 function createTraceState(rawTraceState) {
     return new tracestate_impl_1.TraceStateImpl(rawTraceState);
 }
@@ -44157,7 +44121,7 @@ exports.createTraceState = createTraceState;
 
 /***/ }),
 
-/***/ 4628:
+/***/ 1661:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -44178,7 +44142,7 @@ exports.createTraceState = createTraceState;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.INVALID_SPAN_CONTEXT = exports.INVALID_TRACEID = exports.INVALID_SPANID = void 0;
-const trace_flags_1 = __nccwpck_require__(9029);
+const trace_flags_1 = __nccwpck_require__(2475);
 exports.INVALID_SPANID = '0000000000000000';
 exports.INVALID_TRACEID = '00000000000000000000000000000000';
 exports.INVALID_SPAN_CONTEXT = {
@@ -44190,7 +44154,7 @@ exports.INVALID_SPAN_CONTEXT = {
 
 /***/ }),
 
-/***/ 3627:
+/***/ 8512:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -44242,7 +44206,7 @@ var SpanKind;
 
 /***/ }),
 
-/***/ 783:
+/***/ 2426:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -44263,8 +44227,8 @@ exports.wrapSpanContext = exports.isSpanContextValid = exports.isValidSpanId = e
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const invalid_span_constants_1 = __nccwpck_require__(4628);
-const NonRecordingSpan_1 = __nccwpck_require__(8337);
+const invalid_span_constants_1 = __nccwpck_require__(1661);
+const NonRecordingSpan_1 = __nccwpck_require__(7046);
 const VALID_TRACEID_REGEX = /^([0-9a-f]{32})$/i;
 const VALID_SPANID_REGEX = /^[0-9a-f]{16}$/i;
 function isValidTraceId(traceId) {
@@ -44297,7 +44261,7 @@ exports.wrapSpanContext = wrapSpanContext;
 
 /***/ }),
 
-/***/ 1099:
+/***/ 345:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -44326,7 +44290,7 @@ var SpanStatusCode;
 
 /***/ }),
 
-/***/ 9029:
+/***/ 2475:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -44358,7 +44322,7 @@ var TraceFlags;
 
 /***/ }),
 
-/***/ 8227:
+/***/ 8567:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -44380,7 +44344,7 @@ var TraceFlags;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VERSION = void 0;
 // this is autogenerated file, see scripts/version-update.js
-exports.VERSION = '1.4.0';
+exports.VERSION = '1.4.1';
 //# sourceMappingURL=version.js.map
 
 /***/ }),
