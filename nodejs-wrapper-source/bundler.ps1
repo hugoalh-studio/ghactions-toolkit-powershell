@@ -12,12 +12,11 @@ If (Test-Path -LiteralPath $WrapperOutputRoot -PathType 'Container') {
 		Remove-Item -Confirm
 }
 Else {
-	$Null = New-Item -Path $WrapperOutputRoot -ItemType 'Directory'
+	New-Item -Path $WrapperOutputRoot -ItemType 'Directory'
 }
 
 <# Create bundled wrapper. #>
-[String]$CurrentWorkingRoot = Get-Location |
-	Select-Object -ExpandProperty 'Path'
+$CurrentWorkingRoot = Get-Location
 [String]$WrapperOutputRootResolve = $WrapperOutputRoot |
 	Resolve-Path |
 	Select-Object -ExpandProperty 'Path' -First 1
@@ -29,10 +28,10 @@ Catch {
 	Write-Error -Message $_
 }
 Finally {
-	Set-Location -LiteralPath $CurrentWorkingRoot
+	Set-Location -LiteralPath $CurrentWorkingRoot.Path
 }
 
-<# Resolve bundler rubbish. #>
+<# Resolve bundler issues. #>
 ForEach ($Item In (Get-ChildItem -LiteralPath $WrapperOutputRoot -Recurse)) {
 	If ($Item.Name -ieq 'index.js') {
 		Rename-Item -LiteralPath $Item.FullName -NewName (Join-Path -Path $Item.Directory -ChildPath $WrapperOutputBundledFileName) -Confirm

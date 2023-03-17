@@ -6,16 +6,19 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[Boolean]$IsTested = $False
-[Boolean]$ResultDependencies = $False
-[Boolean]$ResultEnvironment = $False
 [SemVer]$NodeJsMinimumVersion = [SemVer]::Parse('14.15.0')
 [SemVer]$NpmMinimumVersion = [SemVer]::Parse('6.14.8')
 [SemVer]$PnpmMinimumVersion = [SemVer]::Parse('7.28.0')
 [RegEx]$SemVerRegEx = 'v?\d+\.\d+\.\d+'
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
-[String]$WrapperMetaPath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
-[String]$WrapperScriptPath = Join-Path -Path $WrapperRoot -ChildPath 'unbundled.js'
+[String]$WrapperPackageFilePath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
+[String]$WrapperPackageLockFilePath = Join-Path -Path $WrapperRoot -ChildPath 'pnpm-lock.yaml'
+[String]$WrapperBundledFilePath = Join-Path -Path $WrapperRoot -ChildPath 'bundled.js'
+[String]$WrapperUnbundledFilePath = Join-Path -Path $WrapperRoot -ChildPath 'unbundled.js'
+[Boolean]$EnvironmentTested = $False
+[Boolean]$EnvironmentResult = $False
+[Boolean]$DependenciesTested = $False
+[Boolean]$DependenciesResult = $False
 <#
 .SYNOPSIS
 GitHub Actions - Internal - Convert From Base64 String To Utf8 String
@@ -56,6 +59,89 @@ Function Convert-FromUtf8StringToBase64String {
 }
 <#
 .SYNOPSIS
+GitHub Actions - Internal - Install NodeJS Dependencies
+.DESCRIPTION
+Use to install NodeJS wrapper API dependencies when bundled wrapper failed and retry with unbundled wrapper.
+.OUTPUTS
+[Boolean] Test result.
+#>
+Function Install-NodeJsDependencies {
+	[CmdletBinding()]
+	[OutputType([Boolean])]
+	Param ()
+	If ($DependenciesTested) {
+		Write-Output -InputObject $DependenciesResult
+		Return
+	}
+	Try {
+		Try {
+			$Null = Get-Command -Name 'npm' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
+		}
+		Catch {
+			Throw 'Unable to find NPM!'
+		}
+		Try {
+			[String]$NpmVersionStdOut = npm --version |
+				Join-String -Separator "`n"
+			If (
+				$NpmVersionStdOut -inotmatch $SemVerRegEx -or
+				$NpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
+			) {
+				Throw
+			}
+		}
+		Catch {
+			Throw 'NPM is not match the requirement!'
+		}
+		Try {
+			$Null = Get-Command -Name 'pnpm' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
+			[String]$PnpmVersionStdOut = pnpm --version |
+				Join-String -Separator "`n"
+			If (
+				$PnpmVersionStdOut -inotmatch $SemVerRegEx -or
+				$PnpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
+			) {
+				Throw
+			}
+		}
+		Catch {
+			Try {
+				$Null = npm install --global pnpm@latest
+			}
+			Catch {
+				Throw 'Unable to install PNPM!'
+			}
+		}
+		Try {
+			$CurrentWorkingRoot = Get-Location
+			$Null = Set-Location -LiteralPath $WrapperRoot
+			Try {
+				$Null = pnpm install
+			}
+			Catch {
+				Throw 'Unable to install NodeJS wrapper API dependencies!'
+			}
+			Finally {
+				Set-Location -LiteralPath $CurrentWorkingRoot.Path
+			}
+		}
+		Catch {
+			Throw $_
+		}
+	}
+	Catch {
+		Write-Verbose -Message $_
+		$Script:DependenciesTested = $True
+		$Script:DependenciesResult = $False
+		Write-Output -InputObject $DependenciesResult
+		Return
+	}
+	$Script:DependenciesTested = $True
+	$Script:DependenciesResult = $True
+	Write-Output -InputObject $DependenciesResult
+}
+<#
+.SYNOPSIS
 GitHub Actions - Invoke NodeJS Wrapper
 .DESCRIPTION
 Invoke NodeJS wrapper.
@@ -80,28 +166,28 @@ Function Invoke-NodeJsWrapper {
 			Write-Error -Message 'This function depends and requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
 			Return
 		}
-		If (!(Test-Path -LiteralPath $WrapperMetaPath -PathType 'Leaf')) {
-			Write-Error -Message 'Wrapper meta is missing!' -Category 'ResourceUnavailable'
-			Return
-		}
-		If (!(Test-Path -LiteralPath $WrapperScriptPath -PathType 'Leaf')) {
-			Write-Error -Message 'Wrapper script is missing!' -Category 'ResourceUnavailable'
-			Return
+		ForEach ($Item In @($WrapperPackageFilePath, $WrapperPackageLockFilePath, $WrapperBundledFilePath, $WrapperUnbundledFilePath)) {
+			If (!(Test-Path -LiteralPath $Item -PathType 'Leaf')) {
+				Write-Error -Message "Wrapper resource `"$Item`" is missing!" -Category 'ResourceUnavailable'
+				Return
+			}
 		}
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken)====="
+	[String]$Base64Name = Convert-FromUtf8StringToBase64String -InputObject $Name
+	[String]$Base64Argument = $Argument |
+		ConvertTo-Json -Depth 100 -Compress |
+		Convert-FromUtf8StringToBase64String
+	[String]$Base64ResultSeparator = Convert-FromUtf8StringToBase64String -InputObject $ResultSeparator
 	Try {
-		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperScriptPath`" $(Convert-FromUtf8StringToBase64String -InputObject $Name) $(
-			$Argument |
-				ConvertTo-Json -Depth 100 -Compress |
-				Convert-FromUtf8StringToBase64String
-		) $(Convert-FromUtf8StringToBase64String -InputObject $ResultSeparator)"
+		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperBundledFilePath`" $Base64Name $Base64Argument $Base64ResultSeparator"
 		[UInt32[]]$ResultSkipIndexes = @()
 		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
 			[String]$ResultLine = $Result[$ResultIndex]
 			If ($ResultLine -imatch '^::.+?::.*$') {
 				Write-Host -Object $ResultLine
 				$ResultSkipIndexes += $ResultIndex
+				Continue
 			}
 			If ($ResultLine -ieq $ResultSeparator) {
 				$ResultSkipIndexes += @($ResultIndex..($Result.Count - 1))
@@ -119,9 +205,44 @@ Function Invoke-NodeJsWrapper {
 			Convert-FromBase64StringToUtf8String |
 			ConvertFrom-Json -Depth 100 |
 			Write-Output
+		Return
 	}
 	Catch {
-		Write-Error -Message "Unable to successfully invoke NodeJS wrapper (``$Name``): $_" -Category 'InvalidData'
+		Write-Warning -Message "Unable to successfully invoke NodeJS bundled wrapper (``$Name``): $_"
+	}
+	Try {
+		If (!(Install-NodeJsDependencies)) {
+			Throw 'Unable to install NodeJS wrapper API dependencies!'
+		}
+		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperUnbundledFilePath`" $Base64Name $Base64Argument $Base64ResultSeparator"
+		[UInt32[]]$ResultSkipIndexes = @()
+		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
+			[String]$ResultLine = $Result[$ResultIndex]
+			If ($ResultLine -imatch '^::.+?::.*$') {
+				Write-Host -Object $ResultLine
+				$ResultSkipIndexes += $ResultIndex
+				Continue
+			}
+			If ($ResultLine -ieq $ResultSeparator) {
+				$ResultSkipIndexes += @($ResultIndex..($Result.Count - 1))
+				Break
+			}
+		}
+		If ($LASTEXITCODE -ine 0) {
+			Throw "Unexpected exit code ``$LASTEXITCODE``! $(
+				$Result |
+					Select-Object -SkipIndex $ResultSkipIndexes |
+					Join-String -Separator "`n"
+			)"
+		}
+		$Result[$Result.Count - 1] |
+			Convert-FromBase64StringToUtf8String |
+			ConvertFrom-Json -Depth 100 |
+			Write-Output
+		Return
+	}
+	Catch {
+		Write-Error -Message "Unable to successfully invoke NodeJS unbundled wrapper (``$Name``): $_" -Category 'InvalidData'
 	}
 }
 <#
@@ -131,8 +252,6 @@ GitHub Actions - Test NodeJS Environment
 Test the current machine whether has compatible NodeJS environment; Test result always cache for reuse.
 .PARAMETER Retest
 Whether to redo this test by ignore the cached test result.
-.PARAMETER ReinstallDependencies
-Whether to force reinstall dependencies even though available.
 .OUTPUTS
 [Boolean] Test result.
 #>
@@ -141,119 +260,46 @@ Function Test-NodeJsEnvironment {
 	[OutputType([Boolean])]
 	Param (
 		[Alias('Redo')][Switch]$Retest,
-		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies
+		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies# Deprecated, keep as legacy.
 	)
-	If ($IsTested -and !$Retest.IsPresent -and !$ReinstallDependencies.IsPresent) {
+	If ($EnvironmentTested -and !$Retest.IsPresent) {
 		Write-Verbose -Message 'Previously tested NodeJS environment; Return previous result.'
-		Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
+		Write-Output -InputObject $EnvironmentResult
 		Return
 	}
-	$Script:IsTested = $False
-	If ($ReinstallDependencies.IsPresent) {
-		$Script:ResultDependencies = $False
-	}
-	If ($Retest.IsPresent) {
-		$Script:ResultEnvironment = $False
-	}
-	If (!$ResultEnvironment) {
+	$Script:EnvironmentTested = $False
+	$Script:EnvironmentResult = $False
+	Try {
 		Try {
-			Try {
-				$Null = Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
-			}
-			Catch {
-				Throw 'Unable to find NodeJS!'
-			}
-			Try {
-				[String]$NodeJsVersionStdOut = node --no-deprecation --no-warnings --version |
-					Join-String -Separator "`n"
-				If (
-					$NodeJsVersionStdOut -inotmatch $SemVerRegEx -or
-					$NodeJsMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
-				) {
-					Throw
-				}
-			}
-			Catch {
-				Throw 'NodeJS is not match the requirement!'
-			}
-			Try {
-				$Null = Get-Command -Name 'npm' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
-			}
-			Catch {
-				Throw 'Unable to find NPM!'
-			}
-			Try {
-				[String]$NpmVersionStdOut = npm --version |
-					Join-String -Separator "`n"
-				If (
-					$NpmVersionStdOut -inotmatch $SemVerRegEx -or
-					$NpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
-				) {
-					Throw
-				}
-			}
-			Catch {
-				Throw 'NPM is not match the requirement!'
+			$Null = Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
+		}
+		Catch {
+			Throw 'Unable to find NodeJS!'
+		}
+		Try {
+			[String]$NodeJsVersionStdOut = node --no-deprecation --no-warnings --version |
+				Join-String -Separator "`n"
+			If (
+				$NodeJsVersionStdOut -inotmatch $SemVerRegEx -or
+				$NodeJsMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
+			) {
+				Throw
 			}
 		}
 		Catch {
-			Write-Verbose -Message $_
-			$Script:IsTested = $True
-			$Script:ResultEnvironment = $False
-			Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
-			Return
+			Throw 'NodeJS is not match the requirement!'
 		}
 	}
-	$Script:ResultEnvironment = $True
-	If (!$ResultDependencies) {
-		Try {
-			Try {
-				$Null = Get-Command -Name 'pnpm' -CommandType 'Application' -ErrorAction 'Stop'# `Get-Command` will throw error when nothing is found.
-				[String]$PnpmVersionStdOut = pnpm --version |
-					Join-String -Separator "`n"
-				If (
-					$PnpmVersionStdOut -inotmatch $SemVerRegEx -or
-					$PnpmMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
-				) {
-					Throw
-				}
-			}
-			Catch {
-				Try {
-					$Null = npm install --global pnpm@latest
-				}
-				Catch {
-					Throw 'Unable to install PNPM!'
-				}
-			}
-			Try {
-				$CurrentWorkingDirectory = Get-Location
-				$Null = Set-Location -LiteralPath $WrapperRoot
-				Try {
-					$Null = pnpm install
-				}
-				Catch {
-					Throw 'Unable to install NodeJS wrapper API dependencies!'
-				}
-				Finally {
-					Set-Location -LiteralPath $CurrentWorkingDirectory.Path
-				}
-			}
-			Catch {
-				Throw $_
-			}
-		}
-		Catch {
-			Write-Verbose -Message $_
-			$Script:IsTested = $True
-			$Script:ResultDependencies = $False
-			Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
-			Return
-		}
+	Catch {
+		Write-Verbose -Message $_
+		$Script:EnvironmentTested = $True
+		$Script:EnvironmentResult = $False
+		Write-Output -InputObject $EnvironmentResult
+		Return
 	}
-	$Script:IsTested = $True
-	$Script:ResultDependencies = $True
-	Write-Output -InputObject ($ResultDependencies -and $ResultEnvironment)
+	$Script:EnvironmentTested = $True
+	$Script:EnvironmentResult = $True
+	Write-Output -InputObject $EnvironmentResult
 }
 Export-ModuleMember -Function @(
 	'Invoke-NodeJsWrapper',
