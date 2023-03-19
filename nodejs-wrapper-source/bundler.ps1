@@ -1,3 +1,4 @@
+$Script:ErrorActionPreference = 'Stop'
 [String]$WrapperInputRoot = $PSScriptRoot
 [String]$WrapperInputPackageFileName = 'package.json'
 [String]$WrapperInputPackageLockFileName = 'pnpm-lock.yaml'
@@ -9,7 +10,7 @@
 <# Clean up or initialize output directory. #>
 If (Test-Path -LiteralPath $WrapperOutputRoot -PathType 'Container') {
 	Get-ChildItem -LiteralPath $WrapperOutputRoot -Recurse |
-		Remove-Item -Confirm
+		Remove-Item -Confirm:$False
 }
 Else {
 	New-Item -Path $WrapperOutputRoot -ItemType 'Directory'
@@ -22,7 +23,7 @@ $CurrentWorkingRoot = Get-Location
 	Select-Object -ExpandProperty 'Path' -First 1
 Set-Location -LiteralPath $WrapperInputRoot
 Try {
-	Invoke-Expression -Command ".\node_modules\.bin\ncc.ps1 build main.js --out `"$WrapperOutputRootResolve`" --no-cache --no-source-map-register --target es2020"
+	Invoke-Expression -Command ".\node_modules\.bin\ncc.ps1 build main.js --out `"$WrapperOutputRootResolve`" --minify --no-cache --no-source-map-register --target es2020"
 }
 Catch {
 	Write-Error -Message $_
@@ -34,17 +35,17 @@ Finally {
 <# Resolve bundler issues. #>
 ForEach ($Item In (Get-ChildItem -LiteralPath $WrapperOutputRoot -Recurse)) {
 	If ($Item.Name -ieq 'index.js') {
-		Rename-Item -LiteralPath $Item.FullName -NewName (Join-Path -Path $Item.Directory -ChildPath $WrapperOutputBundledFileName) -Confirm
+		Rename-Item -LiteralPath $Item.FullName -NewName (Join-Path -Path $Item.Directory -ChildPath $WrapperOutputBundledFileName) -Confirm:$False
 	}
 	Else {
 		$Item |
-			Remove-Item -Confirm
+			Remove-Item -Confirm:$False
 	}
 }
 
 <# Create unbundled wrapper. #>
-Copy-Item -LiteralPath (Join-Path -Path $WrapperInputRoot -ChildPath $WrapperInputScriptFileName) -Destination (Join-Path -Path $WrapperOutputRoot -ChildPath $WrapperOutputUnbundledFileName) -Confirm
-Copy-Item -LiteralPath (Join-Path -Path $WrapperInputRoot -ChildPath $WrapperInputPackageLockFileName) -Destination (Join-Path -Path $WrapperOutputRoot -ChildPath $WrapperInputPackageLockFileName) -Confirm
+Copy-Item -LiteralPath (Join-Path -Path $WrapperInputRoot -ChildPath $WrapperInputScriptFileName) -Destination (Join-Path -Path $WrapperOutputRoot -ChildPath $WrapperOutputUnbundledFileName) -Confirm:$False
+Copy-Item -LiteralPath (Join-Path -Path $WrapperInputRoot -ChildPath $WrapperInputPackageLockFileName) -Destination (Join-Path -Path $WrapperOutputRoot -ChildPath $WrapperInputPackageLockFileName) -Confirm:$False
 [Hashtable]$PackageMeta = Get-Content -LiteralPath (Join-Path -Path $WrapperInputRoot -ChildPath $WrapperInputPackageFileName) |
 	ConvertFrom-Json -AsHashtable -Depth 100 -NoEnumerate
 $PackageMeta.Remove('devDependencies')
@@ -52,4 +53,4 @@ $PackageMeta.name = "$($PackageMeta.name)-distribution"
 Set-Content -LiteralPath (Join-Path -Path $WrapperOutputRoot -ChildPath $WrapperInputPackageFileName) -Value (
 	$PackageMeta |
 		ConvertTo-Json -Depth 100 -Compress
-) -Confirm
+) -Confirm:$False
