@@ -1,5 +1,4 @@
-#Requires -PSEdition Core
-#Requires -Version 7.2
+#Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
 		'command-base',

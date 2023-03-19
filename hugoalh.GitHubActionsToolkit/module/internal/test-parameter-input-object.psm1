@@ -1,5 +1,4 @@
-#Requires -PSEdition Core
-#Requires -Version 7.2
+#Requires -PSEdition Core -Version 7.2
 <#
 .SYNOPSIS
 GitHub Actions - Internal - Test Parameter Input Object

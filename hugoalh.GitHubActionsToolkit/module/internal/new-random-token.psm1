@@ -1,5 +1,4 @@
-#Requires -PSEdition Core
-#Requires -Version 7.2
+#Requires -PSEdition Core -Version 7.2
 [Char[]]$PoolMain = [String[]]@(0..9) + [Char[]]@(65..90) + [Char[]]@(97..122)
 <#
 .SYNOPSIS

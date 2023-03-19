@@ -1,5 +1,4 @@
-#Requires -PSEdition Core
-#Requires -Version 7.2
+#Requires -PSEdition Core -Version 7.2
 <#
 This script is help for copy members to the file `hugoalh.GitHubActionsToolkit.psd1` for best performance, and use for debug.
 #>
