@@ -24,6 +24,9 @@
 		"type": "git",
 		"url": "git+https://github.com/hugoalh-studio/ghactions-toolkit-powershell.git"
 	},
+	"scripts": {
+		"build": "node bundler.js"
+	},
 	"dependencies": {
 		"@actions/artifact": "^1.1.1",
 		"@actions/cache": "^3.2.1",
