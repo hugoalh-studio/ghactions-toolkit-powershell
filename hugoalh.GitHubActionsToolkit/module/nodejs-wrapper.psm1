@@ -165,11 +165,11 @@ Function Invoke-NodeJsWrapper {
 			Write-Error -Message 'This function depends and requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
 			Return
 		}
-		ForEach ($Item In @($WrapperPackageFilePath, $WrapperPackageLockFilePath, $WrapperBundledFilePath, $WrapperUnbundledFilePath)) {
-			If (!(Test-Path -LiteralPath $Item -PathType 'Leaf')) {
-				Write-Error -Message "Wrapper resource `"$Item`" is missing!" -Category 'ResourceUnavailable'
-				Return
-			}
+	}
+	ForEach ($Item In @($WrapperPackageFilePath, $WrapperPackageLockFilePath, $WrapperBundledFilePath, $WrapperUnbundledFilePath)) {
+		If (!(Test-Path -LiteralPath $Item -PathType 'Leaf')) {
+			Write-Error -Message "Wrapper resource `"$Item`" is missing!" -Category 'ResourceUnavailable'
+			Return
 		}
 	}
 	[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken)====="
