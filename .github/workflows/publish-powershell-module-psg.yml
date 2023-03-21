@@ -1,4 +1,4 @@
-name: "Publish - PowerShell Gallery - Module"
+name: "Publish PowerShell Module - PowerShell Gallery"
 on:
   release:
     types:
@@ -8,8 +8,8 @@ defaults:
   run:
     shell: "pwsh"
 jobs:
-  publish-psg-module:
-    name: "Publish - PowerShell Gallery - Module"
+  publish-powershell-module-psg:
+    name: "Publish PowerShell Module - PowerShell Gallery"
     runs-on: "windows-latest"
     steps:
       - name: "Checkout Repository"
