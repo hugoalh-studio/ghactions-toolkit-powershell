@@ -14,15 +14,10 @@ jobs:
     steps:
       - name: "Checkout Repository"
         uses: "actions/checkout@v3.4.0"
-      - name: "Modify PowerShell Repository"
-        run: |
-          Set-PSRepository -Name 'PSGallery' -InstallationPolicy 'Trusted' -Verbose
-      - name: "Setup PowerShellGet"
-        run: |
-          Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Scope 'AllUsers' -AcceptLicense -Confirm:$False -Verbose
-      - name: "Update PowerShell Modules"
-        run: |
-          Update-Module -Scope 'AllUsers' -AcceptLicense -Confirm:$False -Verbose
+      - name: "Setup PowerShell Environment"
+        uses: "hugoalh-studio/setup-powershell-toolkit-ghaction@v1.1.0"
+        with:
+          toolkit_setup: "false"
       - name: "Test Publish"
         run: |
           Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey 'GUID' -WhatIf -Verbose
