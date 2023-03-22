@@ -29,7 +29,7 @@ Function Add-ProblemMatcher {
 			Resolve-Path -Path $Path |
 				Select-Object -ExpandProperty 'Path'
 		) |
-			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
+			ForEach-Object -Process { Write-GitHubActionsStdOutCommand -StdOutCommand 'add-matcher' -Value ($_ -ireplace '^\.[\\/]', '' -ireplace '\\', '/') }
 	}
 }
 <#
@@ -50,7 +50,7 @@ Function Remove-ProblemMatcher {
 	)
 	Process {
 		$Owner |
-			ForEach-Object -Process { Write-GitHubActionsCommand -Command 'remove-matcher' -Parameter @{ 'owner' = $_ } }
+			ForEach-Object -Process { Write-GitHubActionsStdOutCommand -StdOutCommand 'remove-matcher' -Parameter @{ 'owner' = $_ } }
 	}
 }
 Export-ModuleMember -Function @(

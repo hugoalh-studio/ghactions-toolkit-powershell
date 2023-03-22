@@ -57,7 +57,7 @@ Function Get-Input {
 			$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 			[String]$InputValue = $Trim.IsPresent ? ${InputValueRaw}?.Trim() : $InputValueRaw
 			If (
-				$Null -ieq $InputValueRaw -or
+				($Null -ieq $InputValueRaw) -or
 				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($InputValue))
 			) {
 				If ($Mandatory.IsPresent) {
@@ -128,7 +128,7 @@ Function Get-State {
 			$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
 			[String]$StateValue = $Trim.IsPresent ? ${StateValueRaw}?.Trim() : $StateValueRaw
 			If (
-				$Null -ieq $StateValueRaw -or
+				($Null -ieq $StateValueRaw) -or
 				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($StateValue))
 			) {
 				Return
@@ -177,8 +177,8 @@ Function Set-Output {
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
 			If (
-				$InputObject -is [Hashtable] -or
-				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
+				($InputObject -is [Hashtable]) -or
+				($InputObject -is [System.Collections.Specialized.OrderedDictionary])
 			) {
 				$InputObject.GetEnumerator() |
 					Set-Output
@@ -188,7 +188,7 @@ Function Set-Output {
 				Set-Output
 			Return
 		}
-		Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Name $Name -Value $Value
+		Write-GitHubActionsFileCommand -FileCommand 'GITHUB_OUTPUT' -Name $Name -Value $Value
 	}
 }
 <#
@@ -216,8 +216,8 @@ Function Set-State {
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
 			If (
-				$InputObject -is [Hashtable] -or
-				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
+				($InputObject -is [Hashtable]) -or
+				($InputObject -is [System.Collections.Specialized.OrderedDictionary])
 			) {
 				$InputObject.GetEnumerator() |
 					Set-State
@@ -227,7 +227,7 @@ Function Set-State {
 				Set-State
 			Return
 		}
-		Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Name $Name -Value $Value
+		Write-GitHubActionsFileCommand -FileCommand 'GITHUB_STATE' -Name $Name -Value $Value
 	}
 }
 Set-Alias -Name 'Save-State' -Value 'Set-State' -Option 'ReadOnly' -Scope 'Local'

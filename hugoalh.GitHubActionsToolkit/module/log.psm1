@@ -32,7 +32,7 @@ Function Enter-LogGroup {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header', 'Summary')][String]$Title
 	)
-	Write-GitHubActionsCommand -Command 'group' -Value $Title
+	Write-GitHubActionsStdOutCommand -StdOutCommand 'group' -Value $Title
 }
 Set-Alias -Name 'Enter-Group' -Value 'Enter-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -47,7 +47,7 @@ Function Exit-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_exitgithubactionsloggroup')]
 	[OutputType([Void])]
 	Param ()
-	Write-GitHubActionsCommand -Command 'endgroup'
+	Write-GitHubActionsStdOutCommand -StdOutCommand 'endgroup'
 }
 Set-Alias -Name 'Exit-Group' -Value 'Exit-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -121,7 +121,7 @@ Function Write-Annotation {
 		If ($Title.Length -igt 0) {
 			$Property['title'] = $Title
 		}
-		Write-GitHubActionsCommand -Command $TypeRaw -Parameter $Property -Value $Message
+		Write-GitHubActionsStdOutCommand -StdOutCommand $TypeRaw -Parameter $Property -Value $Message
 	}
 }
 <#
@@ -141,7 +141,7 @@ Function Write-Debug {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message
 	)
 	Process {
-		Write-GitHubActionsCommand -Command 'debug' -Value $Message
+		Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Message
 	}
 }
 <#

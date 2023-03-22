@@ -50,7 +50,7 @@ Function Expand-ToolCacheCompressedFile {
 					$Method = 'Xar'
 					Break
 				}
-				'\.tar(?:\.gz)?$' {
+				'\.t(?:ar(?:\.gz)?|gz)$' {
 					$Method = 'Tar'
 					Break
 				}
@@ -157,7 +157,7 @@ Function Invoke-ToolCacheToolDownloader {
 			$Argument.Authorization = $Authorization
 		}
 		If ($Header.Count -igt 0) {
-			$Argument.Header = [PSCustomObject]$Header
+			$Argument.Header = $Header
 		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -Argument $Argument)?.Path |
 			Write-Output

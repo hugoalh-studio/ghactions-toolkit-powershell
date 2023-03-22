@@ -27,11 +27,11 @@ Function Add-SecretMask {
 	)
 	Process {
 		If ($Value.Length -igt 0) {
-			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
+			Write-GitHubActionsStdOutCommand -StdOutCommand 'add-mask' -Value $Value
 			If ($WithChunks.IsPresent) {
 				$Value -isplit '[\b\n\r\s\t -/:-@\[-`{-~]+' |
 					Where-Object -FilterScript { $_.Length -ige 4 -and $_ -ine $Value } |
-					ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-mask' -Value $_ }
+					ForEach-Object -Process { Write-GitHubActionsStdOutCommand -StdOutCommand 'add-mask' -Value $_ }
 			}
 		}
 	}
@@ -51,8 +51,8 @@ Function Get-IsDebug {
 	[OutputType([Boolean])]
 	Param ()
 	(
-		$Env:RUNNER_DEBUG -ieq '1' -or
-		$Env:RUNNER_DEBUG -ieq 'true'
+		($Env:RUNNER_DEBUG -ieq '1') -or
+		($Env:RUNNER_DEBUG -ieq 'true')
 	) |
 		Write-Output
 }
@@ -74,7 +74,7 @@ Function Get-WebhookEventPayload {
 		[Alias('ToHashtable')][Switch]$AsHashtable
 	)
 	If ([String]::IsNullOrEmpty($Env:GITHUB_EVENT_PATH)) {
-		Write-Error -Message 'Unable to get GitHub Actions resources: Environment path `GITHUB_EVENT_PATH` is undefined!' -Category 'ResourceUnavailable'
+		Write-Error -Message 'Unable to read the GitHub Actions webhook event payload: Environment path `GITHUB_EVENT_PATH` is undefined!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
@@ -98,8 +98,8 @@ Function Get-WorkflowRunUri {
 	[OutputType([String])]
 	Param ()
 	ForEach ($EnvironmentPath In @('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID')) {
-		If ([String]::IsNullOrEmpty((Get-Item -LiteralPath "Env:\$EnvironmentPath"))) {
-			Write-Error -Message "Unable to get GitHub Actions resources: Environment path ``$EnvironmentPath`` is undefined!" -Category 'ResourceUnavailable'
+		If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$EnvironmentPath"))) {
+			Write-Error -Message "Unable to get the GitHub Actions workflow run URI: Environment path ``$EnvironmentPath`` is undefined!" -Category 'ResourceUnavailable'
 			Return
 		}
 	}

@@ -76,7 +76,7 @@ Function Invoke-NodeJsWrapper {
 	}
 	ForEach ($Item In @($WrapperPackageFilePath, $WrapperScriptFilePath)) {
 		If (!(Test-Path -LiteralPath $Item -PathType 'Leaf')) {
-			Write-Error -Message "Unable to invoke NodeJS wrapper: Wrapper resource `"$Item`" is missing!" -Category 'ResourceUnavailable'
+			Write-Error -Message "Unable to invoke the NodeJS wrapper: Wrapper resource `"$Item`" is missing!" -Category 'ResourceUnavailable'
 			Return
 		}
 	}
@@ -114,7 +114,7 @@ Function Invoke-NodeJsWrapper {
 			Write-Output
 	}
 	Catch {
-		Write-Error -Message "Unable to successfully invoke NodeJS wrapper (``$Name``): $_" -Category 'InvalidData'
+		Write-Error -Message "Unable to successfully invoke the NodeJS wrapper (``$Name``): $_" -Category 'InvalidData'
 	}
 }
 <#
@@ -135,7 +135,7 @@ Function Test-NodeJsEnvironment {
 		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies# Deprecated, keep as legacy.
 	)
 	If ($EnvironmentTested -and !$Retest.IsPresent) {
-		Write-Verbose -Message 'Previously tested NodeJS environment; Return previous result.'
+		Write-Verbose -Message 'Previously tested the NodeJS environment; Return the previous result.'
 		Write-Output -InputObject $EnvironmentResult
 		Return
 	}

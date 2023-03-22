@@ -101,13 +101,13 @@
 		'Test-Environment',
 		'Test-NodeJsEnvironment',
 		'Write-Annotation',
-		'Write-Command',
 		'Write-Debug',
 		'Write-Error',
 		'Write-Fail',
 		'Write-FileCommand',
 		'Write-Notice',
 		'Write-Raw',
+		'Write-StdOutCommand',
 		'Write-Warning'
 	)
 
@@ -205,6 +205,7 @@
 		'Stop-ProcessCommands',
 		'Stop-ProcessingCommand',
 		'Stop-ProcessingCommands',
+		'Write-Command',
 		'Write-Note',
 		'Write-Warn'
 	)
@@ -249,7 +250,7 @@
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
-			# Prerelease = ''
+			Prerelease = 'beta1'
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 			RequireLicenseAcceptance = $False
