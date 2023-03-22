@@ -139,51 +139,70 @@ Function Test-Environment {
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!',
 		[Switch]$StepSummary# Deprecated, keep as legacy.
 	)
-	If (
-		($Env:CI -ine 'true') -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
-		($Env:GITHUB_ACTIONS -ine 'true') -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_API_URL) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_ENV) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_EVENT_NAME) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_EVENT_PATH) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_GRAPHQL_URL) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_JOB) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_PATH) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_NAME) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_PROTECTED) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_TYPE) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_RETENTION_DAYS) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ATTEMPT) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ID) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_NUMBER) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_SERVER_URL) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_SHA) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_STEP_SUMMARY) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_REF) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_SHA) -or
-		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKSPACE) -or
-		[String]::IsNullOrWhiteSpace($Env:RUNNER_ARCH) -or
-		[String]::IsNullOrWhiteSpace($Env:RUNNER_NAME) -or
-		[String]::IsNullOrWhiteSpace($Env:RUNNER_OS) -or
-		[String]::IsNullOrWhiteSpace($Env:RUNNER_TEMP) -or
-		[String]::IsNullOrWhiteSpace($Env:RUNNER_TOOL_CACHE) -or
-		((
-			$Artifact.IsPresent -or
-			$Cache.IsPresent
-		) -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_RUNTIME_TOKEN)) -or
-		($Artifact.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_RUNTIME_URL)) -or
-		($Cache.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_CACHE_URL)) -or
-		($OpenIdConnect.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN)) -or
-		($OpenIdConnect.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_ID_TOKEN_REQUEST_URL))
-	) {
+	[Hashtable[]]$Conditions = @(
+		@{ NeedTest = $True; Name = 'CI'; ExpectedValue = 'true' },
+		@{ NeedTest = $True; Name = 'GITHUB_ACTION'; },
+		@{ NeedTest = $True; Name = 'GITHUB_ACTIONS'; ExpectedValue = 'true' },
+		@{ NeedTest = $True; Name = 'GITHUB_ACTOR'; },
+		@{ NeedTest = $True; Name = 'GITHUB_ACTOR_ID'; },
+		@{ NeedTest = $True; Name = 'GITHUB_API_URL'; },
+		@{ NeedTest = $True; Name = 'GITHUB_ENV'; },
+		@{ NeedTest = $True; Name = 'GITHUB_EVENT_NAME'; },
+		@{ NeedTest = $True; Name = 'GITHUB_EVENT_PATH'; },
+		@{ NeedTest = $True; Name = 'GITHUB_GRAPHQL_URL'; },
+		@{ NeedTest = $True; Name = 'GITHUB_JOB'; },
+		@{ NeedTest = $True; Name = 'GITHUB_PATH'; },
+		@{ NeedTest = $True; Name = 'GITHUB_REF_NAME'; },
+		@{ NeedTest = $True; Name = 'GITHUB_REF_PROTECTED'; },
+		@{ NeedTest = $True; Name = 'GITHUB_REF_TYPE'; },
+		@{ NeedTest = $True; Name = 'GITHUB_REPOSITORY'; },
+		@{ NeedTest = $True; Name = 'GITHUB_REPOSITORY_ID'; },
+		@{ NeedTest = $True; Name = 'GITHUB_REPOSITORY_OWNER'; },
+		@{ NeedTest = $True; Name = 'GITHUB_REPOSITORY_OWNER_ID'; },
+		@{ NeedTest = $True; Name = 'GITHUB_RETENTION_DAYS'; },
+		@{ NeedTest = $True; Name = 'GITHUB_RUN_ATTEMPT'; },
+		@{ NeedTest = $True; Name = 'GITHUB_RUN_ID'; },
+		@{ NeedTest = $True; Name = 'GITHUB_RUN_NUMBER'; },
+		@{ NeedTest = $True; Name = 'GITHUB_SERVER_URL'; },
+		@{ NeedTest = $True; Name = 'GITHUB_SHA'; },
+		@{ NeedTest = $True; Name = 'GITHUB_STEP_SUMMARY'; },
+		@{ NeedTest = $True; Name = 'GITHUB_WORKFLOW'; },
+		@{ NeedTest = $True; Name = 'GITHUB_WORKFLOW_REF'; },
+		@{ NeedTest = $True; Name = 'GITHUB_WORKFLOW_SHA'; },
+		@{ NeedTest = $True; Name = 'GITHUB_WORKSPACE'; },
+		@{ NeedTest = $True; Name = 'RUNNER_ARCH'; },
+		@{ NeedTest = $True; Name = 'RUNNER_NAME'; },
+		@{ NeedTest = $True; Name = 'RUNNER_OS'; },
+		@{ NeedTest = $True; Name = 'RUNNER_TEMP'; },
+		@{ NeedTest = $True; Name = 'RUNNER_TOOL_CACHE'; },
+		@{ NeedTest = $Artifact.IsPresent -or $Cache.IsPresent; Name = 'ACTIONS_RUNTIME_TOKEN'; },
+		@{ NeedTest = $Artifact.IsPresent; Name = 'ACTIONS_RUNTIME_URL'; },
+		@{ NeedTest = $Cache.IsPresent; Name = 'ACTIONS_CACHE_URL'; },
+		@{ NeedTest = $OpenIdConnect.IsPresent; Name = 'ACTIONS_ID_TOKEN_REQUEST_TOKEN'; },
+		@{ NeedTest = $OpenIdConnect.IsPresent; Name = 'ACTIONS_ID_TOKEN_REQUEST_URL'; }
+	)
+	[Boolean]$Failed = $False
+	ForEach ($Condition In $Conditions) {
+		If ($Condition.NeedTest) {
+			Try {
+				If ($Null -ieq $Condition.ExpectedValue) {
+					If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue'))) {
+						Throw
+					}
+				}
+				Else {
+					If ((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue') -ine $Condition.ExpectedValue) {
+						Throw
+					}
+				}
+			}
+			Catch {
+				$Failed = $True
+				Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is undefined or not equal to expected value!"
+			}
+		}
+	}
+	If ($Failed) {
 		If ($Mandatory.IsPresent) {
 			Write-GitHubActionsFail -Message $MandatoryMessage
 			Throw
