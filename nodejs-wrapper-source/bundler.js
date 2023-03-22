@@ -1,15 +1,12 @@
-import { copyFile as fsCopyFile, readFile as fsReadFile, writeFile as fsWriteFile } from "node:fs/promises";
 import { dirname as pathDirName, join as pathJoin } from "node:path";
 import { existsSync as fsExistsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { mkdir as fsMKDir, readdir as fsReadDir, readFile as fsReadFile, rm as fsRemove, writeFile as fsWriteFile } from "node:fs/promises";
 import ncc from "@vercel/ncc";
-const packageFileName = "package.json"
-const packageLockFileName = "pnpm-lock.yaml";
 const inputDirectoryPath = pathDirName(fileURLToPath(import.meta.url));
-const inputScriptFileName = "main.js";
+const packageFileName = "package.json"
+const scriptFileName = "main.js";
 const outputDirectoryPath = pathJoin(inputDirectoryPath, "../hugoalh.GitHubActionsToolkit/module/nodejs-wrapper");
-const outputBundledFileName = "bundled.js";
-const outputUnbundledFileName = "unbundled.js";
 async function getDirectoryItem(directoryPath) {
 	try {
 		return await fsReadDir(directoryPath, { withFileTypes: true });
@@ -28,7 +25,7 @@ if (fsExistsSync(outputDirectoryPath)) {
 }
 
 /* Create bundle. */
-let { code } = await ncc(pathJoin(inputDirectoryPath, inputScriptFileName), {
+let { code } = await ncc(pathJoin(inputDirectoryPath, scriptFileName), {
 	assetBuilds: false,
 	cache: false,
 	debugLog: false,
@@ -37,15 +34,14 @@ let { code } = await ncc(pathJoin(inputDirectoryPath, inputScriptFileName), {
 	quiet: false,
 	sourceMap: false,
 	sourceMapRegister: false,
-	target: "es2022",
+	target: "es2020",
 	v8cache: false,
 	watch: false
 });
-await fsWriteFile(pathJoin(outputDirectoryPath, outputBundledFileName), code, { encoding: "utf8" });
-await fsCopyFile(pathJoin(inputDirectoryPath, inputScriptFileName), pathJoin(outputDirectoryPath, outputUnbundledFileName))
-await fsCopyFile(pathJoin(inputDirectoryPath, packageLockFileName), pathJoin(outputDirectoryPath, packageLockFileName))
+await fsWriteFile(pathJoin(outputDirectoryPath, scriptFileName), code, { encoding: "utf8" });
 let packageMeta = JSON.parse(await fsReadFile(pathJoin(inputDirectoryPath, packageFileName), { encoding: "utf8" }));
 delete packageMeta.scripts;
+delete packageMeta.dependencies;
 delete packageMeta.devDependencies;
 packageMeta.name = `${packageMeta.name}-distribution`;
 await fsWriteFile(pathJoin(outputDirectoryPath, packageFileName), `${JSON.stringify(packageMeta, undefined, "\t")}\n`, { encoding: "utf8" });

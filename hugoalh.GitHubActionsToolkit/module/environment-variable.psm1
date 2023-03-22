@@ -32,9 +32,6 @@ Function Add-PATH {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoValidate', 'SkipValidate', 'SkipValidator')][Switch]$NoValidator,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
-	Begin {
-		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_PATH)
-	}
 	Process {
 		ForEach ($Item In (
 			$Path |
@@ -48,12 +45,7 @@ Function Add-PATH {
 				Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$Item" -Confirm:$False -NoNewLine
 			}
 			If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
-				If ($UseLegacyMethod) {
-					Write-GitHubActionsCommand -Command 'add-path' -Value $Item
-				}
-				Else {
-					Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
-				}
+				Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
 			}
 		}
 	}
@@ -86,9 +78,6 @@ Function Set-EnvironmentVariable {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoToUpperCase')][Switch]$NoToUpper,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
-	Begin {
-		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_ENV)
-	}
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
 			If (
@@ -107,12 +96,7 @@ Function Set-EnvironmentVariable {
 			$Null = [System.Environment]::SetEnvironmentVariable($Name, $Value)
 		}
 		If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
-			If ($UseLegacyMethod) {
-				Write-GitHubActionsCommand -Command 'set-env' -Parameter @{ 'name' = $Name } -Value $Value
-			}
-			Else {
-				Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Name $Name -Value $Value
-			}
+			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_ENV -Name $Name -Value $Value
 		}
 	}
 }

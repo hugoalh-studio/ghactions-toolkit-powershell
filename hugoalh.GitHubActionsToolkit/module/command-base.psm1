@@ -7,21 +7,6 @@ Import-Module -Name (
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Clear File Command
-.DESCRIPTION
-Clear the file commands.
-.OUTPUTS
-[Void]
-#>
-Function Clear-FileCommand {# Deprecated, keep as legacy.
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_cleargithubactionsfilecommand')]
-	[OutputType([Void])]
-	Param (
-		[Parameter(Position = 0)][Alias('Types')]$Type
-	)
-}
-<#
-.SYNOPSIS
 GitHub Actions - Format Command Parameter Value
 .DESCRIPTION
 Format the command parameter value characters that can cause issues.
@@ -127,7 +112,7 @@ Function Write-FileCommand {
 			Do {
 				[String]$Token = New-GitHubActionsRandomToken
 			}
-			While ( $ItemRaw -imatch [RegEx]::Escape($Token) )
+			While ($ItemRaw -imatch [RegEx]::Escape($Token))
 			@(
 				"$Name<<$Token",
 				($Value -ireplace '\r?\n', "`n"),
@@ -138,7 +123,6 @@ Function Write-FileCommand {
 	}
 }
 Export-ModuleMember -Function @(
-	'Clear-FileCommand',
 	'Write-Command',
 	'Write-FileCommand'
 )

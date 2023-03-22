@@ -174,9 +174,6 @@ Function Set-Output {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
-	Begin {
-		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_OUTPUT)
-	}
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
 			If (
@@ -191,12 +188,7 @@ Function Set-Output {
 				Set-Output
 			Return
 		}
-		If ($UseLegacyMethod) {
-			Write-GitHubActionsCommand -Command 'set-output' -Parameter @{ 'name' = $Name } -Value $Value
-		}
-		Else {
-			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Name $Name -Value $Value
-		}
+		Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_OUTPUT -Name $Name -Value $Value
 	}
 }
 <#
@@ -221,9 +213,6 @@ Function Set-State {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
-	Begin {
-		[Boolean]$UseLegacyMethod = [String]::IsNullOrWhiteSpace($Env:GITHUB_STATE)
-	}
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
 			If (
@@ -238,12 +227,7 @@ Function Set-State {
 				Set-State
 			Return
 		}
-		If ($UseLegacyMethod) {
-			Write-GitHubActionsCommand -Command 'save-state' -Parameter @{ 'name' = $Name } -Value $Value
-		}
-		Else {
-			Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Name $Name -Value $Value
-		}
+		Write-GitHubActionsFileCommand -LiteralPath $Env:GITHUB_STATE -Name $Name -Value $Value
 	}
 }
 Set-Alias -Name 'Save-State' -Value 'Set-State' -Option 'ReadOnly' -Scope 'Local'

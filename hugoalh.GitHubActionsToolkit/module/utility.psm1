@@ -29,7 +29,7 @@ Function Add-SecretMask {
 		If ($Value.Length -igt 0) {
 			Write-GitHubActionsCommand -Command 'add-mask' -Value $Value
 			If ($WithChunks.IsPresent) {
-				$Value -isplit '[\b\n\r\s\t\\/_-]+' |
+				$Value -isplit '[\b\n\r\s\t -/:-@\[-`{-~]+' |
 					Where-Object -FilterScript { $_.Length -ige 4 -and $_ -ine $Value } |
 					ForEach-Object -Process { Write-GitHubActionsCommand -Command 'add-mask' -Value $_ }
 			}
@@ -71,12 +71,10 @@ Function Get-WebhookEventPayload {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionswebhookeventpayload')]
 	[OutputType(([Hashtable], [PSCustomObject]))]
 	Param (
-		[Alias('ToHashtable')][Switch]$AsHashtable,
-		[UInt16]$Depth,# Deprecated, keep as legacy.
-		[Switch]$NoEnumerate# Deprecated, keep as legacy.
+		[Alias('ToHashtable')][Switch]$AsHashtable
 	)
-	If (!(Test-Environment)) {
-		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
+	If ([String]::IsNullOrEmpty($Env:GITHUB_EVENT_PATH)) {
+		Write-Error -Message 'Unable to get GitHub Actions resources: Environment path `GITHUB_EVENT_PATH` is undefined!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
@@ -99,9 +97,11 @@ Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsworkflowrunuri')]
 	[OutputType([String])]
 	Param ()
-	If (!(Test-Environment)) {
-		Write-Error -Message 'Unable to get GitHub Actions resources!' -Category 'ResourceUnavailable'
-		Return
+	ForEach ($EnvironmentPath In @('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID')) {
+		If ([String]::IsNullOrEmpty((Get-Item -LiteralPath "Env:\$EnvironmentPath"))) {
+			Write-Error -Message "Unable to get GitHub Actions resources: Environment path ``$EnvironmentPath`` is undefined!" -Category 'ResourceUnavailable'
+			Return
+		}
 	}
 	Write-Output -InputObject "$Env:GITHUB_SERVER_URL/$Env:GITHUB_REPOSITORY/actions/runs/$Env:GITHUB_RUN_ID"
 }
@@ -117,8 +117,6 @@ Also test whether has artifact resources.
 Also test whether has cache resources.
 .PARAMETER OpenIdConnect
 Also test whether has OpenID Connect (OIDC) resources.
-.PARAMETER StepSummary
-Also test whether has step summary resources.
 .PARAMETER ToolCache
 Also test whether has tool cache resources.
 .PARAMETER Mandatory
@@ -136,17 +134,17 @@ Function Test-Environment {
 		[Switch]$Artifact,
 		[Switch]$Cache,
 		[Alias('Oidc')][Switch]$OpenIdConnect,
-		[Switch]$StepSummary,
 		[Switch]$ToolCache,
 		[Alias('Require', 'Required')][Switch]$Mandatory,
-		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!'
+		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!',
+		[Switch]$StepSummary# Deprecated, keep as legacy.
 	)
-	If (# Some conditions are disabled to provide compatibility, will enable those when with runner version requirement.
+	If (
 		($Env:CI -ine 'true') -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTION) -or
 		($Env:GITHUB_ACTIONS -ine 'true') -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_ACTOR_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_API_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_ENV) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_EVENT_NAME) -or
@@ -158,33 +156,33 @@ Function Test-Environment {
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_PROTECTED) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REF_TYPE) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_REPOSITORY_OWNER_ID) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_RETENTION_DAYS) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ATTEMPT) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_ID) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_RUN_NUMBER) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SERVER_URL) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_SHA) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_STEP_SUMMARY) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_REF) -or
-		# [String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_SHA) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_REF) -or
+		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKFLOW_SHA) -or
 		[String]::IsNullOrWhiteSpace($Env:GITHUB_WORKSPACE) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_ARCH) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_NAME) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_OS) -or
 		[String]::IsNullOrWhiteSpace($Env:RUNNER_TEMP) -or
+		[String]::IsNullOrWhiteSpace($Env:RUNNER_TOOL_CACHE) -or
 		((
 			$Artifact.IsPresent -or
 			$Cache.IsPresent
 		) -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_RUNTIME_TOKEN)) -or
 		($Artifact.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_RUNTIME_URL)) -or
-		($Artifact.IsPresent -and [String]::IsNullOrWhiteSpace($Env:GITHUB_RETENTION_DAYS)) -or
 		($Cache.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_CACHE_URL)) -or
 		($OpenIdConnect.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_ID_TOKEN_REQUEST_TOKEN)) -or
-		($OpenIdConnect.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_ID_TOKEN_REQUEST_URL)) -or
-		($StepSummary.IsPresent -and [String]::IsNullOrWhiteSpace($Env:GITHUB_STEP_SUMMARY)) -or
-		($ToolCache.IsPresent -and [String]::IsNullOrWhiteSpace($Env:RUNNER_TOOL_CACHE))
+		($OpenIdConnect.IsPresent -and [String]::IsNullOrWhiteSpace($Env:ACTIONS_ID_TOKEN_REQUEST_URL))
 	) {
 		If ($Mandatory.IsPresent) {
 			Write-GitHubActionsFail -Message $MandatoryMessage

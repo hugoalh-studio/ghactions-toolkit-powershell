@@ -27,9 +27,12 @@ For the full documentation, please visit the [GitHub Repository Wiki](https://gi
 
 #### Install
 
-- PowerShell >= v7.2.0
-- NodeJS >= v14.15.0 (only for NodeJS wrapper API)
-- NPM >= v6.14.8 (only for NodeJS wrapper API)
+- GitHub Actions Runner >= v2.303.0
+  - PowerShell >= v7.2.0
+  - NodeJS >= v14.15.0 (only for NodeJS wrapper API)
+  - NPM >= v6.14.8 (only for NodeJS wrapper API) **\***
+
+**\*:** Only apply to some of the versions, please visit "Supported Versions" in the Security Policy (file: `SECURITY.md`).
 
 ```ps1
 Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
