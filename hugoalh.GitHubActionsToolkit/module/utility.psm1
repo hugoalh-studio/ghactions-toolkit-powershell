@@ -139,9 +139,9 @@ Function Test-Environment {
 		[Switch]$StepSummary# Deprecated, keep as legacy.
 	)
 	[Hashtable[]]$Conditions = @(
-		@{ NeedTest = $True; Name = 'CI'; ExpectedValue = 'true' },
+		@{ NeedTest = $True; Name = 'CI'; ExpectValue = 'true' },
 		@{ NeedTest = $True; Name = 'GITHUB_ACTION'; },
-		@{ NeedTest = $True; Name = 'GITHUB_ACTIONS'; ExpectedValue = 'true' },
+		@{ NeedTest = $True; Name = 'GITHUB_ACTIONS'; ExpectValue = 'true' },
 		@{ NeedTest = $True; Name = 'GITHUB_ACTOR'; },
 		@{ NeedTest = $True; Name = 'GITHUB_ACTOR_ID'; },
 		@{ NeedTest = $True; Name = 'GITHUB_API_URL'; },
@@ -183,21 +183,17 @@ Function Test-Environment {
 	[Boolean]$Failed = $False
 	ForEach ($Condition In $Conditions) {
 		If ($Condition.NeedTest) {
-			Try {
-				If ($Null -ieq $Condition.ExpectedValue) {
-					If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue'))) {
-						Throw "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined!"
-					}
-				}
-				Else {
-					If ((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue') -ine $Condition.ExpectedValue) {
-						Throw "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined or not equal to expected value!"
-					}
+			If ($Null -ieq $Condition.ExpectValue) {
+				If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue'))) {
+					$Failed = $True
+					Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined!"
 				}
 			}
-			Catch {
-				$Failed = $True
-				Write-Warning -Message $_
+			Else {
+				If ((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue') -ine $Condition.ExpectValue) {
+					$Failed = $True
+					Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined or not equal to expect value!"
+				}
 			}
 		}
 	}

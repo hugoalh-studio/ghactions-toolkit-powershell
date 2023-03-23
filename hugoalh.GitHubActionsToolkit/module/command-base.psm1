@@ -84,12 +84,13 @@ Function Write-FileCommand {
 		Else {
 			Try {
 				[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$([WildcardPattern]::Escape($FileCommand.ToUpper()))" -ErrorAction 'Stop'
-				If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
-					Throw
-				}
 			}
 			Catch {
 				Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
+				Return
+			}
+			If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
+				Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not contain a valid file path!" -Category 'ResourceUnavailable'
 				Return
 			}
 		}
