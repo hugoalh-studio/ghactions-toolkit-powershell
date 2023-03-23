@@ -45,7 +45,12 @@ Function Add-PATH {
 				Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$Item" -Confirm:$False -NoNewLine
 			}
 			If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
-				Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
+				If ([System.IO.Path]::IsPathFullyQualified($Env:GITHUB_PATH)) {
+					Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
+				}
+				Else {
+					Write-Error -Message 'Unable to write the GitHub Actions path: Environment path `GITHUB_PATH` is not defined!' -Category 'ResourceUnavailable'
+				}
 			}
 		}
 	}

@@ -1,8 +1,7 @@
 #Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base',
-		'log'
+		'command-base'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
@@ -74,7 +73,7 @@ Function Get-WebhookEventPayload {
 		[Alias('ToHashtable')][Switch]$AsHashtable
 	)
 	If ([String]::IsNullOrEmpty($Env:GITHUB_EVENT_PATH)) {
-		Write-Error -Message 'Unable to read the GitHub Actions webhook event payload: Environment path `GITHUB_EVENT_PATH` is undefined!' -Category 'ResourceUnavailable'
+		Write-Error -Message 'Unable to get the GitHub Actions webhook event payload: Environment path `GITHUB_EVENT_PATH` is not defined!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
@@ -99,7 +98,7 @@ Function Get-WorkflowRunUri {
 	Param ()
 	ForEach ($EnvironmentPath In @('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID')) {
 		If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$EnvironmentPath"))) {
-			Write-Error -Message "Unable to get the GitHub Actions workflow run URI: Environment path ``$EnvironmentPath`` is undefined!" -Category 'ResourceUnavailable'
+			Write-Error -Message "Unable to get the GitHub Actions workflow run URI: Environment path ``$EnvironmentPath`` is not defined!" -Category 'ResourceUnavailable'
 			Return
 		}
 	}
@@ -187,25 +186,25 @@ Function Test-Environment {
 			Try {
 				If ($Null -ieq $Condition.ExpectedValue) {
 					If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue'))) {
-						Throw
+						Throw "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined!"
 					}
 				}
 				Else {
 					If ((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue') -ine $Condition.ExpectedValue) {
-						Throw
+						Throw "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined or not equal to expected value!"
 					}
 				}
 			}
 			Catch {
 				$Failed = $True
-				Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is undefined or not equal to expected value!"
+				Write-Warning -Message $_
 			}
 		}
 	}
 	If ($Failed) {
 		If ($Mandatory.IsPresent) {
-			Write-GitHubActionsFail -Message $MandatoryMessage
-			Throw
+			Write-Error -Message $MandatoryMessage -Category 'InvalidOperation' -ErrorAction 'Stop'
+			Exit 1
 		}
 		Write-Output -InputObject $False
 		Return

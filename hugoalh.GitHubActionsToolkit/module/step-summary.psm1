@@ -1,10 +1,4 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name (
-	@(
-		'internal\test-environment-path'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
-) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
@@ -29,8 +23,8 @@ Function Add-StepSummary {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$NoNewLine
 	)
 	Process {
-		If (!(Test-GitHubActionsEnvironmentPath -InputObject $Env:GITHUB_STEP_SUMMARY)) {
-			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is undefined!' -Category 'ResourceUnavailable'
+		If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
+			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
 			Return
 		}
 		If ($Value.Count -igt 0) {
@@ -227,8 +221,8 @@ Function Get-StepSummary {
 		[Parameter(ParameterSetName = 'Content')][Switch]$Raw,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
-	If (!(Test-GitHubActionsEnvironmentPath -InputObject $Env:GITHUB_STEP_SUMMARY)) {
-		Write-Error -Message 'Unable to get the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is undefined!' -Category 'ResourceUnavailable'
+	If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
+		Write-Error -Message 'Unable to get the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Switch ($PSCmdlet.ParameterSetName) {
@@ -257,8 +251,8 @@ Function Remove-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_removegithubactionsstepsummary')]
 	[OutputType([Void])]
 	Param ()
-	If (!(Test-GitHubActionsEnvironmentPath -InputObject $Env:GITHUB_STEP_SUMMARY)) {
-		Write-Error -Message 'Unable to remove the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is undefined!' -Category 'ResourceUnavailable'
+	If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
+		Write-Error -Message 'Unable to remove the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
@@ -296,8 +290,8 @@ Function Set-StepSummary {
 		}
 	}
 	End {
-		If (!(Test-GitHubActionsEnvironmentPath -InputObject $Env:GITHUB_STEP_SUMMARY)) {
-			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is undefined!' -Category 'ResourceUnavailable'
+		If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
+			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
 			Return
 		}
 		If ($Result.Count -igt 0) {

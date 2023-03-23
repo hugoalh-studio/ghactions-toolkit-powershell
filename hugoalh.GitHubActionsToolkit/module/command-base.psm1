@@ -1,8 +1,7 @@
 #Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
-		'internal\new-random-token',
-		'internal\test-environment-path'
+		'internal\new-random-token'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
@@ -79,18 +78,18 @@ Function Write-FileCommand {
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][String]$Value
 	)
 	Process {
-		If (<# LEGACY #>Test-GitHubActionsEnvironmentPath -InputObject $FileCommand) {
+		If (<# LEGACY #>[System.IO.Path]::IsPathFullyQualified($FileCommand)) {
 			[String]$FileCommandPath = $FileCommand
 		}
 		Else {
 			Try {
 				[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$([WildcardPattern]::Escape($FileCommand.ToUpper()))" -ErrorAction 'Stop'
-				If (!(Test-GitHubActionsEnvironmentPath -InputObject $FileCommandPath)) {
+				If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
 					Throw
 				}
 			}
 			Catch {
-				Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is undefined!" -Category 'ResourceUnavailable'
+				Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
 				Return
 			}
 		}
