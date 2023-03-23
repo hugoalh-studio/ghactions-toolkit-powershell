@@ -152,8 +152,8 @@ Function Test-NodeJsEnvironment {
 			[String]$NodeJsVersionStdOut = node --no-deprecation --no-warnings --version |
 				Join-String -Separator "`n"
 			If (
-				$NodeJsVersionStdOut -inotmatch $SemVerRegEx -or
-				$NodeJsMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
+				($NodeJsVersionStdOut -inotmatch $SemVerRegEx) -or
+				($NodeJsMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', '')))
 			) {
 				Throw
 			}
