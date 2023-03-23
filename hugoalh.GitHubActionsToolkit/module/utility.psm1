@@ -200,7 +200,6 @@ Function Test-Environment {
 	If ($Failed) {
 		If ($Mandatory.IsPresent) {
 			Write-Error -Message $MandatoryMessage -Category 'InvalidOperation' -ErrorAction 'Stop'
-			Exit 1
 		}
 		Write-Output -InputObject $False
 		Return
