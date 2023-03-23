@@ -37,7 +37,7 @@ Function Add-PATH {
 			$Path |
 				Select-Object -Unique
 		)) {
-			If (!$NoValidator.IsPresent -and ![System.IO.Path]::IsPathRooted($Item) -and !(Test-Path -Path $Item -PathType 'Container' -IsValid)) {
+			If (!$NoValidator.IsPresent -and !([System.IO.Path]::IsPathRooted($Item) -and (Test-Path -Path $Item -PathType 'Container' -IsValid))) {
 				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
 				Continue
 			}
