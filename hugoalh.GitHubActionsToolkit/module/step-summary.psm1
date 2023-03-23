@@ -24,7 +24,7 @@ Function Add-StepSummary {
 	)
 	Process {
 		If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
-			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
+			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
 			Return
 		}
 		If ($Value.Count -igt 0) {
@@ -222,7 +222,7 @@ Function Get-StepSummary {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
 	)
 	If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
-		Write-Error -Message 'Unable to get the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
+		Write-Error -Message 'Unable to get the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Switch ($PSCmdlet.ParameterSetName) {
@@ -252,7 +252,7 @@ Function Remove-StepSummary {
 	[OutputType([Void])]
 	Param ()
 	If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
-		Write-Error -Message 'Unable to remove the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
+		Write-Error -Message 'Unable to remove the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
@@ -291,7 +291,7 @@ Function Set-StepSummary {
 	}
 	End {
 		If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
-			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined!' -Category 'ResourceUnavailable'
+			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
 			Return
 		}
 		If ($Result.Count -igt 0) {

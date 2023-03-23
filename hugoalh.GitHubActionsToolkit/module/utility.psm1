@@ -72,8 +72,8 @@ Function Get-WebhookEventPayload {
 	Param (
 		[Alias('ToHashtable')][Switch]$AsHashtable
 	)
-	If ([String]::IsNullOrEmpty($Env:GITHUB_EVENT_PATH)) {
-		Write-Error -Message 'Unable to get the GitHub Actions webhook event payload: Environment path `GITHUB_EVENT_PATH` is not defined!' -Category 'ResourceUnavailable'
+	If ([System.IO.Path]::IsPathFullyQualified($Env:GITHUB_EVENT_PATH)) {
+		Write-Error -Message 'Unable to get the GitHub Actions webhook event payload: Environment path `GITHUB_EVENT_PATH` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
@@ -97,7 +97,7 @@ Function Get-WorkflowRunUri {
 	[OutputType([String])]
 	Param ()
 	ForEach ($EnvironmentPath In @('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID')) {
-		If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$EnvironmentPath"))) {
+		If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$EnvironmentPath" -ErrorAction 'SilentlyContinue'))) {
 			Write-Error -Message "Unable to get the GitHub Actions workflow run URI: Environment path ``$EnvironmentPath`` is not defined!" -Category 'ResourceUnavailable'
 			Return
 		}
