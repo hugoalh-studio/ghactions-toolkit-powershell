@@ -72,8 +72,8 @@ Function Get-WebhookEventPayload {
 	Param (
 		[Alias('ToHashtable')][Switch]$AsHashtable
 	)
-	If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_EVENT_PATH)) {
-		Write-Error -Message 'Unable to get the GitHub Actions webhook event payload: Environment path `GITHUB_EVENT_PATH` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
+	If (!([System.IO.Path]::IsPathFullyQualified($Env:GITHUB_EVENT_PATH) -and (Test-Path -LiteralPath $Env:GITHUB_EVENT_PATH -PathType 'Leaf'))) {
+		Write-Error -Message 'Unable to get the GitHub Actions webhook event payload: Environment path `GITHUB_EVENT_PATH` is not defined or not contain a valid file path, or file is not exist!' -Category 'ResourceUnavailable'
 		Return
 	}
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
