@@ -17,9 +17,9 @@ Function Test-ParameterInputObject {
 	)
 	Process {
 		(
-			($InputObject -is [Hashtable]) -or
-			($InputObject -is [Object[]]) -or
-			($InputObject -is [System.Collections.Specialized.OrderedDictionary])
+			$InputObject -is [Hashtable] -or
+			$InputObject -is [Object[]] -or
+			$InputObject -is [System.Collections.Specialized.OrderedDictionary]
 		) |
 			Write-Output
 	}

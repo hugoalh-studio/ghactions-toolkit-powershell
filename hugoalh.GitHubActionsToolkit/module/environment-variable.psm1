@@ -86,8 +86,8 @@ Function Set-EnvironmentVariable {
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
 			If (
-				($InputObject -is [Hashtable]) -or
-				($InputObject -is [System.Collections.Specialized.OrderedDictionary])
+				$InputObject -is [Hashtable] -or
+				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
 			) {
 				$InputObject.GetEnumerator() |
 					Set-EnvironmentVariable -NoToUpper:$NoToUpper.IsPresent -Scope $Scope
@@ -124,7 +124,7 @@ Function Test-EnvironmentVariableName {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
 	Process {
-		($InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$') -and ($InputObject -inotmatch '^(?:CI|PATH)$|^(?:ACTIONS|GITHUB|RUNNER)_') |
+		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject -inotmatch '^(?:CI|PATH)$|^(?:ACTIONS|GITHUB|RUNNER)_' |
 			Write-Output
 	}
 }
