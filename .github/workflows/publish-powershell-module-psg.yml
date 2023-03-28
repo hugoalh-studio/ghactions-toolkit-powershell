@@ -15,7 +15,7 @@ jobs:
       - name: "Checkout Repository"
         uses: "actions/checkout@v3.5.0"
       - name: "Setup PowerShell Environment"
-        uses: "hugoalh-studio/setup-powershell-toolkit-ghaction@v1.1.0"
+        uses: "hugoalh-studio/setup-powershell-toolkit-ghaction@v1.2.0"
         with:
           toolkit_setup: "false"
       - name: "Test Publish"
