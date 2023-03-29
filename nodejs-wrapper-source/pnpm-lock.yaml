@@ -5,7 +5,7 @@ specifiers:
   '@actions/cache': ^3.2.1
   '@actions/core': ^1.10.0
   '@actions/tool-cache': ^2.0.1
-  '@types/node': ^18.15.10
+  '@types/node': ^18.15.11
   '@vercel/ncc': ^0.36.1
   typescript: ^5.0.2
 
@@ -16,7 +16,7 @@ dependencies:
   '@actions/tool-cache': 2.0.1
 
 devDependencies:
-  '@types/node': 18.15.10
+  '@types/node': 18.15.11
   '@vercel/ncc': 0.36.1
   typescript: 5.0.2
 
@@ -113,7 +113,7 @@ packages:
       '@azure/core-tracing': 1.0.0-preview.13
       '@azure/core-util': 1.2.0
       '@azure/logger': 1.0.4
-      '@types/node-fetch': 2.6.2
+      '@types/node-fetch': 2.6.3
       '@types/tunnel': 0.0.3
       form-data: 4.0.0
       node-fetch: 2.6.9
@@ -202,20 +202,20 @@ packages:
     engines: {node: '>=8.0.0'}
     dev: false
 
-  /@types/node-fetch/2.6.2:
-    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
+  /@types/node-fetch/2.6.3:
+    resolution: {integrity: sha512-ETTL1mOEdq/sxUtgtOhKjyB2Irra4cjxksvcMUR5Zr4n+PxVhsCD9WS46oPbHL3et9Zde7CNRr+WUNlcHvsX+w==}
     dependencies:
-      '@types/node': 18.15.10
+      '@types/node': 18.15.11
       form-data: 3.0.1
     dev: false
 
-  /@types/node/18.15.10:
-    resolution: {integrity: sha512-9avDaQJczATcXgfmMAW3MIWArOO7A+m90vuCFLr8AotWf8igO/mRoYukrk2cqZVtv38tHs33retzHEilM7FpeQ==}
+  /@types/node/18.15.11:
+    resolution: {integrity: sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==}
 
   /@types/tunnel/0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
     dependencies:
-      '@types/node': 18.15.10
+      '@types/node': 18.15.11
     dev: false
 
   /@vercel/ncc/0.36.1:
