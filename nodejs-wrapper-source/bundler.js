@@ -1,7 +1,7 @@
-import { dirname as pathDirName, join as pathJoin } from "node:path";
 import { existsSync as fsExistsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { mkdir as fsMKDir, readdir as fsReadDir, readFile as fsReadFile, rm as fsRemove, writeFile as fsWriteFile } from "node:fs/promises";
+import { dirname as pathDirName, join as pathJoin } from "node:path";
+import { fileURLToPath } from "node:url";
 import ncc from "@vercel/ncc";
 const inputDirectoryPath = pathDirName(fileURLToPath(import.meta.url));
 const packageFileName = "package.json"
@@ -43,5 +43,4 @@ let packageMeta = JSON.parse(await fsReadFile(pathJoin(inputDirectoryPath, packa
 delete packageMeta.scripts;
 delete packageMeta.dependencies;
 delete packageMeta.devDependencies;
-packageMeta.name = `${packageMeta.name}-distribution`;
 await fsWriteFile(pathJoin(outputDirectoryPath, packageFileName), `${JSON.stringify(packageMeta, undefined, "\t")}\n`, { encoding: "utf8" });
