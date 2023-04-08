@@ -22,6 +22,6 @@
 
 ## Report Vulnerability
 
-If you believe you have found any security vulnerability, please report it via [the Security Advisories system](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/security/advisories/new) instead of create an issue and/or report it publicly.
+If you believe you have found any security vulnerability, please report it via the [Security Advisories system](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/security/advisories/new) instead of create an issue and/or report it publicly.
 
 All new reports may need `~48 hours (~2 days)` to begin the process.
