@@ -23,9 +23,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 
 For the full documentation, please visit the [GitHub Repository Wiki](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki).
 
-### Getting Started
-
-#### Install
+### Target
 
 - GitHub Actions Runner >= v2.303.0
   - PowerShell >= v7.2.0
@@ -37,8 +35,6 @@ For the full documentation, please visit the [GitHub Repository Wiki](https://gi
 ```ps1
 Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
 ```
-
-#### Use
 
 ```ps1
 <# Either #>
