@@ -9,18 +9,9 @@ defaults:
     shell: "pwsh"
 jobs:
   publish-powershell-module-psg:
-    name: "Publish PowerShell Module - PowerShell Gallery"
-    runs-on: "windows-latest"
-    steps:
-      - name: "Checkout Repository"
-        uses: "actions/checkout@v3.5.0"
-      - name: "Setup PowerShell Environment"
-        uses: "hugoalh-studio/setup-powershell-toolkit-ghaction@v1.2.0"
-        with:
-          toolkit_setup: "false"
-      - name: "Test Publish"
-        run: |
-          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey 'GUID' -WhatIf -Verbose
-      - name: "Publish"
-        run: |
-          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
+    name: "Publish PowerShell Module - PowerShell Gallery (Reusable Workflow)"
+    uses: "hugoalh/hugoalh/.github/workflows/publish-powershell-module-psg.yml@main"
+    with:
+      path: ".\\hugoalh.GitHubActionsToolkit\\"
+    secrets:
+      POWERSHELLGALLERY_TOKEN: "${{secrets.POWERSHELLGALLERY_TOKEN}}"
