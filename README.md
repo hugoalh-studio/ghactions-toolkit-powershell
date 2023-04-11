@@ -1,8 +1,7 @@
 # GitHub Actions Toolkit (PowerShell)
 
-[`GitHubActionsToolkit.PowerShell`](https://github.com/hugoalh-studio/ghactions-toolkit-powershell)
-
 ![License](https://img.shields.io/static/v1?label=License&message=MIT&style=flat-square "License")
+[![GitHub Repository](https://img.shields.io/badge/Repository-181717?logo=github&logoColor=ffffff&style=flat-square "GitHub Repository")](https://github.com/hugoalh-studio/ghactions-toolkit-powershell)
 [![GitHub Stars](https://img.shields.io/github/stars/hugoalh-studio/ghactions-toolkit-powershell?label=Stars&logo=github&logoColor=ffffff&style=flat-square "GitHub Stars")](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/stargazers)
 [![GitHub Contributors](https://img.shields.io/github/contributors/hugoalh-studio/ghactions-toolkit-powershell?label=Contributors&logo=github&logoColor=ffffff&style=flat-square "GitHub Contributors")](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/graphs/contributors)
 [![GitHub Issues](https://img.shields.io/github/issues-raw/hugoalh-studio/ghactions-toolkit-powershell?label=Issues&logo=github&logoColor=ffffff&style=flat-square "GitHub Issues")](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/issues)
@@ -23,7 +22,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 
 For the full documentation, please visit the [GitHub Repository Wiki](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki).
 
-### Target
+### Getting Started
 
 - GitHub Actions Runner >= v2.303.0
   - PowerShell >= v7.2.0
