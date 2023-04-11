@@ -6,7 +6,7 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[String[]]$GitHubActionsCommands = @(
+[String[]]$GitHubActionsStdOutCommands = @(
 	'add-mask',
 	'add-matcher',
 	'add-path',# Legacy.
@@ -185,7 +185,7 @@ Function Test-ProcessingCommandsEndToken {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
 	Process {
-		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsCommands |
+		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsStdOutCommands |
 			Write-Output
 	}
 }
