@@ -7,18 +7,29 @@ const inputDirectoryPath = pathDirName(fileURLToPath(import.meta.url));
 const packageFileName = "package.json"
 const scriptFileName = "main.js";
 const outputDirectoryPath = pathJoin(inputDirectoryPath, "../hugoalh.GitHubActionsToolkit/module/nodejs-wrapper");
-async function getDirectoryItem(directoryPath) {
+async function getDirectoryItem(directoryPath, relativeBasePath) {
+	if (typeof relativeBasePath === "undefined") {
+		relativeBasePath = directoryPath;
+	}
 	try {
-		return await fsReadDir(directoryPath, { withFileTypes: true });
-	} catch {
+		let result = [];
+		for (let item of await fsReadDir(directoryPath, { withFileTypes: true })) {
+			if (item.isDirectory()) {
+				result.push(...await getDirectoryItem(pathJoin(directoryPath, item.name), relativeBasePath));
+			} else {
+				result.push(pathJoin(directoryPath, item.name).slice(relativeBasePath.length + 1).replace(/\\/gu, "/"));
+			}
+		}
+		return result;
+	} catch (error) {
 		return [];
 	}
 }
 
 /* Clean up or initialize output directory (need to await in order to prevent race conditions). */
 if (fsExistsSync(outputDirectoryPath)) {
-	for (const outputFile of await getDirectoryItem(outputDirectoryPath)) {
-		await fsRemove(pathJoin(outputDirectoryPath, outputFile.name), { recursive: true });
+	for (let fileName of await getDirectoryItem(outputDirectoryPath)) {
+		await fsRemove(pathJoin(outputDirectoryPath, fileName), { recursive: true });
 	}
 } else {
 	await fsMKDir(outputDirectoryPath, { recursive: true });
