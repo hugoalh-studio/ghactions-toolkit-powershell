@@ -5,7 +5,7 @@ specifiers:
   '@actions/cache': ^3.2.1
   '@actions/core': ^1.10.0
   '@actions/tool-cache': ^2.0.1
-  '@types/node': ^18.15.11
+  '@types/node': ^18.15.12
   '@vercel/ncc': ^0.36.1
   typescript: ^5.0.4
 
@@ -16,7 +16,7 @@ dependencies:
   '@actions/tool-cache': 2.0.1
 
 devDependencies:
-  '@types/node': 18.15.11
+  '@types/node': 18.15.12
   '@vercel/ncc': 0.36.1
   typescript: 5.0.4
 
@@ -206,17 +206,17 @@ packages:
   /@types/node-fetch/2.6.3:
     resolution: {integrity: sha512-ETTL1mOEdq/sxUtgtOhKjyB2Irra4cjxksvcMUR5Zr4n+PxVhsCD9WS46oPbHL3et9Zde7CNRr+WUNlcHvsX+w==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.15.12
       form-data: 3.0.1
     dev: false
 
-  /@types/node/18.15.11:
-    resolution: {integrity: sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==}
+  /@types/node/18.15.12:
+    resolution: {integrity: sha512-Wha1UwsB3CYdqUm2PPzh/1gujGCNtWVUYF0mB00fJFoR4gTyWTDPjSm+zBF787Ahw8vSGgBja90MkgFwvB86Dg==}
 
   /@types/tunnel/0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.15.12
     dev: false
 
   /@vercel/ncc/0.36.1:
