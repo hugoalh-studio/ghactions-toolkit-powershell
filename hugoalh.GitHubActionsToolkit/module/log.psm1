@@ -201,6 +201,10 @@ Line end of the issue file of the annotation.
 Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the error message.
+.PARAMETER Finally
+A script that execute before end the process, use to free any resources that are no longer needed.
+.PARAMETER ExitCode
+Exit code of the process.
 .OUTPUTS
 [Void]
 #>
@@ -214,10 +218,14 @@ Function Write-Fail {
 		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
 		[Alias('LineEnd')][UInt32]$EndLine,
 		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
-		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title
+		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title,
+		[ScriptBlock]$Finally = {},
+		[ValidateRange(1, [Int32]::MaxValue)][Int32]$ExitCode = 1
 	)
 	Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
-	Exit 1
+	Invoke-Command -ScriptBlock $Finally
+	Exit $ExitCode
+	Exit 1# For safety.
 }
 <#
 .SYNOPSIS
