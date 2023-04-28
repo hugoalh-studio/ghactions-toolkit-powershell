@@ -220,12 +220,12 @@ Function Write-Fail {
 		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
 		[ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` must be in single line string!')][Alias('Header')][String]$Title,
 		[ScriptBlock]$Finally = {},
-		[ValidateRange(1, [Int32]::MaxValue)][Int32]$ExitCode = 1
+		[ValidateRange(1, [Byte]::MaxValue)][Byte]$ExitCode = 1
 	)
 	Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
-	Invoke-Command -ScriptBlock $Finally
+	Invoke-Command -ScriptBlock $Finally -ErrorAction 'Continue'
 	Exit $ExitCode
-	Exit 1# For safety.
+	Exit 1# Fallback for safety.
 }
 <#
 .SYNOPSIS
