@@ -202,7 +202,7 @@ Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the error message.
 .PARAMETER Finally
-A script that execute before end the process, use to free any resources that are no longer needed.
+A script that invoke before end the process, use to free any resources that are no longer needed.
 .PARAMETER ExitCode
 Exit code of the process.
 .OUTPUTS
