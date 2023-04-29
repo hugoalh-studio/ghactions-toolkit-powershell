@@ -89,7 +89,7 @@ Function Invoke-NodeJsWrapper {
 		[String]$Base64ResultSeparator = Convert-FromUtf8StringToBase64String -InputObject $ResultSeparator
 		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperScriptFilePath`" $Base64Name $Base64Argument $Base64ResultSeparator"
 		[UInt32[]]$ResultSkipIndexes = @()
-		For ([UInt32]$ResultIndex = 0; $ResultIndex -ilt $Result.Count; $ResultIndex++) {
+		For ([UInt32]$ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex++) {
 			[String]$ResultLine = $Result[$ResultIndex]
 			If ($ResultLine -imatch '^::.+?::.*$') {
 				Write-Host -Object $ResultLine
@@ -153,7 +153,7 @@ Function Test-NodeJsEnvironment {
 				Join-String -Separator "`n"
 			If (
 				$NodeJsVersionStdOut -inotmatch $SemVerRegEx -or
-				$NodeJsMinimumVersion -igt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
+				$NodeJsMinimumVersion -gt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
 			) {
 				Throw
 			}

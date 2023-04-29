@@ -54,16 +54,16 @@ Function Restore-Cache {
 		}
 		[String[]]$RestoreKey = $Key |
 			Select-Object -SkipIndex 0
-		If ($RestoreKey.Count -igt 0) {
+		If ($RestoreKey.Count -gt 0) {
 			$Argument.RestoreKey = $RestoreKey
 		}
-		If ($DownloadConcurrency -igt 0) {
+		If ($DownloadConcurrency -gt 0) {
 			$Argument.DownloadConcurrency = $DownloadConcurrency
 		}
-		If ($SegmentTimeout -igt 0) {
+		If ($SegmentTimeout -gt 0) {
 			$Argument.SegmentTimeout = $SegmentTimeout * 1000
 		}
-		If ($Timeout -igt 0) {
+		If ($Timeout -gt 0) {
 			$Argument.Timeout = $Timeout * 1000
 		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -Argument $Argument)?.CacheKey |
@@ -107,10 +107,10 @@ Function Save-Cache {
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
 			) : $Path
 		}
-		If ($UploadChunkSizes -igt 0) {
+		If ($UploadChunkSizes -gt 0) {
 			$Argument.UploadChunkSizes = $UploadChunkSizes * 1KB
 		}
-		If ($UploadConcurrency -igt 0) {
+		If ($UploadConcurrency -gt 0) {
 			$Argument.UploadConcurrency = $UploadConcurrency
 		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -Argument $Argument)?.CacheId |

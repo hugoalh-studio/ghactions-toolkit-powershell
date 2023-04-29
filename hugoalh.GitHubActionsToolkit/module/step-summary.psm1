@@ -27,7 +27,7 @@ Function Add-StepSummary {
 			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
 			Return
 		}
-		If ($Value.Count -igt 0) {
+		If ($Value.Count -gt 0) {
 			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
 				$Value |
 					Join-String -Separator "`n"
@@ -91,20 +91,20 @@ Function Add-StepSummaryImage {
 		[Switch]$NoNewLine
 	)
 	If (
-		$Width -igt -1 -or
-		$Height -igt -1
+		$Width -gt -1 -or
+		$Height -gt -1
 	) {
 		[String]$ResultHtml = "<img src=`"$([Uri]::EscapeUriString($Uri))`""
-		If ($Title.Length -igt 0) {
+		If ($Title.Length -gt 0) {
 			$ResultHtml += " title=`"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 		}
-		If ($AlternativeText.Length -igt 0) {
+		If ($AlternativeText.Length -gt 0) {
 			$ResultHtml += " alt=`"$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))`""
 		}
-		If ($Width -igt -1) {
+		If ($Width -gt -1) {
 			$ResultHtml += " width=`"$Width`""
 		}
-		If ($Height -igt -1) {
+		If ($Height -gt -1) {
 			$ResultHtml += " height=`"$Height`""
 		}
 		$ResultHtml += ' />'
@@ -112,7 +112,7 @@ Function Add-StepSummaryImage {
 	}
 	Else {
 		[String]$ResultMarkdown = "![$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))]($([Uri]::EscapeUriString($Uri))"
-		If ($Title.Length -igt 0) {
+		If ($Title.Length -gt 0) {
 			$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 		}
 		$ResultMarkdown += ')'
@@ -148,7 +148,7 @@ Function Add-StepSummaryLink {
 		[Switch]$NoNewLine
 	)
 	[String]$ResultMarkdown = "[$([System.Web.HttpUtility]::HtmlAttributeEncode($Text))]($([Uri]::EscapeUriString($Uri))"
-	If ($Title.Length -igt 0) {
+	If ($Title.Length -gt 0) {
 		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
@@ -284,7 +284,7 @@ Function Set-StepSummary {
 		[String[]]$Result = @()
 	}
 	Process {
-		If ($Value.Count -igt 0) {
+		If ($Value.Count -gt 0) {
 			$Result += $Value |
 				Join-String -Separator "`n"
 		}
@@ -294,7 +294,7 @@ Function Set-StepSummary {
 			Write-Error -Message 'Unable to write the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
 			Return
 		}
-		If ($Result.Count -igt 0) {
+		If ($Result.Count -gt 0) {
 			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
 				$Result |
 					Join-String -Separator "`n"

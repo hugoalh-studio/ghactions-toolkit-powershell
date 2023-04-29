@@ -67,13 +67,13 @@ Function Expand-ToolCacheCompressedFile {
 		[Hashtable]$Argument = @{
 			File = $File
 		}
-		If ($Destination.Length -igt 0) {
+		If ($Destination.Length -gt 0) {
 			$Argument.Destination = $Destination
 		}
-		If ($7zrPath.Length -igt 0) {
+		If ($7zrPath.Length -gt 0) {
 			$Argument['7zrPath'] = $7zrPath
 		}
-		If ($Flag.Length -igt 0) {
+		If ($Flag.Length -gt 0) {
 			$Argument.Flag = $Flag
 		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -Argument $Argument)?.Path |
@@ -114,7 +114,7 @@ Function Find-ToolCache {
 		If (!$IsFindAll) {
 			$Argument.Version = $Version
 		}
-		If ($Architecture.Length -igt 0) {
+		If ($Architecture.Length -gt 0) {
 			$Argument.Architecture = $Architecture
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -Argument $Argument
@@ -150,13 +150,13 @@ Function Invoke-ToolCacheToolDownloader {
 		[Hashtable]$Argument = @{
 			Uri = $Uri.ToString()
 		}
-		If ($Destination.Length -igt 0) {
+		If ($Destination.Length -gt 0) {
 			$Argument.Destination = $Destination
 		}
-		If ($Authorization.Length -igt 0) {
+		If ($Authorization.Length -gt 0) {
 			$Argument.Authorization = $Authorization
 		}
-		If ($Header.Count -igt 0) {
+		If ($Header.Count -gt 0) {
 			$Argument.Header = $Header
 		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -Argument $Argument)?.Path |
@@ -194,7 +194,7 @@ Function Register-ToolCacheDirectory {
 			Name = $Name
 			Version = $Version
 		}
-		If ($Architecture.Length -igt 0) {
+		If ($Architecture.Length -gt 0) {
 			$Argument.Architecture = $Architecture
 		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -Argument $Argument)?.Path |
@@ -236,7 +236,7 @@ Function Register-ToolCacheFile {
 			Name = $Name
 			Version = $Version
 		}
-		If ($Architecture.Length -igt 0) {
+		If ($Architecture.Length -gt 0) {
 			$Argument.Architecture = $Architecture
 		}
 		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -Argument $Argument)?.Path |

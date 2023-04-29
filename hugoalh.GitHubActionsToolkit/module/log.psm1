@@ -103,22 +103,22 @@ Function Write-Annotation {
 			}
 		}
 		[Hashtable]$Property = @{}
-		If ($File.Length -igt 0) {
+		If ($File.Length -gt 0) {
 			$Property['file'] = $File
 		}
-		If ($Line -igt 0) {
+		If ($Line -gt 0) {
 			$Property['line'] = $Line
 		}
-		If ($Column -igt 0) {
+		If ($Column -gt 0) {
 			$Property['col'] = $Column
 		}
-		If ($EndLine -igt 0) {
+		If ($EndLine -gt 0) {
 			$Property['endLine'] = $EndLine
 		}
-		If ($EndColumn -igt 0) {
+		If ($EndColumn -gt 0) {
 			$Property['endColumn'] = $EndColumn
 		}
-		If ($Title.Length -igt 0) {
+		If ($Title.Length -gt 0) {
 			$Property['title'] = $Title
 		}
 		Write-GitHubActionsStdOutCommand -StdOutCommand $TypeRaw -Parameter $Property -Value $Message
@@ -286,7 +286,7 @@ Function Write-Raw {
 		[Alias('GroupHeader', 'Header', 'Title')][String]$GroupTitle
 	)
 	Begin {
-		If ($GroupTitle.Length -igt 0) {
+		If ($GroupTitle.Length -gt 0) {
 			Enter-LogGroup -Title $GroupTitle
 		}
 		[String]$EndToken = Disable-GitHubActionsProcessingCommands
@@ -296,7 +296,7 @@ Function Write-Raw {
 	}
 	End {
 		Enable-GitHubActionsProcessingCommands -EndToken $EndToken
-		If ($GroupTitle.Length -igt 0) {
+		If ($GroupTitle.Length -gt 0) {
 			Exit-LogGroup
 		}
 	}

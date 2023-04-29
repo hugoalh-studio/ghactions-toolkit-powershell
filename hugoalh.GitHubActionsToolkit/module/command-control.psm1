@@ -185,7 +185,7 @@ Function Test-ProcessingCommandsEndToken {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
 	)
 	Process {
-		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ige 4 -and $InputObject -inotin $GitHubActionsStdOutCommands |
+		$InputObject -imatch '^(?:[\da-z][\da-z_-]*)?[\da-z]$' -and $InputObject.Length -ge 4 -and $InputObject -inotin $GitHubActionsStdOutCommands |
 			Write-Output
 	}
 }

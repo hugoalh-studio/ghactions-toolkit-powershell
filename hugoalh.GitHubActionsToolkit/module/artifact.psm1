@@ -60,7 +60,7 @@ Function Export-Artifact {
 			BaseRoot = $BaseRoot
 			ContinueOnIssue = $ContinueOnIssue.IsPresent
 		}
-		If ($RetentionTime -igt 0) {
+		If ($RetentionTime -gt 0) {
 			$Argument.RetentionTIme = $RetentionTime
 		}
 		Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/upload' -Argument $Argument |

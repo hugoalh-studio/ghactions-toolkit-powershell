@@ -25,11 +25,11 @@ Function Add-SecretMask {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Advance', 'Advanced', 'Chunk', 'Chunks', 'WithChunk')][Switch]$WithChunks
 	)
 	Process {
-		If ($Value.Length -igt 0) {
+		If ($Value.Length -gt 0) {
 			Write-GitHubActionsStdOutCommand -StdOutCommand 'add-mask' -Value $Value
 			If ($WithChunks.IsPresent) {
 				$Value -isplit '[\b\n\r\s\t -/:-@\[-`{-~]+' |
-					Where-Object -FilterScript { $_.Length -ige 4 -and $_ -ine $Value } |
+					Where-Object -FilterScript { $_.Length -ge 4 -and $_ -ine $Value } |
 					ForEach-Object -Process { Write-GitHubActionsStdOutCommand -StdOutCommand 'add-mask' -Value $_ }
 			}
 		}

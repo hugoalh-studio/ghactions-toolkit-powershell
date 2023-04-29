@@ -135,7 +135,7 @@ Function Write-StdOutCommand {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Value
 	)
 	Process {
-		Write-Host -Object "::$StdOutCommand$(($Parameter.Count -igt 0) ? " $(
+		Write-Host -Object "::$StdOutCommand$(($Parameter.Count -gt 0) ? " $(
 			$Parameter.GetEnumerator() |
 				Sort-Object -Property 'Name' |
 				ForEach-Object -Process { "$($_.Name)=$(Format-StdOutCommandParameterValue -InputObject $_.Value)" } |
