@@ -40,7 +40,7 @@ Function Expand-ToolCacheCompressedFile {
 			Write-Error -Message "``$File`` is not a valid file path!" -Category 'SyntaxError'
 			Return
 		}
-		If ($Method.Length -ieq 0) {
+		If ($Method.Length -eq 0) {
 			Switch -RegEx ($File) {
 				'\.7z$' {
 					$Method = '7z'
@@ -110,7 +110,7 @@ Function Find-ToolCache {
 		[Hashtable]$Argument = @{
 			Name = $Name
 		}
-		[Boolean]$IsFindAll = $Version.Length -ieq 0
+		[Boolean]$IsFindAll = $Version.Length -eq 0
 		If (!$IsFindAll) {
 			$Argument.Version = $Version
 		}

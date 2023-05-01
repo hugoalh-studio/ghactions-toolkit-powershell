@@ -101,7 +101,7 @@ Function Invoke-NodeJsWrapper {
 				Break
 			}
 		}
-		If ($LASTEXITCODE -ine 0) {
+		If ($LASTEXITCODE -ne 0) {
 			Throw "Unexpected exit code ``$LASTEXITCODE``! $(
 				$Result |
 					Select-Object -SkipIndex $ResultSkipIndexes |
