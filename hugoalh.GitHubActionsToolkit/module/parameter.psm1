@@ -50,7 +50,7 @@ Function Get-Input {
 	Switch ($PSCmdlet.ParameterSetName) {
 		'All' {
 			ForEach ($Item In (Get-ChildItem -Path 'Env:\INPUT_*')) {
-				$OutputObject[$Item.Name -ireplace '^INPUT_', ''] = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$OutputObject.($Item.Name -ireplace '^INPUT_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
 		}
 		'One' {
@@ -72,13 +72,13 @@ Function Get-Input {
 		'Prefix' {
 			[RegEx]$InputNameReplaceRegEx = "^INPUT_$([RegEx]::Escape($NamePrefix))"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*")) {
-				$OutputObject[$Item.Name -ireplace $InputNameReplaceRegEx, ''] = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$OutputObject.($Item.Name -ireplace $InputNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
 		}
 		'Suffix' {
 			[RegEx]$InputNameReplaceRegEx = "^INPUT_|$([RegEx]::Escape($NameSuffix))$"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_*$($NameSuffix.ToUpper())")) {
-				$OutputObject[$Item.Name -ireplace $InputNameReplaceRegEx, ''] = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$OutputObject.($Item.Name -ireplace $InputNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
 		}
 	}
@@ -121,7 +121,7 @@ Function Get-State {
 	Switch ($PSCmdlet.ParameterSetName) {
 		'All' {
 			ForEach ($Item In (Get-ChildItem -Path 'Env:\STATE_*')) {
-				$OutputObject[$Item.Name -ireplace '^STATE_', ''] = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$OutputObject.($Item.Name -ireplace '^STATE_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
 		}
 		'One' {
@@ -139,13 +139,13 @@ Function Get-State {
 		'Prefix' {
 			[RegEx]$StateNameReplaceRegEx = "^STATE_$([RegEx]::Escape($NamePrefix))"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*")) {
-				$OutputObject[$Item.Name -ireplace $StateNameReplaceRegEx, ''] = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$OutputObject.($Item.Name -ireplace $StateNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
 		}
 		'Suffix' {
 			[RegEx]$StateNameReplaceRegEx = "^STATE_|$([RegEx]::Escape($NameSuffix))$"
 			ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_*$($NameSuffix.ToUpper())")) {
-				$OutputObject[$Item.Name -ireplace $StateNameReplaceRegEx, ''] = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$OutputObject.($Item.Name -ireplace $StateNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
 		}
 	}
