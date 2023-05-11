@@ -89,15 +89,15 @@ Function Write-Annotation {
 	)
 	Process {
 		Switch ($Type.GetHashCode()) {
-			0 {
+			([GitHubActionsAnnotationType]::Notice).GetHashCode() {
 				[String]$TypeRaw = 'notice'
 				Break
 			}
-			1 {
+			([GitHubActionsAnnotationType]::Warning).GetHashCode() {
 				[String]$TypeRaw = 'warning'
 				Break
 			}
-			2 {
+			([GitHubActionsAnnotationType]::Error).GetHashCode() {
 				[String]$TypeRaw = 'error'
 				Break
 			}
