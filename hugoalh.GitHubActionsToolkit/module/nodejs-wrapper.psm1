@@ -88,8 +88,8 @@ Function Invoke-NodeJsWrapper {
 			Convert-FromUtf8StringToBase64String
 		[String]$Base64ResultSeparator = Convert-FromUtf8StringToBase64String -InputObject $ResultSeparator
 		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperScriptFilePath`" $Base64Name $Base64Argument $Base64ResultSeparator"
-		[UInt32[]]$ResultSkipIndexes = @()
-		For ([UInt32]$ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex++) {
+		[UInt64[]]$ResultSkipIndexes = @()
+		For ([UInt64]$ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex += 1) {
 			[String]$ResultLine = $Result[$ResultIndex]
 			If ($ResultLine -imatch '^::.+?::.*$') {
 				Write-Host -Object $ResultLine
