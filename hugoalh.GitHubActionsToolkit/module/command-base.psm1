@@ -5,56 +5,14 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-<#
-.SYNOPSIS
-GitHub Actions - Format StdOut Command Parameter Value
-.DESCRIPTION
-Format the stdout command parameter value characters that can cause issues.
-.PARAMETER InputObject
-String that need to format the stdout command parameter value characters.
-.OUTPUTS
-[String] A string that formatted the stdout command parameter value characters.
-#>
-Function Format-StdOutCommandParameterValue {
-	[CmdletBinding()]
-	[OutputType([String])]
-	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
-	)
-	Process {
-		(Format-StdOutCommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A' |
-			Write-Output
+Class GitHubActionsStdOutCommand {
+	Static [String]EscapeValue([String]$Value) {
+		Return ($Value -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D')
+	}
+	Static [String]EscapeParameterValue([String]$Value) {
+		Return (([GitHubActionsStdOutCommand]::EscapeValue($Value)) -ireplace ',', '%2C' -ireplace ':', '%3A')
 	}
 }
-Set-Alias -Name 'Format-CommandParameterValue' -Value 'Format-StdOutCommandParameterValue' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Format-CommandPropertyValue' -Value 'Format-StdOutCommandParameterValue' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Format-StdOutCommandPropertyValue' -Value 'Format-StdOutCommandParameterValue' -Option 'ReadOnly' -Scope 'Local'
-<#
-.SYNOPSIS
-GitHub Actions - Format StdOut Command Value
-.DESCRIPTION
-Format the stdout command value characters that can cause issues.
-.PARAMETER InputObject
-String that need to format the stdout command value characters.
-.OUTPUTS
-[String] A string that formatted the stdout command value characters.
-#>
-Function Format-StdOutCommandValue {
-	[CmdletBinding()]
-	[OutputType([String])]
-	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject
-	)
-	Process {
-		$InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D' |
-			Write-Output
-	}
-}
-Set-Alias -Name 'Format-CommandContent' -Value 'Format-StdOutCommandValue' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Format-CommandMessage' -Value 'Format-StdOutCommandValue' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Format-CommandValue' -Value 'Format-StdOutCommandValue' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Format-StdOutCommandContent' -Value 'Format-StdOutCommandValue' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Format-StdOutCommandMessage' -Value 'Format-StdOutCommandValue' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Write File Command
@@ -138,9 +96,9 @@ Function Write-StdOutCommand {
 		Write-Host -Object "::$StdOutCommand$(($Parameter.Count -gt 0) ? " $(
 			$Parameter.GetEnumerator() |
 				Sort-Object -Property 'Name' |
-				ForEach-Object -Process { "$($_.Name)=$(Format-StdOutCommandParameterValue -InputObject $_.Value)" } |
+				ForEach-Object -Process { "$($_.Name)=$([GitHubActionsStdOutCommand]::EscapeParameterValue($_.Value))" } |
 				Join-String -Separator ','
-		)" : '')::$(Format-StdOutCommandValue -InputObject $Value)"
+		)" : '')::$([GitHubActionsStdOutCommand]::EscapeValue($Value))"
 	}
 }
 Set-Alias -Name 'Write-Command' -Value 'Write-StdOutCommand' -Option 'ReadOnly' -Scope 'Local'
