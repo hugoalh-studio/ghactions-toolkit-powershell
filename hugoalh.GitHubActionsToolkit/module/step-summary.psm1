@@ -1,4 +1,24 @@
 #Requires -PSEdition Core -Version 7.2
+Class GitHubActionsStepSummary {
+	Static [String]EscapeMarkdown($InputObject) {
+		If ($Null -ieq $InputObject) {
+			Return ''
+		}
+		If ($InputObject.GetType().BaseType -ieq [System.Array]) {
+			[String]$Result = "{$(Join-String -InputObject $InputObject -Separator ', ')}"
+		}
+		ElseIf (
+			$InputObject.GetType() -ieq [System.Collections.ArrayList] -or
+			$InputObject.GetType().ToString().StartsWith("System.Collections.Generic.List")
+		) {
+			[String]$Result = "{$(Join-String -InputObject $InputObject.ToArray() -Separator ', ')}"
+		}
+		Else {
+			[String]$Result = $($InputObject)?.ToString() ?? ''
+		}
+		Return $Result -ireplace '\\', '\\' -ireplace '\*', '\*' -ireplace '_', '\_' -ireplace '`', '\`' -ireplace '\$', '\$' -ireplace '\|', '\|' -ireplace '<', '\<' -ireplace '>', '\>' -ireplace '\r?\n', '<br />'
+	}
+}
 <#
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
