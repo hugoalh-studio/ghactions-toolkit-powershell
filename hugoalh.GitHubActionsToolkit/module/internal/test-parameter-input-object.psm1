@@ -13,16 +13,13 @@ Function Test-ParameterInputObject {
 	[CmdletBinding()]
 	[OutputType([Boolean])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')]$InputObject
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'Object')]$InputObject
 	)
-	Process {
-		(
-			$InputObject -is [Hashtable] -or
-			$InputObject -is [Object[]] -or
-			$InputObject -is [System.Collections.Specialized.OrderedDictionary]
-		) |
-			Write-Output
-	}
+	Write-Output -InputObject (
+		$InputObject -is [Hashtable] -or
+		$InputObject -is [Object[]] -or
+		$InputObject -is [System.Collections.Specialized.OrderedDictionary]
+	)
 }
 Export-ModuleMember -Function @(
 	'Test-ParameterInputObject'

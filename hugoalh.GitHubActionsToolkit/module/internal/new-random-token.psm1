@@ -14,15 +14,11 @@ Function New-RandomToken {
 	[CmdletBinding()]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateRange(1, [UInt32]::MaxValue)][UInt32]$Length = 32
+		[Parameter(Position = 0)][ValidateRange(1, [Int32]::MaxValue)][Int32]$Length = 32
 	)
-	[Char[]]$PoolCurrent = $PoolMain |
-		Get-Random -Shuffle
+	[Char[]]$PoolCurrent = Get-Random -InputObject $PoolMain -Shuffle
 	@(1..$Length) |
-		ForEach-Object -Process {
-			$PoolCurrent |
-				Get-Random -Count 1
-		} |
+		ForEach-Object -Process { Get-Random -InputObject $PoolCurrent -Count 1 } |
 		Join-String -Separator '' |
 		Write-Output
 }
