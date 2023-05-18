@@ -118,7 +118,7 @@ Function Find-ToolCache {
 			$Argument.Architecture = $Architecture
 		}
 		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -Argument $Argument
-		Write-Output -InputObject ($IsFindAll ? ${ResultRaw}?.Paths : ${ResultRaw}?.Path)
+		Write-Output -InputObject ($IsFindAll ? ($ResultRaw)?.Paths : ($ResultRaw)?.Path)
 	}
 }
 <#

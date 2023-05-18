@@ -49,11 +49,10 @@ Function Get-IsDebug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsisdebug')]
 	[OutputType([Boolean])]
 	Param ()
-	(
+	Write-Output -InputObject (
 		$Env:RUNNER_DEBUG -ieq '1' -or
 		$Env:RUNNER_DEBUG -ieq 'true'
-	) |
-		Write-Output
+	)
 }
 <#
 .SYNOPSIS

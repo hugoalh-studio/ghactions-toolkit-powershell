@@ -55,7 +55,7 @@ Function Get-Input {
 		}
 		'One' {
 			$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-			[String]$InputValue = $Trim.IsPresent ? ${InputValueRaw}?.Trim() : $InputValueRaw
+			[String]$InputValue = $Trim.IsPresent ? ($InputValueRaw)?.Trim() : $InputValueRaw
 			If (
 				$Null -ieq $InputValueRaw -or
 				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($InputValue))
@@ -126,7 +126,7 @@ Function Get-State {
 		}
 		'One' {
 			$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-			[String]$StateValue = $Trim.IsPresent ? ${StateValueRaw}?.Trim() : $StateValueRaw
+			[String]$StateValue = $Trim.IsPresent ? ($StateValueRaw)?.Trim() : $StateValueRaw
 			If (
 				$Null -ieq $StateValueRaw -or
 				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($StateValue))

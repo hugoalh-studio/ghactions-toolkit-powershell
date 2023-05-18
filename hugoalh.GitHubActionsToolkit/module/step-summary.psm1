@@ -37,7 +37,7 @@ Class GitHubActionsStepSummary {
 			[String]$Result = "{$(Join-String -InputObject $InputObject.ToArray() -Separator ', ')}"
 		}
 		Else {
-			[String]$Result = $($InputObject)?.ToString() ?? ''
+			[String]$Result = ($InputObject)?.ToString() ?? ''
 		}
 		ForEach ($ReplaceGroup In [GitHubActionsStepSummary]::EscapeMarkdownCharactersList()) {
 			$Result = $Result -ireplace $ReplaceGroup.Pattern, $ReplaceGroup.To
@@ -91,6 +91,8 @@ Add header for the step to display on the summary page of a run.
 Level of the header.
 .PARAMETER Header
 Title of the header.
+.PARAMETER NoEscape
+Whether to not escape the markdown characters that can cause issues.
 .OUTPUTS
 [Void]
 #>
@@ -99,9 +101,10 @@ Function Add-StepSummaryHeader {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidateRange(1, 6)][Byte]$Level,
-		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` must be in single line string!')][Alias('Title', 'Value')][String]$Header
+		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` must be in single line string!')][Alias('Title', 'Value')][String]$Header,
+		[Alias('NoFormat', 'SkipEscape', 'SkipFormat')][Switch]$NoEscape
 	)
-	Add-StepSummary -Value "$('#' * $Level) $Header"
+	Add-StepSummary -Value "$('#' * $Level) $($NoEscape.IsPresent ? $Header : ([GitHubActionsStepSummary]::EscapeMarkdown($Header)))"
 }
 <#
 .SYNOPSIS
