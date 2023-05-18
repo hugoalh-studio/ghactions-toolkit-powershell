@@ -1,5 +1,28 @@
 #Requires -PSEdition Core -Version 7.2
 Class GitHubActionsStepSummary {
+	Static [Hashtable[]]EscapeMarkdownCharactersList() {
+		Return @(
+			@{ Pattern = '\\'; To = '\\' },
+			@{ Pattern = '`'; To = '\`' },
+			@{ Pattern = '\*'; To = '\*' },
+			@{ Pattern = '_'; To = '\_' },
+			@{ Pattern = '\{'; To = '\{' },
+			@{ Pattern = '\}'; To = '\}' },
+			@{ Pattern = '\['; To = '\[' },
+			@{ Pattern = '\]'; To = '\]' },
+			@{ Pattern = '<'; To = '\<' },
+			@{ Pattern = '>'; To = '\>' },
+			@{ Pattern = '\('; To = '\(' },
+			@{ Pattern = '\)'; To = '\)' },
+			@{ Pattern = '#'; To = '\#' },
+			@{ Pattern = '\+'; To = '\+' },
+			@{ Pattern = '-'; To = '\-' },
+			@{ Pattern = '\.'; To = '\.' },
+			@{ Pattern = '!'; To = '\!' },
+			@{ Pattern = '\|'; To = '\|' },
+			@{ Pattern = '\r?\n'; To = '<br />' }
+		)
+	}
 	Static [String]EscapeMarkdown($InputObject) {
 		If ($Null -ieq $InputObject) {
 			Return ''
@@ -16,7 +39,10 @@ Class GitHubActionsStepSummary {
 		Else {
 			[String]$Result = $($InputObject)?.ToString() ?? ''
 		}
-		Return $Result -ireplace '\\', '\\' -ireplace '\*', '\*' -ireplace '_', '\_' -ireplace '`', '\`' -ireplace '\$', '\$' -ireplace '\|', '\|' -ireplace '<', '\<' -ireplace '>', '\>' -ireplace '\r?\n', '<br />'
+		ForEach ($ReplaceGroup In [GitHubActionsStepSummary]::EscapeMarkdownCharactersList()) {
+			$Result = $Result -ireplace $ReplaceGroup.Pattern, $ReplaceGroup.To
+		}
+		Return $Result
 	}
 }
 <#
