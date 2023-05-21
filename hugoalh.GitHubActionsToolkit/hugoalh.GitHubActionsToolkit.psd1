@@ -70,6 +70,8 @@
 		'Add-StepSummaryLink',
 		'Add-StepSummarySubscriptText',
 		'Add-StepSummarySuperscriptText',
+		'ConvertFrom-CsvM',
+		'ConvertFrom-CsvS',
 		'Disable-EchoingCommands',
 		'Disable-ProcessingCommands',
 		'Enable-EchoingCommands',

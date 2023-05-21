@@ -1,11 +1,12 @@
 #Requires -PSEdition Core -Version 7.2
 [String[]]$ModulesNames = @(
-	'command-base',
 	'artifact',
 	'cache',
+	'command-base',
 	'command-control',
 	'environment-variable',
 	'log',
+	'markup',
 	'nodejs-wrapper',
 	'open-id-connect',
 	'parameter',
