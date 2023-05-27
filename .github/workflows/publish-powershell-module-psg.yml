@@ -8,8 +8,8 @@ defaults:
   run:
     shell: "pwsh"
 jobs:
-  publish-powershell-module-psg:
-    name: "Publish PowerShell Module - PowerShell Gallery (Reusable Workflow)"
+  main:
+    name: "Main"
     uses: "hugoalh/hugoalh/.github/workflows/publish-powershell-module-psg.yml@main"
     with:
       path: ".\\hugoalh.GitHubActionsToolkit\\"
