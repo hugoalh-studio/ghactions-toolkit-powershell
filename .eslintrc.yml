@@ -1,0 +1,212 @@
+env:
+  amd: false
+  applescript: false
+  atomtest: false
+  browser: true
+  commonjs: true
+  embertest: false
+  es6: true
+  es2017: true
+  es2020: true
+  es2021: true
+  greasemonkey: false
+  jasmine: false
+  jest: false
+  jquery: false
+  meteor: false
+  mocha: false
+  mongo: false
+  nashorn: false
+  node: true
+  phantomjs: false
+  prototypejs: false
+  protractor: false
+  qunit: false
+  serviceworker: true
+  shared-node-browser: true
+  shelljs: false
+  webextensions: true
+  worker: true
+extends:
+  - "eslint:all"
+  - "plugin:@typescript-eslint/recommended"
+parser: "@typescript-eslint/parser"
+parserOptions:
+  ecmaFeatures:
+    arrowFunctions: true
+    classes: true
+    defaultParams: true
+    destructuring: true
+    experimentalObjectRestSpread: true
+    forOf: true
+    generators: true
+    globalReturn: false
+    impliedStrict: true
+    jsx: false
+    modules: true
+    objectLiteralComputedProperties: true
+    objectLiteralDuplicateProperties: true
+    objectLiteralShorthandMethods: true
+    objectLiteralShorthandProperties: true
+    regexUFlag: true
+    regexYFlag: true
+    restParams: true
+    spread: true
+    superInFunctions: false
+    templateStrings: true
+    unicodeCodePointEscapes: true
+  ecmaVersion: "latest"
+  sourceType: "module"
+plugins:
+  - "@typescript-eslint"
+  - "only-warn"
+rules:
+  array-element-newline:
+    - "warn"
+    - "consistent"
+  arrow-body-style:
+    - "warn"
+    - "always"
+  brace-style:
+    - "warn"
+    - "1tbs"
+    - allowSingleLine: false
+  capitalized-comments: "off"
+  complexity: "off"
+  dot-location: "off"
+  dot-notation: "off"
+  eqeqeq:
+    - "warn"
+    - "always"
+  func-names:
+    - "warn"
+    - "as-needed"
+  func-style:
+    - "warn"
+    - "declaration"
+    - allowArrowFunctions: true
+  function-call-argument-newline:
+    - "warn"
+    - "consistent"
+  function-paren-newline:
+    - "warn"
+    - "multiline-arguments"
+  guard-for-in: "off"
+  id-length:
+    - "warn"
+    - max: 80
+      min: 1
+      properties: "always"
+  indent:
+    - "warn"
+    - "tab"
+    - flatTernaryExpressions: false
+      ImportDeclaration: 1
+      MemberExpression: 1
+      ObjectExpression: 1
+      outerIIFEBody: 1
+      SwitchCase: 1
+      VariableDeclarator: 1
+  init-declarations: "off"
+  line-comment-position: "off"
+  linebreak-style: "off"
+  lines-around-comment: "off"
+  lines-between-class-members: "off"
+  max-classes-per-file: "off"
+  max-depth: "off"
+  max-len: "off"
+  max-lines-per-function: "off"
+  max-lines: "off"
+  max-params:
+    - "warn"
+    - max: 5
+  max-statements: "off"
+  multiline-comment-style: "off"
+  multiline-ternary:
+    - "warn"
+    - "always-multiline"
+  new-cap: "off"
+  no-alert: "off"
+  no-bitwise: "off"
+  no-case-declarations: "off"
+  no-console: "off"
+  no-continue: "off"
+  no-empty:
+    - "warn"
+    - allowEmptyCatch: true
+  no-extra-parens:
+    - "warn"
+    - "all"
+    - conditionalAssign: false
+      ignoreJSX: "multi-line"
+      nestedBinaryExpressions: false
+      returnAssign: false
+  no-inline-comments: "off"
+  no-labels: "off"
+  no-magic-numbers: "off"
+  no-mixed-operators:
+    - "warn"
+    - allowSamePrecedence: true
+  no-new: "off"
+  no-param-reassign: "off"
+  no-plusplus:
+    - "warn"
+    - allowForLoopAfterthoughts: true
+  no-tabs:
+    - "warn"
+    - allowIndentationTabs: true
+  no-ternary: "off"
+  no-undefined: "off"
+  no-var: "off"
+  no-void: "off"
+  object-curly-newline:
+    - "warn"
+    - consistent: true
+      multiline: true
+  object-curly-spacing:
+    - "warn"
+    - "always"
+  object-shorthand:
+    - "warn"
+    - "consistent-as-needed"
+  one-var-declaration-per-line: "off"
+  one-var: "off"
+  padded-blocks:
+    - "warn"
+    - "never"
+  prefer-arrow-callback:
+    - "warn"
+    - allowNamedFunctions: true
+  prefer-const: "off"
+  prefer-destructuring: "off"
+  prefer-exponentiation-operator: "off"
+  prefer-rest-params: "off"
+  quote-props:
+    - "warn"
+    - "consistent"
+  quotes:
+    - "warn"
+    - "double"
+    - allowTemplateLiterals: true
+  semi:
+    - "warn"
+    - "always"
+    - omitLastInOneLineBlock: false
+  sort-imports:
+    - "warn"
+    - allowSeparatedGroups: false
+      ignoreCase: true
+  sort-keys:
+    - "warn"
+    - "asc"
+    - caseSensitive: false
+      natural: true
+  sort-vars:
+    - "warn"
+    - ignoreCase: true
+  space-before-function-paren:
+    - "warn"
+    - anonymous: "always"
+      named: "never"
+      asyncArrow: "always"
+  spaced-comment: "off"

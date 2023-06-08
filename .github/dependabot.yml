@@ -15,7 +15,7 @@ updates:
       separator: "/"
     rebase-strategy: "disabled"
   - package-ecosystem: "npm"
-    directory: "/nodejs-wrapper-source"
+    directory: "/"
     schedule:
       interval: "daily"
       time: "00:00"
