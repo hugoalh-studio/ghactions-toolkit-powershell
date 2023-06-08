@@ -77,7 +77,7 @@ Function Add-StepSummary {
 			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
 				$Value |
 					Join-String -Separator "`n"
-			) -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
+			) -Confirm:$False -NoNewline:($NoNewLine.IsPresent) -Encoding 'UTF8NoBOM'
 		}
 	}
 }
@@ -157,7 +157,7 @@ Function Add-StepSummaryImage {
 			$ResultHtml += " height=`"$Height`""
 		}
 		$ResultHtml += ' />'
-		Add-StepSummary -Value $ResultHtml -NoNewLine:$NoNewLine.IsPresent
+		Add-StepSummary -Value $ResultHtml -NoNewLine:($NoNewLine.IsPresent)
 	}
 	Else {
 		[String]$ResultMarkdown = "![$([System.Web.HttpUtility]::HtmlAttributeEncode($AlternativeText))]($([Uri]::EscapeUriString($Uri))"
@@ -165,7 +165,7 @@ Function Add-StepSummaryImage {
 			$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 		}
 		$ResultMarkdown += ')'
-		Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent
+		Add-StepSummary -Value $ResultMarkdown -NoNewLine:($NoNewLine.IsPresent)
 	}
 }
 Set-Alias -Name 'Add-StepSummaryPicture' -Value 'Add-StepSummaryImage' -Option 'ReadOnly' -Scope 'Local'
@@ -201,7 +201,7 @@ Function Add-StepSummaryLink {
 		$ResultMarkdown += " `"$([System.Web.HttpUtility]::HtmlAttributeEncode($Title))`""
 	}
 	$ResultMarkdown += ')'
-	Add-StepSummary -Value $ResultMarkdown -NoNewLine:$NoNewLine.IsPresent
+	Add-StepSummary -Value $ResultMarkdown -NoNewLine:($NoNewLine.IsPresent)
 }
 Set-Alias -Name 'Add-StepSummaryHyperlink' -Value 'Add-StepSummaryLink' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -223,7 +223,7 @@ Function Add-StepSummarySubscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Add-StepSummary -Value "<sub>$([System.Web.HttpUtility]::HtmlEncode($Text))</sub>" -NoNewLine:$NoNewLine.IsPresent
+	Add-StepSummary -Value "<sub>$([System.Web.HttpUtility]::HtmlEncode($Text))</sub>" -NoNewLine:($NoNewLine.IsPresent)
 }
 Set-Alias -Name 'Add-StepSummarySubscript' -Value 'Add-StepSummarySubscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -245,7 +245,7 @@ Function Add-StepSummarySuperscriptText {
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Input', 'InputObject', 'Object')][String]$Text,
 		[Switch]$NoNewLine
 	)
-	Add-StepSummary -Value "<sup>$([System.Web.HttpUtility]::HtmlEncode($Text))</sup>" -NoNewLine:$NoNewLine.IsPresent
+	Add-StepSummary -Value "<sup>$([System.Web.HttpUtility]::HtmlEncode($Text))</sup>" -NoNewLine:($NoNewLine.IsPresent)
 }
 Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -276,7 +276,7 @@ Function Get-StepSummary {
 	}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
-			(Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:$Raw.IsPresent -Encoding 'UTF8NoBOM' -ErrorAction 'Continue') ?? '' |
+			(Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:($Raw.IsPresent) -Encoding 'UTF8NoBOM' -ErrorAction 'Continue') ?? '' |
 				Write-Output
 		}
 		'Sizes' {
@@ -347,7 +347,7 @@ Function Set-StepSummary {
 			Set-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
 				$Result |
 					Join-String -Separator "`n"
-			) -Confirm:$False -NoNewline:$NoNewLine.IsPresent -Encoding 'UTF8NoBOM'
+			) -Confirm:$False -NoNewline:($NoNewLine.IsPresent) -Encoding 'UTF8NoBOM'
 		}
 	}
 }

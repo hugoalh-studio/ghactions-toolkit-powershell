@@ -76,7 +76,7 @@ Function Get-WebhookEventPayload {
 		Return
 	}
 	Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
-		ConvertFrom-Json -AsHashtable:$AsHashtable.IsPresent -Depth 100 -NoEnumerate |
+		ConvertFrom-Json -AsHashtable:($AsHashtable.IsPresent) -Depth 100 -NoEnumerate |
 		Write-Output
 }
 Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'

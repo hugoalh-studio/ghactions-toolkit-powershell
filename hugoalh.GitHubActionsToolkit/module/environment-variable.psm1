@@ -90,11 +90,11 @@ Function Set-EnvironmentVariable {
 				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
 			) {
 				$InputObject.GetEnumerator() |
-					Set-EnvironmentVariable -NoToUpper:$NoToUpper.IsPresent -Scope $Scope
+					Set-EnvironmentVariable -NoToUpper:($NoToUpper.IsPresent) -Scope $Scope
 				Return
 			}
 			$InputObject |
-				Set-EnvironmentVariable -NoToUpper:$NoToUpper.IsPresent -Scope $Scope
+				Set-EnvironmentVariable -NoToUpper:($NoToUpper.IsPresent) -Scope $Scope
 			Return
 		}
 		If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Current) -ieq [GitHubActionsEnvironmentVariableScopes]::Current) {

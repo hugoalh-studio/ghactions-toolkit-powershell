@@ -16,9 +16,13 @@ Function New-RandomToken {
 	Param (
 		[Parameter(Position = 0)][ValidateRange(1, [Int32]::MaxValue)][Int32]$Length = 32
 	)
-	[Char[]]$PoolCurrent = Get-Random -InputObject $PoolMain -Shuffle
+	[Char[]]$PoolCurrent = $PoolMain |
+		Get-Random -Shuffle
 	@(1..$Length) |
-		ForEach-Object -Process { Get-Random -InputObject $PoolCurrent -Count 1 } |
+		ForEach-Object -Process {
+			$PoolCurrent |
+				Get-Random -Count 1
+		} |
 		Join-String -Separator '' |
 		Write-Output
 }
