@@ -23,6 +23,9 @@ Function Get-OpenIdConnectToken {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NodeJs', 'NodeJsWrapper', 'UseNodeJs')][Switch]$UseNodeJsWrapper# Deprecated, keep as legacy.
 	)
 	Process {
+		If ($PSBoundParameters.ContainsKey('UseNodeJsWrapper')) {
+			Write-Warning -Message 'Parameter `UseNodeJsWrapper` is deprecated and will remove in the future version!'
+		}
 		[Hashtable]$Argument = @{}
 		If ($Audience.Length -gt 0) {
 			$Argument.Audience = $Audience

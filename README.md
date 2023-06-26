@@ -33,9 +33,7 @@ Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
 ```
 
 ```ps1
-<# Either #>
-Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'# Recommend
-Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scope 'Local'# Changeable Prefix
+Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scope 'Local'
 ```
 
 ### API

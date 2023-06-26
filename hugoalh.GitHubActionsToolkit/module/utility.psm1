@@ -137,6 +137,9 @@ Function Test-Environment {
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!',
 		[Switch]$StepSummary# Deprecated, keep as legacy.
 	)
+	If ($PSBoundParameters.ContainsKey('StepSummary')) {
+		Write-Warning -Message 'Parameter `StepSummary` is deprecated and will remove in the future version!'
+	}
 	[Hashtable[]]$Conditions = @(
 		@{ NeedTest = $True; Name = 'CI'; ExpectValue = 'true' },
 		@{ NeedTest = $True; Name = 'GITHUB_ACTION'; },

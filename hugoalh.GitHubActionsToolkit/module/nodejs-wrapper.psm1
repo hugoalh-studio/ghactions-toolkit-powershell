@@ -5,8 +5,7 @@ Import-Module -Name (
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[SemVer]$NodeJsMinimumVersion = [SemVer]::Parse('14.15.0')
-[RegEx]$SemVerRegEx = 'v?\d+\.\d+\.\d+'
+[SemVer]$NodeJsVersionMinimum = [SemVer]::Parse('14.15.0')
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
 [String]$WrapperPackageFilePath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
 [String]$WrapperScriptFilePath = Join-Path -Path $WrapperRoot -ChildPath 'main.js'
@@ -134,6 +133,9 @@ Function Test-NodeJsEnvironment {
 		[Alias('Redo')][Switch]$Retest,
 		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies# Deprecated, keep as legacy.
 	)
+	If ($PSBoundParameters.ContainsKey('ReinstallDependencies')) {
+		Write-Warning -Message 'Parameter `ReinstallDependencies` is deprecated and will remove in the future version!'
+	}
 	If ($EnvironmentTested -and !$Retest.IsPresent) {
 		Write-Verbose -Message 'Previously tested the NodeJS environment; Return the previous result.'
 		Write-Output -InputObject $EnvironmentResult
@@ -149,12 +151,12 @@ Function Test-NodeJsEnvironment {
 			Throw 'Unable to find NodeJS!'
 		}
 		Try {
-			[String]$NodeJsVersionStdOut = node --no-deprecation --no-warnings --version |
-				Join-String -Separator "`n"
-			If (
-				$NodeJsVersionStdOut -inotmatch $SemVerRegEx -or
-				$NodeJsMinimumVersion -gt [SemVer]::Parse(($Matches[0] -ireplace '^v', ''))
-			) {
+			If ($NodeJsVersionMinimum -gt [SemVer]::Parse((
+				node --no-deprecation --no-warnings --eval='console.log(JSON.stringify(process.versions));' |
+					Join-String -Separator "`n" |
+					ConvertFrom-Json -Depth 100 |
+					Select-Object -ExpandProperty 'node'
+			))) {
 				Throw
 			}
 		}
