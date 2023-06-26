@@ -45,8 +45,8 @@ Get the debug status of the runner.
 .OUTPUTS
 [Boolean] Debug status.
 #>
-Function Get-IsDebug {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsisdebug')]
+Function Get-DebugStatus {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsdebugstatus')]
 	[OutputType([Boolean])]
 	Param ()
 	Write-Output -InputObject (
@@ -54,6 +54,7 @@ Function Get-IsDebug {
 		$Env:RUNNER_DEBUG -ieq 'true'
 	)
 }
+Set-Alias -Name 'Get-IsDebug' -Value 'Get-DebugStatus' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Get Webhook Event Payload
@@ -80,6 +81,7 @@ Function Get-WebhookEventPayload {
 		Write-Output
 }
 Set-Alias -Name 'Get-Event' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Get-EventPayload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-Payload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-WebhookEvent' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Get-WebhookPayload' -Value 'Get-WebhookEventPayload' -Option 'ReadOnly' -Scope 'Local'
@@ -95,9 +97,9 @@ Function Get-WorkflowRunUri {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsworkflowrunuri')]
 	[OutputType([String])]
 	Param ()
-	ForEach ($EnvironmentPath In @('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID')) {
-		If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$EnvironmentPath" -ErrorAction 'SilentlyContinue'))) {
-			Write-Error -Message "Unable to get the GitHub Actions workflow run URI: Environment path ``$EnvironmentPath`` is not defined!" -Category 'ResourceUnavailable'
+	ForEach ($Item In @('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID')) {
+		If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$Item" -ErrorAction 'SilentlyContinue'))) {
+			Write-Error -Message "Unable to get the GitHub Actions workflow run URI: Environment path ``$Item`` is not defined!" -Category 'ResourceUnavailable'
 			Return
 		}
 	}
@@ -135,12 +137,12 @@ Function Test-Environment {
 		[Switch]$ToolCache,
 		[Alias('Require', 'Required')][Switch]$Mandatory,
 		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!',
-		[Switch]$StepSummary# Deprecated, keep as legacy.
+		[Switch]$StepSummary# Deprecated.
 	)
 	If ($PSBoundParameters.ContainsKey('StepSummary')) {
 		Write-Warning -Message 'Parameter `StepSummary` is deprecated and will remove in the future version!'
 	}
-	[Hashtable[]]$Conditions = @(
+	[Hashtable[]]$Items = @(
 		@{ NeedTest = $True; Name = 'CI'; ExpectValue = 'true' },
 		@{ NeedTest = $True; Name = 'GITHUB_ACTION'; },
 		@{ NeedTest = $True; Name = 'GITHUB_ACTIONS'; ExpectValue = 'true' },
@@ -183,18 +185,18 @@ Function Test-Environment {
 		@{ NeedTest = $OpenIdConnect.IsPresent; Name = 'ACTIONS_ID_TOKEN_REQUEST_URL'; }
 	)
 	[Boolean]$Failed = $False
-	ForEach ($Condition In $Conditions) {
-		If ($Condition.NeedTest) {
-			If ($Null -ieq $Condition.ExpectValue) {
-				If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue'))) {
+	ForEach ($Item In $Items) {
+		If ($Item.NeedTest) {
+			If ($Null -ieq $Item.ExpectValue) {
+				If ([String]::IsNullOrEmpty((Get-Content -LiteralPath "Env:\$($Item.Name)" -ErrorAction 'SilentlyContinue'))) {
 					$Failed = $True
-					Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined!"
+					Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Item.Name)`` is not defined!"
 				}
 			}
 			Else {
-				If ((Get-Content -LiteralPath "Env:\$($Condition.Name)" -ErrorAction 'SilentlyContinue') -ine $Condition.ExpectValue) {
+				If ((Get-Content -LiteralPath "Env:\$($Item.Name)" -ErrorAction 'SilentlyContinue') -ine $Item.ExpectValue) {
 					$Failed = $True
-					Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Condition.Name)`` is not defined or not equal to expect value!"
+					Write-Warning -Message "Unable to get the GitHub Actions resources: Environment path ``$($Item.Name)`` is not defined or not equal to expect value!"
 				}
 			}
 		}
@@ -212,7 +214,7 @@ Function Test-Environment {
 }
 Export-ModuleMember -Function @(
 	'Add-SecretMask',
-	'Get-IsDebug',
+	'Get-DebugStatus',
 	'Get-WebhookEventPayload',
 	'Get-WorkflowRunUri',
 	'Test-Environment'
@@ -220,6 +222,8 @@ Export-ModuleMember -Function @(
 	'Add-Mask',
 	'Add-Secret',
 	'Get-Event',
+	'Get-EventPayload',
+	'Get-IsDebug',
 	'Get-Payload',
 	'Get-WebhookEvent',
 	'Get-WebhookPayload',

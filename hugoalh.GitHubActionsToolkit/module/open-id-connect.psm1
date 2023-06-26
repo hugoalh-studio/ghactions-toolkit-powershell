@@ -20,7 +20,7 @@ Function Get-OpenIdConnectToken {
 	[OutputType([String])]
 	Param (
 		[Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][String]$Audience,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NodeJs', 'NodeJsWrapper', 'UseNodeJs')][Switch]$UseNodeJsWrapper# Deprecated, keep as legacy.
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NodeJs', 'NodeJsWrapper', 'UseNodeJs')][Switch]$UseNodeJsWrapper# Deprecated.
 	)
 	Process {
 		If ($PSBoundParameters.ContainsKey('UseNodeJsWrapper')) {

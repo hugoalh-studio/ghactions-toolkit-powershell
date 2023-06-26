@@ -131,7 +131,7 @@ Function Test-NodeJsEnvironment {
 	[OutputType([Boolean])]
 	Param (
 		[Alias('Redo')][Switch]$Retest,
-		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies# Deprecated, keep as legacy.
+		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies# Deprecated.
 	)
 	If ($PSBoundParameters.ContainsKey('ReinstallDependencies')) {
 		Write-Warning -Message 'Parameter `ReinstallDependencies` is deprecated and will remove in the future version!'

@@ -1,5 +1,5 @@
 #Requires -PSEdition Core -Version 7.2
-Class GitHubActionsStepSummary {
+Class GitHubActionsStepSummary {# Unstable, not in use yet.
 	Static [Hashtable[]]EscapeMarkdownCharactersList() {
 		Return @(
 			@{ Pattern = '\\'; To = '\\' },
@@ -65,7 +65,7 @@ Function Add-StepSummary {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_addgithubactionsstepsummary')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content')][String[]]$Value,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content')][Object[]]$Value,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$NoNewLine
 	)
 	Process {
@@ -74,10 +74,7 @@ Function Add-StepSummary {
 			Return
 		}
 		If ($Value.Count -gt 0) {
-			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value (
-				$Value |
-					Join-String -Separator "`n"
-			) -Confirm:$False -NoNewline:($NoNewLine.IsPresent) -Encoding 'UTF8NoBOM'
+			Add-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Value $Value -Confirm:$False -NoNewline:($NoNewLine.IsPresent) -Encoding 'UTF8NoBOM'
 		}
 	}
 }
@@ -91,8 +88,6 @@ Add header for the step to display on the summary page of a run.
 Level of the header.
 .PARAMETER Header
 Title of the header.
-.PARAMETER NoEscape
-Whether to not escape the markdown characters that can cause issues.
 .OUTPUTS
 [Void]
 #>
@@ -101,10 +96,9 @@ Function Add-StepSummaryHeader {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidateRange(1, 6)][Byte]$Level,
-		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` must be in single line string!')][Alias('Title', 'Value')][String]$Header,
-		[Alias('NoFormat', 'SkipEscape', 'SkipFormat')][Switch]$NoEscape
+		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` must be in single line string!')][Alias('Title', 'Value')][String]$Header
 	)
-	Add-StepSummary -Value "$('#' * $Level) $($NoEscape.IsPresent ? $Header : ([GitHubActionsStepSummary]::EscapeMarkdown($Header)))"
+	Add-StepSummary -Value "$('#' * $Level) $Header"
 }
 <#
 .SYNOPSIS
@@ -134,7 +128,7 @@ Function Add-StepSummaryImage {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Url')][String]$Uri,
 		[String]$Title,
-		[Alias('AltText')][String]$AlternativeText,
+		[Alias('Alt', 'AltText')][String]$AlternativeText,
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Width = -1,
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Height = -1,
 		[Switch]$NoNewLine
