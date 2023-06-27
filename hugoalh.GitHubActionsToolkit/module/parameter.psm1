@@ -177,7 +177,7 @@ Function Set-Output {
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-ParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value
 	)
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
@@ -216,7 +216,7 @@ Function Set-State {
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-ParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value
 	)
 	Process {
 		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {

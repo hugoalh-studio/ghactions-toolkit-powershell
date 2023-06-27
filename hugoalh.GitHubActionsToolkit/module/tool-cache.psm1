@@ -144,7 +144,7 @@ Function Invoke-ToolCacheToolDownloader {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ ($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$') }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Source', 'Url')][Uri]$Uri,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Auth')][String]$Authorization,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header = @{}
 	)
 	Process {
 		[Hashtable]$Argument = @{

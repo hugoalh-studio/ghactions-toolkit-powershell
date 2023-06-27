@@ -16,7 +16,7 @@ Function ConvertFrom-CsvM {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_convertfromgithubactionscsvm')]
 	[OutputType(([Hashtable[]], [PSCustomObject[]]))]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][AllowNull()][Alias('Input', 'Object')][String]$InputObject,
 		[Alias('ToHashtable')][Switch]$AsHashtable
 	)
 	Process {
@@ -48,7 +48,7 @@ Function ConvertFrom-CsvS {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_convertfromgithubactionscsvs')]
 	[OutputType(([Hashtable[]], [PSCustomObject[]]))]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][Alias('Input', 'Object')][String]$InputObject,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][AllowNull()][Alias('Input', 'Object')][String]$InputObject,
 		[Alias('ToHashtable')][Switch]$AsHashtable
 	)
 	Process {

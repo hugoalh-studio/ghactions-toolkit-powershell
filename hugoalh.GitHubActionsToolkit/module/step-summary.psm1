@@ -127,8 +127,8 @@ Function Add-StepSummaryImage {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Url')][String]$Uri,
-		[String]$Title,
-		[Alias('Alt', 'AltText')][String]$AlternativeText,
+		[AllowEmptyString()][AllowNull()][String]$Title,
+		[AllowEmptyString()][AllowNull()][Alias('Alt', 'AltText')][String]$AlternativeText,
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Width = -1,
 		[ValidateRange(0, [Int32]::MaxValue)][Int32]$Height = -1,
 		[Switch]$NoNewLine
@@ -187,7 +187,7 @@ Function Add-StepSummaryLink {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Text,
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Url')][String]$Uri,
-		[String]$Title,
+		[AllowEmptyString()][AllowNull()][String]$Title,
 		[Switch]$NoNewLine
 	)
 	[String]$ResultMarkdown = "[$([System.Web.HttpUtility]::HtmlAttributeEncode($Text))]($([Uri]::EscapeUriString($Uri))"

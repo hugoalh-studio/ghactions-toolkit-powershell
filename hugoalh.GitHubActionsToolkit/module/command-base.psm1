@@ -33,7 +33,7 @@ Function Write-FileCommand {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Command', 'LiteralPath'<# LEGACY #>, 'Path'<# LEGACY #>)][String]$FileCommand,
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Name,
-		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][String]$Value
+		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value
 	)
 	Process {
 		If (<# LEGACY #>[System.IO.Path]::IsPathFullyQualified($FileCommand)) {
@@ -52,7 +52,7 @@ Function Write-FileCommand {
 				Return
 			}
 		}
-		If ($Value -imatch '^.+$') {
+		If ($Value -imatch '^.*$') {
 			Add-Content -LiteralPath $FileCommandPath -Value "$Name=$Value" -Confirm:$False -Encoding 'UTF8NoBOM'
 		}
 		Else {
@@ -90,7 +90,7 @@ Function Write-StdOutCommand {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions stdout command!')][Alias('Command')][String]$StdOutCommand,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Parameters', 'Properties', 'Property')][Hashtable]$Parameter,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Value
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Content', 'Message')][String]$Value
 	)
 	Process {
 		Write-Host -Object "::$StdOutCommand$(($Parameter.Count -gt 0) ? " $(
