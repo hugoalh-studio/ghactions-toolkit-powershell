@@ -1,8 +1,13 @@
 #Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base',
-		'internal\new-random-token'
+		'new-random-token'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'internal' -AdditionalChildPath @("$_.psm1") }
+) -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
@@ -162,7 +167,7 @@ Function New-CommandsEndToken {
 	[OutputType([String])]
 	Param ()
 	Do {
-		[String]$Result = New-GitHubActionsRandomToken
+		[String]$Result = New-RandomToken
 	}
 	While ($Result -iin $GitHubActionsCommandsEndTokensUsed)
 	$Script:GitHubActionsCommandsEndTokensUsed += $Result

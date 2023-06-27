@@ -1,8 +1,13 @@
 #Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
+		'test-parameter-input-object'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'internal' -AdditionalChildPath @("$_.psm1") }
+) -Scope 'Local'
+Import-Module -Name (
+	@(
 		'command-base',
-		'internal\test-parameter-input-object',
 		'log'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
@@ -170,7 +175,7 @@ Function Set-Output {
 	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsoutput')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-ParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)
@@ -209,7 +214,7 @@ Function Set-State {
 	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsstate')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-ParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][String]$Value
 	)

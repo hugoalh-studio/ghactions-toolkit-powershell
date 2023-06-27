@@ -1,8 +1,13 @@
 #Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
-		'command-base',
-		'internal\test-parameter-input-object'
+		'test-parameter-input-object'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'internal' -AdditionalChildPath @("$_.psm1") }
+) -Scope 'Local'
+Import-Module -Name (
+	@(
+		'command-base'
 	) |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
 ) -Prefix 'GitHubActions' -Scope 'Local'
@@ -77,7 +82,7 @@ Function Set-EnvironmentVariable {
 	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsenvironmentvariable')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-GitHubActionsParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-ParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateScript({ Test-EnvironmentVariableName -InputObject $_ }, ErrorMessage = '`{0}` is not a valid environment variable name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Value,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoToUpperCase')][Switch]$NoToUpper,

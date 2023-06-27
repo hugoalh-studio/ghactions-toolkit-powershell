@@ -1,10 +1,10 @@
 #Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
-		'internal\new-random-token'
+		'new-random-token'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
-) -Prefix 'GitHubActions' -Scope 'Local'
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'internal' -AdditionalChildPath @("$_.psm1") }
+) -Scope 'Local'
 [SemVer]$NodeJsVersionMinimum = [SemVer]::Parse('14.15.0')
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
 [String]$WrapperPackageFilePath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
@@ -80,7 +80,7 @@ Function Invoke-NodeJsWrapper {
 		}
 	}
 	Try {
-		[String]$ResultSeparator = "=====$(New-GitHubActionsRandomToken)====="
+		[String]$ResultSeparator = "=====$(New-RandomToken)====="
 		[String]$Base64Name = Convert-FromUtf8StringToBase64String -InputObject $Name
 		[String]$Base64Argument = $Argument |
 			ConvertTo-Json -Depth 100 -Compress |

@@ -1,10 +1,10 @@
 #Requires -PSEdition Core -Version 7.2
 Import-Module -Name (
 	@(
-		'internal\new-random-token'
+		'new-random-token'
 	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
-) -Prefix 'GitHubActions' -Scope 'Local'
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'internal' -AdditionalChildPath @("$_.psm1") }
+) -Scope 'Local'
 Class GitHubActionsStdOutCommand {
 	Static [String]EscapeValue([String]$Value) {
 		Return ($Value -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D')
@@ -58,7 +58,7 @@ Function Write-FileCommand {
 		Else {
 			[String]$ItemRaw = "$Name=$Value" -ireplace '\r?\n', ''
 			Do {
-				[String]$Token = New-GitHubActionsRandomToken
+				[String]$Token = New-RandomToken
 			}
 			While ($ItemRaw -imatch [RegEx]::Escape($Token))
 			@(
