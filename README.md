@@ -53,17 +53,17 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Add-GitHubActionsStepSummaryLink`
 - `Add-GitHubActionsStepSummarySubscriptText`
 - `Add-GitHubActionsStepSummarySuperscriptText`
-- `Disable-GitHubActionsEchoingCommands`
-- `Disable-GitHubActionsProcessingCommands`
-- `Enable-GitHubActionsEchoingCommands`
-- `Enable-GitHubActionsProcessingCommands`
+- `Disable-GitHubActionsStdOutCommandEcho`
+- `Disable-GitHubActionsStdOutCommandProcess`
+- `Enable-GitHubActionsStdOutCommandEcho`
+- `Enable-GitHubActionsStdOutCommandProcess`
 - `Enter-GitHubActionsLogGroup`
 - `Exit-GitHubActionsLogGroup`
 - `Expand-GitHubActionsToolCacheCompressedFile` 🔘
 - `Export-GitHubActionsArtifact` 🔘
 - `Find-GitHubActionsToolCache` 🔘
+- `Get-GitHubActionsDebugStatus`
 - `Get-GitHubActionsInput`
-- `Get-GitHubActionsIsDebug`
 - `Get-GitHubActionsOpenIdConnectToken` 🔘
 - `Get-GitHubActionsState`
 - `Get-GitHubActionsStepSummary`
