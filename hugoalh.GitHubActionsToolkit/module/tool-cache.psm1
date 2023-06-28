@@ -110,9 +110,9 @@ Function Find-ToolCache {
 		[Hashtable]$Argument = @{
 			Name = $Name
 		}
-		[Boolean]$IsFindAll = $Version.ToString().Length -eq 0
+		[Boolean]$IsFindAll = $Version.Length -eq 0
 		If (!$IsFindAll) {
-			$Argument.Version = $Version.ToString()
+			$Argument.Version = $Version
 		}
 		If ($Architecture.Length -gt 0) {
 			$Argument.Architecture = $Architecture
