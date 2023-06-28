@@ -34,7 +34,7 @@ Function Export-Artifact {
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateScript({ [System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container') }, ErrorMessage = '`{0}` is not an exist and valid directory!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ContinueOnError')][Switch]$ContinueOnIssue,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('RetentionDay')][UInt16]$RetentionTime
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, [Int16]::MaxValue)][Alias('RetentionDay')][Int16]$RetentionTime
 	)
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {

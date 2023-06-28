@@ -81,8 +81,8 @@ Function Expand-ToolCacheCompressedFile {
 	}
 }
 Set-Alias -Name 'Expand-ToolCacheArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Expand-ToolCacheCompressedArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Expand-ToolCacheFile' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
+Set-Alias -Name 'Expand-ToolCacheCompressedArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
+Set-Alias -Name 'Expand-ToolCacheFile' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 <#
 .SYNOPSIS
 GitHub Actions - Find Tool Cache
@@ -103,7 +103,7 @@ Function Find-ToolCache {
 	[OutputType(([String], [String[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][SemVer]$Version,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][String]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Process {

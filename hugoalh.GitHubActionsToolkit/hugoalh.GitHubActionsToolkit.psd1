@@ -3,7 +3,7 @@
 	RootModule = 'hugoalh.GitHubActionsToolkit.psm1'
 
 	# Version number of this module.
-	ModuleVersion = '1.5.0'
+	ModuleVersion = '1.6.0'
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -72,10 +72,10 @@
 		'Add-StepSummarySuperscriptText',
 		'ConvertFrom-CsvM',
 		'ConvertFrom-CsvS',
-		'Disable-EchoingCommands',
-		'Disable-ProcessingCommands',
-		'Enable-EchoingCommands',
-		'Enable-ProcessingCommands',
+		'Disable-StdOutCommandEcho',
+		'Disable-StdOutCommandProcess',
+		'Enable-StdOutCommandEcho',
+		'Enable-StdOutCommandProcess',
 		'Enter-LogGroup',
 		'Exit-LogGroup',
 		'Expand-ToolCacheCompressedFile',
@@ -139,9 +139,11 @@
 		'Disable-EchoCommand',
 		'Disable-EchoCommands',
 		'Disable-EchoingCommand',
+		'Disable-EchoingCommands',
 		'Disable-ProcessCommand',
 		'Disable-ProcessCommands',
 		'Disable-ProcessingCommand',
+		'Disable-ProcessingCommands',
 		'Enable-CommandEcho',
 		'Enable-CommandEchoing',
 		'Enable-CommandProcess',
@@ -153,9 +155,11 @@
 		'Enable-EchoCommand',
 		'Enable-EchoCommands',
 		'Enable-EchoingCommand',
+		'Enable-EchoingCommands',
 		'Enable-ProcessCommand',
 		'Enable-ProcessCommands',
 		'Enable-ProcessingCommand',
+		'Enable-ProcessingCommands',
 		'Enter-Group',
 		'Exit-Group',
 		'Expand-ToolCacheArchive',
@@ -173,6 +177,8 @@
 		'Import-Cache',
 		'Restore-Artifact',
 		'Restore-State',
+		'Resume-CommandProcess',
+		'Resume-StdOutCommandProcess',
 		'Save-Artifact',
 		'Save-State',
 		'Set-Env',
@@ -193,6 +199,8 @@
 		'Start-ProcessCommands',
 		'Start-ProcessingCommand',
 		'Start-ProcessingCommands',
+		'Start-StdOutCommandEcho',
+		'Start-StdOutCommandProcess',
 		'Stop-CommandEcho',
 		'Stop-CommandEchoing',
 		'Stop-CommandProcess',
@@ -209,6 +217,10 @@
 		'Stop-ProcessCommands',
 		'Stop-ProcessingCommand',
 		'Stop-ProcessingCommands',
+		'Stop-StdOutCommandEcho',
+		'Stop-StdOutCommandProcess',
+		'Suspend-CommandProcess',
+		'Suspend-StdOutCommandProcess',
 		'Write-Command',
 		'Write-Note',
 		'Write-Warn'
@@ -254,7 +266,7 @@
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
-			# Prerelease = ''
+			Prerelease = 'beta1'
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 			RequireLicenseAcceptance = $False

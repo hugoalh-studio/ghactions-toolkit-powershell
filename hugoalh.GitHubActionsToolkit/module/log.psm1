@@ -278,7 +278,7 @@ Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Lo
 .SYNOPSIS
 GitHub Actions - Write Raw
 .DESCRIPTION
-Print anything to the log without accidentally execute any commands.
+Print anything to the log without accidentally execute any stdout command.
 .PARAMETER InputObject
 Item that need to log.
 .PARAMETER GroupTitle
