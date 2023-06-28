@@ -297,13 +297,13 @@ Function Write-Raw {
 		If ($GroupTitle.Length -gt 0) {
 			Enter-LogGroup -Title $GroupTitle
 		}
-		[String]$EndToken = Disable-GitHubActionsProcessingCommands
+		[String]$EndToken = Disable-GitHubActionsStdOutCommandProcess
 	}
 	Process {
 		Write-Host -Object $InputObject
 	}
 	End {
-		Enable-GitHubActionsProcessingCommands -EndToken $EndToken
+		Enable-GitHubActionsStdOutCommandProcess -EndToken $EndToken
 		If ($GroupTitle.Length -gt 0) {
 			Exit-LogGroup
 		}
