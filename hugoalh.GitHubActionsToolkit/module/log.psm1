@@ -145,8 +145,8 @@ Function Write-Debug {
 	)
 	Process {
 		If (
-			$SkipEmptyLine.IsPresent -or
-			$Message.Length -gt 0
+			!$SkipEmptyLine.IsPresent -or
+			($SkipEmptyLine.IsPresent -and $Message.Length -gt 0)
 		) {
 			Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Message
 		}
