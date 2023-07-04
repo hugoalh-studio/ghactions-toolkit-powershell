@@ -154,6 +154,9 @@ Function Write-Debug {
 		) {
 			Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Message
 		}
+		If ($PassThru.IsPresent) {
+			Write-Output -InputObject $Message
+		}
 	}
 }
 <#
@@ -304,10 +307,12 @@ Function Write-Raw {
 		[Switch]$PassThru
 	)
 	Begin {
-		If ($WriteIf -and $GroupTitle.Length -gt 0) {
-			Enter-LogGroup -Title $GroupTitle
+		If ($WriteIf) {
+			If ($GroupTitle.Length -gt 0) {
+				Enter-LogGroup -Title $GroupTitle
+			}
+			[String]$EndToken = Disable-GitHubActionsStdOutCommandProcess
 		}
-		[String]$EndToken = Disable-GitHubActionsStdOutCommandProcess
 	}
 	Process {
 		If ($WriteIf) {
@@ -318,9 +323,11 @@ Function Write-Raw {
 		}
 	}
 	End {
-		Enable-GitHubActionsStdOutCommandProcess -EndToken $EndToken
-		If ($WriteIf -and $GroupTitle.Length -gt 0) {
-			Exit-LogGroup
+		If ($WriteIf) {
+			Enable-GitHubActionsStdOutCommandProcess -EndToken $EndToken
+			If ($GroupTitle.Length -gt 0) {
+				Exit-LogGroup
+			}
 		}
 	}
 }
