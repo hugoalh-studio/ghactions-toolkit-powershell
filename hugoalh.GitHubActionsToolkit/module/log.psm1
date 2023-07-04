@@ -133,15 +133,19 @@ Print a debug message to the log.
 Message that need to log at debug level.
 .PARAMETER SkipEmptyLine
 Whether to skip empty line.
+.PARAMETER PassThru
+Return the message. By default, this function does not generate any output.
 .OUTPUTS
-[Void]
+[String] When use the parameter `PassThru`, this function return the message.
+[Void] By default, this function does not generate any output.
 #>
 Function Write-Debug {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsdebug')]
-	[OutputType([Void])]
+	[OutputType(([String], [Void]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Content')][String]$Message,
-		[Alias('NoEmptyLine')][Switch]$SkipEmptyLine
+		[Alias('NoEmptyLine')][Switch]$SkipEmptyLine,
+		[Switch]$PassThru
 	)
 	Process {
 		If (
@@ -283,28 +287,39 @@ Print anything to the log without accidentally execute any stdout command.
 Item that need to log.
 .PARAMETER GroupTitle
 Title of the log group; This creates an expandable group in the log, and anything are inside this expandable group in the log.
+.PARAMETER WriteIf
+Log item based on specify condition.
+.PARAMETER PassThru
+Return the item. By default, this function does not generate any output.
 .OUTPUTS
-[Void]
+[Unknown] When use the parameter `PassThru`, this function return the item.
+[Void] By default, this function does not generate any output.
 #>
 Function Write-Raw {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsraw')]
-	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content', 'Input', 'Message', 'Object')]$InputObject,
-		[Alias('GroupHeader', 'Header', 'Title')][String]$GroupTitle
+		[Alias('GroupHeader', 'Header', 'Title')][String]$GroupTitle,
+		[Boolean]$WriteIf = $True,
+		[Switch]$PassThru
 	)
 	Begin {
-		If ($GroupTitle.Length -gt 0) {
+		If ($WriteIf -and $GroupTitle.Length -gt 0) {
 			Enter-LogGroup -Title $GroupTitle
 		}
 		[String]$EndToken = Disable-GitHubActionsStdOutCommandProcess
 	}
 	Process {
-		Write-Host -Object $InputObject
+		If ($WriteIf) {
+			Write-Host -Object $InputObject
+		}
+		If ($PassThru.IsPresent) {
+			Write-Output -InputObject $InputObject
+		}
 	}
 	End {
 		Enable-GitHubActionsStdOutCommandProcess -EndToken $EndToken
-		If ($GroupTitle.Length -gt 0) {
+		If ($WriteIf -and $GroupTitle.Length -gt 0) {
 			Exit-LogGroup
 		}
 	}
