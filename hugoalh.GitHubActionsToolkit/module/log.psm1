@@ -131,10 +131,8 @@ GitHub Actions - Write Debug
 Print a debug message to the log.
 .PARAMETER Message
 Message that need to log at debug level.
-.PARAMETER SkipEmpty
-Whether to skip empty message.
 .PARAMETER SkipEmptyLine
-Whether to skip empty message line.
+Whether to skip empty line.
 .PARAMETER PassThru
 Return the message. By default, this function does not generate any output.
 .OUTPUTS
@@ -146,43 +144,18 @@ Function Write-Debug {
 	[OutputType(([String], [Void]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Content')][String]$Message,
-		[Alias('NoEmpty')][Switch]$SkipEmpty,
 		[Alias('NoEmptyLine')][Switch]$SkipEmptyLine,
 		[Switch]$PassThru
 	)
-	Begin {
-		[Boolean]$ShouldStdOut = $False
-		[String[]]$MessageCache = @()
-	}
 	Process {
-		If ($SkipEmpty.IsPresent -and !$ShouldStdOut -and $Message.Length -eq 0) {
-			$MessageCache += $Message
+		If (
+			!$SkipEmptyLine.IsPresent -or
+			($SkipEmptyLine.IsPresent -and $Message.Length -gt 0)
+		) {
+			Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Message
 		}
-		Else {
-			$ShouldStdOut = $True
-			If ($MessageCache.Count -gt 0) {
-				ForEach ($Line In $MessageCache) {
-					If (
-						!$SkipEmptyLine.IsPresent -or
-						($SkipEmptyLine.IsPresent -and $Line.Length -gt 0)
-					) {
-						Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Line
-					}
-					If ($PassThru.IsPresent) {
-						Write-Output -InputObject $Line
-					}
-				}
-				$MessageCache = @()
-			}
-			If (
-				!$SkipEmptyLine.IsPresent -or
-				($SkipEmptyLine.IsPresent -and $Message.Length -gt 0)
-			) {
-				Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Message
-			}
-			If ($PassThru.IsPresent) {
-				Write-Output -InputObject $Message
-			}
+		If ($PassThru.IsPresent) {
+			Write-Output -InputObject $Message
 		}
 	}
 }
