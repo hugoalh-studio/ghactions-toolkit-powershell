@@ -150,17 +150,12 @@ Function Test-NodeJsEnvironment {
 		Catch {
 			Throw 'Unable to find NodeJS!'
 		}
-		Try {
-			If ($NodeJsVersionMinimum -gt [SemVer]::Parse((
-				node --no-deprecation --no-warnings --eval='console.log(JSON.stringify(process.versions));' |
-					Join-String -Separator "`n" |
-					ConvertFrom-Json -Depth 100 |
-					Select-Object -ExpandProperty 'node'
-			))) {
-				Throw
-			}
-		}
-		Catch {
+		If ($NodeJsVersionMinimum -gt [SemVer]::Parse((
+			node --no-deprecation --no-warnings --eval='console.log(JSON.stringify(process.versions));' |
+				Join-String -Separator "`n" |
+				ConvertFrom-Json -Depth 100 |
+				Select-Object -ExpandProperty 'node'
+		))) {
 			Throw 'NodeJS is not match the requirement!'
 		}
 	}
