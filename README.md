@@ -90,3 +90,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Write-GitHubActionsNotice`
 - `Write-GitHubActionsRaw`
 - `Write-GitHubActionsWarning`
+
+### Example
+
+```ps1
+Write-GitHubActionNotice -Message 'Hello, world!'
+```
