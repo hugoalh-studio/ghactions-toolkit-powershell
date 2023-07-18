@@ -5,7 +5,7 @@
 > | **Legend** | **Description** |
 > |:-:|:--|
 > | L | **LTS:** Long term supported. |
-> | ✔ | **Active / Current:** Currently supported. |
+> | ✔️ | **Active / Current:** Currently supported. |
 > | 👎{🐛} | **Partially (Issue):** Partially supported due to confirmed contains bugs and/or issues. |
 > | 👎{🧓} | **Partially (Old):** Partially supported due to deprecated by newer versions. |
 > | ❌{🐛} | **No (Issue):** Not supported due to confirmed contains bugs and/or issues. |
@@ -14,8 +14,8 @@
 | **Versions** | **Status** | **Target - GitHub Actions Runner** | **Target - PowerShell** | **Target - NodeJS (Wrapper API)** | **Target - NPM (Wrapper API)** |
 |:-:|:-:|:-:|:-:|:-:|:-:|
 | v1.6.X | L | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
-| v1.5.X | ✔ | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
-| v1.4.X | ✔ | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
+| v1.5.X | ✔️ | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
+| v1.4.X | ✔️ | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
 | v1.3.X | ❌{🐛🧓} | *Unspecified* | >= v7.2.0 | >= v14.15.0 | >= v6.14.8 |
 | v1.2.0 \~ v1.3.1 | ❌{🐛🧓} | *Unspecified* | >= v7.2.0 | >= v14.15.0 | *N/A* |
 | < v1.2.0 | ❌{🐛🧓} | *Unspecified* | >= v7.2.0 | >= v14.15.0 | >= v6.14.8 |
