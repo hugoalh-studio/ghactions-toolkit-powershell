@@ -3,7 +3,7 @@
 	RootModule = 'hugoalh.GitHubActionsToolkit.psm1'
 
 	# Version number of this module.
-	ModuleVersion = '1.6.0'
+	ModuleVersion = '1.7.0'
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -70,6 +70,10 @@
 		'Add-StepSummaryLink',
 		'Add-StepSummarySubscriptText',
 		'Add-StepSummarySuperscriptText',
+		'Clear-FileCommand',
+		'Clear-Output',
+		'Clear-State',
+		'Clear-StepSummary',
 		'ConvertFrom-CsvM',
 		'ConvertFrom-CsvS',
 		'Disable-StdOutCommandEcho',
@@ -89,11 +93,11 @@
 		'Get-WebhookEventPayload',
 		'Get-WorkflowRunUri',
 		'Import-Artifact',
+		'Invoke-NodeJsWrapper',
 		'Invoke-ToolCacheToolDownloader',
 		'Register-ToolCacheDirectory',
 		'Register-ToolCacheFile',
 		'Remove-ProblemMatcher',
-		'Remove-StepSummary',
 		'Restore-Cache',
 		'Save-Cache',
 		'Set-EnvironmentVariable',
@@ -175,6 +179,10 @@
 		'Get-WebhookPayload',
 		'Get-WorkflowRunUrl',
 		'Import-Cache',
+		'Remove-FileCommand',
+		'Remove-Output',
+		'Remove-State',
+		'Remove-StepSummary',
 		'Restore-Artifact',
 		'Restore-State',
 		'Resume-CommandProcess',
@@ -266,7 +274,7 @@
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
-			# Prerelease = ''
+			Prerelease = 'beta1'
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 			RequireLicenseAcceptance = $False

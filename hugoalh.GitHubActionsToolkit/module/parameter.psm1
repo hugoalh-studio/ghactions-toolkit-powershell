@@ -14,6 +14,36 @@ Import-Module -Name (
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Clear Output
+.DESCRIPTION
+Clear output.
+.OUTPUTS
+[Void]
+#>
+Function Clear-Output {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_cleargithubactionsoutput')]
+	[OutputType([Void])]
+	Param ()
+	Clear-GitHubActionsFileCommand -FileCommand 'GITHUB_OUTPUT'
+}
+Set-Alias -Name 'Remove-Output' -Value 'Clear-Output' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
+GitHub Actions - Clear State
+.DESCRIPTION
+Clear state.
+.OUTPUTS
+[Void]
+#>
+Function Clear-State {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_cleargithubactionsstate')]
+	[OutputType([Void])]
+	Param ()
+	Clear-GitHubActionsFileCommand -FileCommand 'GITHUB_STATE'
+}
+Set-Alias -Name 'Remove-State' -Value 'Clear-State' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Get Input
 .DESCRIPTION
 Get input.
@@ -237,11 +267,15 @@ Function Set-State {
 }
 Set-Alias -Name 'Save-State' -Value 'Set-State' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
+	'Clear-Output',
+	'Clear-State',
 	'Get-Input',
 	'Get-State',
 	'Set-Output',
 	'Set-State'
 ) -Alias @(
+	'Remove-Output',
+	'Remove-State',
 	'Restore-State',
 	'Save-State'
 )

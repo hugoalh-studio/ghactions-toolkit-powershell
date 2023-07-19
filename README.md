@@ -94,5 +94,9 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 ### Example
 
 ```ps1
+Set-GitHubActionsOutput -Name 'foo' -Value 'bar'
+```
+
+```ps1
 Write-GitHubActionNotice -Message 'Hello, world!'
 ```

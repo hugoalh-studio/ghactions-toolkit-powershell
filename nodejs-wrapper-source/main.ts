@@ -1,176 +1,191 @@
+import { constants as fsConstants } from "node:fs";
+import { open as fsOpen, type FileHandle } from "node:fs/promises";
 import { create as ghactionsArtifact, type DownloadResponse as GitHubActionsArtifactDownloadResponse, type UploadResponse as GitHubActionsArtifactUploadResponse } from "@actions/artifact";
 import { restoreCache as ghactionsCacheRestoreCache, saveCache as ghactionsCacheSaveCache } from "@actions/cache";
 import { debug as ghactionsDebug, getIDToken as ghactionsGetOpenIDConnectToken } from "@actions/core";
 import { cacheDir as ghactionsToolCacheCacheDirectory, cacheFile as ghactionsToolCacheCacheFile, downloadTool as ghactionsToolCacheDownloadTool, extract7z as ghactionsToolCacheExtract7z, extractTar as ghactionsToolCacheExtractTar, extractXar as ghactionsToolCacheExtractXar, extractZip as ghactionsToolCacheExtractZip, find as ghactionsToolCacheFind, findAllVersions as ghactionsToolCacheFindAllVersions } from "@actions/tool-cache";
-function encodeConvert(item: string, from: BufferEncoding, to: BufferEncoding): string {
-	return Buffer.from(item, from).toString(to);
+const exchangeFileHandle: FileHandle = await fsOpen(process.argv.slice(2)[0], fsConstants.O_RDWR | fsConstants.O_NOFOLLOW);
+const input = JSON.parse(await exchangeFileHandle.readFile({ encoding: "utf8" }));
+async function exchangeFileWrite(data: Record<string, unknown>): Promise<void> {
+	await exchangeFileHandle.truncate(0);
+	return exchangeFileHandle.writeFile(JSON.stringify(data), { encoding: "utf8" });
 }
-function errorHandle(reason: any): void {
-	let message: string;
-	if (typeof reason.message === "undefined") {
-		message = reason;
+function resolveError(reason: string | Error | RangeError | ReferenceError | SyntaxError | TypeError): Promise<void> {
+	let output: Record<string, unknown> = {
+		isSuccess: false
+	};
+	if (typeof reason === "string") {
+		output.reason = reason;
 	} else {
-		message = reason.message;
-		if (typeof reason.stack === "undefined") {
-			message = `\n${reason.stack}`;
+		let message = `${reason.name}: ${reason.message}`;
+		if (typeof reason.stack !== "undefined") {
+			message += `\n${reason.stack}`;
 		}
+		output.reason = message;
 	}
-	console.error(message);
-	process.exit(1);
+	return exchangeFileWrite(output);
 }
-function resultHandle(result: object): string {
-	return encodeConvert(JSON.stringify(result), "utf8", "base64");
-}
-try {
-	let [wrapperName, inputsRaw, delimiter] = process.argv.slice(2).map((value: string): string => {
-		return encodeConvert(value, "base64", "utf8");
+function resolveResult(result: unknown): Promise<void> {
+	return exchangeFileWrite({
+		isSuccess: true,
+		result
 	});
-	let inputs = JSON.parse(inputsRaw);
-	switch (wrapperName) {
-		case "__debug":
-			ghactionsDebug(inputs.Message);
-			console.log(delimiter);
-			console.log(resultHandle({
-				Message: "Hello, world!",
-				Message2: "Good day, world!"
+}
+switch (input.wrapperName) {
+	case "$fail":
+		ghactionsDebug(input.message);
+		await resolveError("Test");
+		break;
+	case "$success":
+		ghactionsDebug(input.message);
+		await resolveResult("Hello, world!");
+		break;
+	case "artifact/download":
+		try {
+			let result: GitHubActionsArtifactDownloadResponse = await ghactionsArtifact().downloadArtifact(input.name, input.destination, { createArtifactFolder: input.createSubfolder });
+			await resolveResult({
+				name: result.artifactName,
+				path: result.downloadPath
+			});
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "artifact/download-all":
+		try {
+			let result: GitHubActionsArtifactDownloadResponse[] = await ghactionsArtifact().downloadAllArtifacts(input.destination);
+			await resolveResult(result.map((value: GitHubActionsArtifactDownloadResponse) => {
+				return {
+					name: value.artifactName,
+					path: value.downloadPath
+				};
 			}));
-			break;
-		case "artifact/download":
-			{
-				let result: GitHubActionsArtifactDownloadResponse = await ghactionsArtifact().downloadArtifact(inputs.Name, inputs.Destination, { createArtifactFolder: inputs.CreateSubfolder });
-				console.log(delimiter);
-				console.log(resultHandle({
-					Name: result.artifactName,
-					Path: result.downloadPath
-				}));
-			}
-			break;
-		case "artifact/download-all":
-			{
-				let result: GitHubActionsArtifactDownloadResponse[] = await ghactionsArtifact().downloadAllArtifacts(inputs.Destination);
-				console.log(delimiter);
-				console.log(resultHandle(result.map((value: GitHubActionsArtifactDownloadResponse) => {
-					return {
-						Name: value.artifactName,
-						Path: value.downloadPath
-					};
-				})));
-			}
-			break;
-		case "artifact/upload":
-			{
-				let result: GitHubActionsArtifactUploadResponse = await ghactionsArtifact().uploadArtifact(inputs.Name, inputs.Path, inputs.BaseRoot, {
-					continueOnError: inputs.ContinueOnIssue,
-					retentionDays: inputs.RetentionTime
-				});
-				console.log(delimiter);
-				console.log(resultHandle({
-					FailedItem: result.failedItems,
-					FailedItems: result.failedItems,
-					Item: result.artifactItems,
-					Items: result.artifactItems,
-					Name: result.artifactName,
-					Size: result.size,
-					Sizes: result.size
-				}));
-			}
-			break;
-		case "cache/restore":
-			{
-				let result: string = await ghactionsCacheRestoreCache(inputs.Path, inputs.PrimaryKey, inputs.RestoreKey, {
-					downloadConcurrency: inputs.DownloadConcurrency,
-					lookupOnly: inputs.LookUp,
-					segmentTimeoutInMs: inputs.SegmentTimeout,
-					timeoutInMs: inputs.Timeout,
-					useAzureSdk: inputs.UseAzureSdk
-				});
-				console.log(delimiter);
-				console.log(resultHandle({ CacheKey: result ?? null }));
-			}
-			break;
-		case "cache/save":
-			{
-				let result: number = await ghactionsCacheSaveCache(inputs.Path, inputs.Key, {
-					uploadChunkSize: inputs.UploadChunkSizes,
-					uploadConcurrency: inputs.UploadConcurrency
-				});
-				console.log(delimiter);
-				console.log(resultHandle({ CacheId: result }));
-			}
-			break;
-		case "open-id-connect/get-token":
-			{
-				let result: string = await ghactionsGetOpenIDConnectToken(inputs.Audience);
-				console.log(delimiter);
-				console.log(resultHandle({ Token: result }));
-			}
-			break;
-		case "tool-cache/cache-directory":
-			{
-				let result: string = await ghactionsToolCacheCacheDirectory(inputs.Source, inputs.Name, inputs.Version, inputs.Architecture);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/cache-file":
-			{
-				let result: string = await ghactionsToolCacheCacheFile(inputs.Source, inputs.Target, inputs.Name, inputs.Version, inputs.Architecture);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/download-tool":
-			{
-				let result: string = await ghactionsToolCacheDownloadTool(inputs.Uri, inputs.Destination, inputs.Authorization, inputs.Header);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/extract-7z":
-			{
-				let result: string = await ghactionsToolCacheExtract7z(inputs.File, inputs.Destination, inputs["7zrPath"]);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/extract-tar":
-			{
-				let result: string = await ghactionsToolCacheExtractTar(inputs.File, inputs.Destination, inputs.Flag);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/extract-xar":
-			{
-				let result: string = await ghactionsToolCacheExtractXar(inputs.File, inputs.Destination, inputs.Flag);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/extract-zip":
-			{
-				let result: string = await ghactionsToolCacheExtractZip(inputs.File, inputs.Destination);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/find":
-			{
-				let result: string = ghactionsToolCacheFind(inputs.Name, inputs.Version, inputs.Architecture);
-				console.log(delimiter);
-				console.log(resultHandle({ Path: result }));
-			}
-			break;
-		case "tool-cache/find-all-versions":
-			{
-				let result: string[] = ghactionsToolCacheFindAllVersions(inputs.Name, inputs.Architecture);
-				console.log(delimiter);
-				console.log(resultHandle({ Paths: result }));
-			}
-			break;
-		default:
-			throw new Error(`\`${wrapperName}\` is not a valid NodeJS wrapper name! Most likely a mistake made by the contributors, please report this issue.`);
-	}
-} catch (error) {
-	errorHandle(error);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "artifact/upload":
+		try {
+			let result: GitHubActionsArtifactUploadResponse = await ghactionsArtifact().uploadArtifact(input.name, input.items, input.rootDirectory, {
+				continueOnError: input.continueOnError,
+				retentionDays: input.retentionDays
+			});
+			await resolveResult({
+				name: result.artifactName,
+				items: result.artifactItems,
+				size: result.size,
+				failedItems: result.failedItems
+			});
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "cache/restore":
+		try {
+			let result: string | undefined = await ghactionsCacheRestoreCache(input.paths, input.primaryKey, input.restoreKeys, {
+				downloadConcurrency: input.downloadConcurrency,
+				lookupOnly: input.lookup,
+				segmentTimeoutInMs: input.segmentTimeout,
+				timeoutInMs: input.timeout,
+				useAzureSdk: input.useAzureSdk
+			});
+			await resolveResult(result ?? null);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "cache/save":
+		try {
+			let result: number = await ghactionsCacheSaveCache(input.paths, input.key, {
+				uploadChunkSize: input.uploadChunkSize,
+				uploadConcurrency: input.uploadConcurrency
+			});
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "open-id-connect/get-token":
+		try {
+			let result: string = await ghactionsGetOpenIDConnectToken(input.audience);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/cache-directory":
+		try {
+			let result: string = await ghactionsToolCacheCacheDirectory(input.source, input.name, input.version, input.architecture);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/cache-file":
+		try {
+			let result: string = await ghactionsToolCacheCacheFile(input.source, input.target, input.name, input.version, input.architecture);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/download-tool":
+		try {
+			let result: string = await ghactionsToolCacheDownloadTool(input.url, input.destination, input.authorization, input.headers);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/extract-7z":
+		try {
+			let result: string = await ghactionsToolCacheExtract7z(input.file, input.destination, input["7zrPath"]);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/extract-tar":
+		try {
+			let result: string = await ghactionsToolCacheExtractTar(input.file, input.destination, input.flags);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/extract-xar":
+		try {
+			let result: string = await ghactionsToolCacheExtractXar(input.file, input.destination, input.flags);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/extract-zip":
+		try {
+			let result: string = await ghactionsToolCacheExtractZip(input.file, input.destination);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/find":
+		try {
+			let result: string = ghactionsToolCacheFind(input.name, input.version, input.architecture);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	case "tool-cache/find-all-versions":
+		try {
+			let result: string[] = ghactionsToolCacheFindAllVersions(input.name, input.architecture);
+			await resolveResult(result);
+		} catch (error) {
+			await resolveError(error);
+		}
+		break;
+	default:
+		await resolveError(`\`${input.wrapperName}\` is not a valid NodeJS wrapper name! Most likely a mistake made by the contributors, please report this issue.`);
+		break;
 }

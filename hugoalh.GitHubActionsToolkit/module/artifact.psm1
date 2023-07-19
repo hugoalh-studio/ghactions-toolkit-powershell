@@ -13,15 +13,15 @@ Export artifact to persist the data and/or share with the future jobs in the sam
 .PARAMETER Name
 Name of the artifact.
 .PARAMETER Path
-Paths of the files that need to export as artifact.
+Path of the files that need to export as artifact.
 .PARAMETER LiteralPath
-Literal paths of the files that need to export as artifact.
-.PARAMETER BaseRoot
-Absolute literal path of the base root directory of the files for control files structure.
-.PARAMETER ContinueOnIssue
+Literal path of the files that need to export as artifact.
+.PARAMETER RootDirectory
+Absolute literal path of the root directory of the files for control files structure.
+.PARAMETER ContinueOnError
 Whether the export should continue in the event of files fail to export; If not set and issue is encountered, export will stop and queued files will not export, the partial artifact availables which include files up until the issue; If set and issue is encountered, the issue file will ignore and skip, and queued files will still export, the partial artifact availables which include everything but exclude issue files.
-.PARAMETER RetentionTime
-Retention time of the artifact, by days.
+.PARAMETER RetentionDays
+Retention days of the artifact.
 .OUTPUTS
 [PSCustomObject] Metadata of the exported artifact.
 #>
@@ -32,36 +32,38 @@ Function Export-Artifact {
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateScript({ [System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container') }, ErrorMessage = '`{0}` is not an exist and valid directory!')][Alias('Root')][String]$BaseRoot = $Env:GITHUB_WORKSPACE,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ContinueOnError')][Switch]$ContinueOnIssue,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, [Int16]::MaxValue)][Alias('RetentionDay')][Int16]$RetentionTime
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateScript({ [System.IO.Path]::IsPathRooted($_) -and (Test-Path -LiteralPath $_ -PathType 'Container') }, ErrorMessage = '`{0}` is not an exist and valid directory!')][Alias('BaseRoot', 'Root')][String]$RootDirectory = $Env:GITHUB_WORKSPACE,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ContinueOnIssue')][Switch]$ContinueOnError,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, [Int16]::MaxValue)][Alias('RetentionDay', 'RetentionTime')][Int16]$RetentionDays
 	)
 	Process {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'LiteralPath' {
-				[String[]]$PathsProceed = $LiteralPath |
-					ForEach-Object -Process { [System.IO.Path]::IsPathRooted($_) ? $_ : (Join-Path -Path $BaseRoot -ChildPath $_) }
+				[String[]]$Items = $LiteralPath |
+					ForEach-Object -Process { [System.IO.Path]::IsPathRooted($_) ? $_ : (Join-Path -Path $RootDirectory -ChildPath $_) }
 			}
 			'Path' {
-				[String[]]$PathsProceed = @()
-				ForEach ($Item In $Path) {
-					Try {
-						$PathsProceed += Resolve-Path -Path ([System.IO.Path]::IsPathRooted($Item) ? $Item : (Join-Path -Path $BaseRoot -ChildPath $Item))
+				[String[]]$Items = $Path |
+					ForEach-Object -Process {
+						Try {
+							Resolve-Path -Path ([System.IO.Path]::IsPathRooted($_) ? $_ : (Join-Path -Path $RootDirectory -ChildPath $_)) |
+								Write-Output
+						}
+						Catch {
+							$_ |
+								Write-Output
+						}
 					}
-					Catch {
-						$PathsProceed += $Item
-					}
-				}
 			}
 		}
 		[Hashtable]$Argument = @{
-			Name = $Name
-			Path = $PathsProceed
-			BaseRoot = $BaseRoot
-			ContinueOnIssue = $ContinueOnIssue.IsPresent
+			'name' = $Name
+			'items' = $Items
+			'rootDirectory' = $RootDirectory
+			'continueOnError' = $ContinueOnError.IsPresent
 		}
-		If ($RetentionTime -gt 0) {
-			$Argument.RetentionTIme = $RetentionTime
+		If ($RetentionDays -gt 0) {
+			$Argument.('retentionDays') = $RetentionDays
 		}
 		Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/upload' -Argument $Argument |
 			Write-Output
@@ -99,15 +101,15 @@ Function Import-Artifact {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
 				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -Argument @{
-					Destination = $Destination
+					'destination' = $Destination
 				} |
 					Write-Output
 			}
 			'Single' {
 				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download' -Argument @{
-					Name = $Name
-					Destination = $Destination
-					CreateSubfolder = $CreateSubfolder.IsPresent
+					'name' = $Name
+					'destination' = $Destination
+					'createSubfolder' = $CreateSubfolder.IsPresent
 				} |
 					Write-Output
 			}

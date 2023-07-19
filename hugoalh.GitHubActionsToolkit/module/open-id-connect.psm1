@@ -28,9 +28,9 @@ Function Get-OpenIdConnectToken {
 		}
 		[Hashtable]$Argument = @{}
 		If ($Audience.Length -gt 0) {
-			$Argument.Audience = $Audience
+			$Argument.('audience') = $Audience
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'open-id-connect/get-token' -Argument $Argument)?.Token |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'open-id-connect/get-token' -Argument $Argument |
 			Write-Output
 	}
 }

@@ -1,54 +1,10 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name (
-	@(
-		'new-random-token'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'internal' -AdditionalChildPath @("$_.psm1") }
-) -Scope 'Local'
 [SemVer]$NodeJsVersionMinimum = [SemVer]::Parse('14.15.0')
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
 [String]$WrapperPackageFilePath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
 [String]$WrapperScriptFilePath = Join-Path -Path $WrapperRoot -ChildPath 'main.js'
 [Boolean]$EnvironmentTested = $False
 [Boolean]$EnvironmentResult = $False
-<#
-.SYNOPSIS
-GitHub Actions - Internal - Convert From Base64 String To Utf8 String
-.PARAMETER InputObject
-String that need decode from base64.
-.OUTPUTS
-[String] An decoded string.
-#>
-Function Convert-FromBase64StringToUtf8String {
-	[CmdletBinding()]
-	[OutputType([String])]
-	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
-	)
-	Process {
-		[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($InputObject)) |
-			Write-Output
-	}
-}
-<#
-.SYNOPSIS
-GitHub Actions - Internal - Convert From Utf8 String To Base64 String
-.PARAMETER InputObject
-String that need encode to base64.
-.OUTPUTS
-[String] An encoded string.
-#>
-Function Convert-FromUtf8StringToBase64String {
-	[CmdletBinding()]
-	[OutputType([String])]
-	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][Alias('Input', 'Object')][String]$InputObject
-	)
-	Process {
-		[System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($InputObject)) |
-			Write-Output
-	}
-}
 <#
 .SYNOPSIS
 GitHub Actions - Invoke NodeJS Wrapper
@@ -59,61 +15,69 @@ Name of the NodeJS wrapper.
 .PARAMETER Argument
 Arguments of the NodeJS wrapper.
 .OUTPUTS
-[PSCustomObject] Result of the NodeJS wrapper.
-[PSCustomObject[]] Result of the NodeJS wrapper.
+Result of the NodeJS wrapper.
 #>
 Function Invoke-NodeJsWrapper {
 	[CmdletBinding()]
-	[OutputType(([PSCustomObject], [PSCustomObject[]]))]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][String]$Name,
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Arguments')][Hashtable]$Argument
 	)
-	If (!(Test-NodeJsEnvironment)) {
-		Write-Error -Message 'This function depends and requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
-		Return
+	Begin {
+		[Boolean]$ShouldProceed = $True
+		If (!(Test-NodeJsEnvironment)) {
+			Write-Error -Message 'This function depends and requires to invoke with the compatible NodeJS environment!' -Category 'ResourceUnavailable'
+			$ShouldProceed = $False
+		}
+		ForEach ($FilePath In @($WrapperPackageFilePath, $WrapperScriptFilePath)) {
+			If (!(Test-Path -LiteralPath $FilePath -PathType 'Leaf')) {
+				Write-Error -Message "Unable to invoke the NodeJS wrapper: Wrapper resource `"$FilePath`" is missing!" -Category 'ResourceUnavailable'
+				$ShouldProceed = $False
+			}
+		}
+		[String]$ExchangeFilePath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath ([System.IO.Path]::GetRandomFileName())
 	}
-	ForEach ($Item In @($WrapperPackageFilePath, $WrapperScriptFilePath)) {
-		If (!(Test-Path -LiteralPath $Item -PathType 'Leaf')) {
-			Write-Error -Message "Unable to invoke the NodeJS wrapper: Wrapper resource `"$Item`" is missing!" -Category 'ResourceUnavailable'
+	Process {
+		If (!$ShouldProceed) {
 			Return
 		}
-	}
-	Try {
-		[String]$ResultSeparator = "=====$(New-RandomToken)====="
-		[String]$Base64Name = Convert-FromUtf8StringToBase64String -InputObject $Name
-		[String]$Base64Argument = $Argument |
-			ConvertTo-Json -Depth 100 -Compress |
-			Convert-FromUtf8StringToBase64String
-		[String]$Base64ResultSeparator = Convert-FromUtf8StringToBase64String -InputObject $ResultSeparator
-		[String[]]$Result = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperScriptFilePath`" $Base64Name $Base64Argument $Base64ResultSeparator"
-		[UInt64[]]$ResultSkipIndexes = @()
-		For ([UInt64]$ResultIndex = 0; $ResultIndex -lt $Result.Count; $ResultIndex += 1) {
-			[String]$ResultLine = $Result[$ResultIndex]
-			If ($ResultLine -imatch '^::.+?::.*$') {
-				Write-Host -Object $ResultLine
-				$ResultSkipIndexes += $ResultIndex
-				Continue
+		[Hashtable]$ExchangeInput = @{ 'wrapperName' = $Name } + $Argument
+		[String]$ExchangeInputRaw = $ExchangeInput |
+			ConvertTo-Json -Depth 100 -Compress
+		Set-Content -LiteralPath $ExchangeFilePath -Value $ExchangeInputRaw -Confirm:$False -Encoding 'UTF8NoBOM'
+		Try {
+			[String[]]$StdOut = Invoke-Expression -Command "node --no-deprecation --no-warnings `"$WrapperScriptFilePath`" `"$ExchangeFilePath`"" |
+				Where-Object -FilterScript {
+					If ($_ -imatch '^::.+?::.*$') {
+						Write-Host -Object $_
+						Write-Output -InputObject $False
+					}
+					Else {
+						Write-Output -InputObject $True
+					}
+				}
+			If ($LASTEXITCODE -ne 0) {
+				Throw "Unexpected exit code ``$LASTEXITCODE``! $(
+					$StdOut |
+						Join-String -Separator "`n"
+				)"
 			}
-			If ($ResultLine -ieq $ResultSeparator) {
-				$ResultSkipIndexes += @($ResultIndex..($Result.Count - 1))
-				Break
+			[PSCustomObject]$Result = Get-Content -LiteralPath $ExchangeFilePath -Raw -Encoding 'UTF8NoBOM' |
+				ConvertFrom-Json -Depth 100
+			If (!$Result.IsSuccess) {
+				Throw $Result.Reason
 			}
+			$Result.Result |
+				Write-Output
 		}
-		If ($LASTEXITCODE -ne 0) {
-			Throw "Unexpected exit code ``$LASTEXITCODE``! $(
-				$Result |
-					Select-Object -SkipIndex $ResultSkipIndexes |
-					Join-String -Separator "`n"
-			)"
+		Catch {
+			Write-Error -Message "Unable to successfully invoke the NodeJS wrapper (``$Name``): $_" -Category 'InvalidData'
 		}
-		$Result[$Result.Count - 1] |
-			Convert-FromBase64StringToUtf8String |
-			ConvertFrom-Json -Depth 100 |
-			Write-Output
 	}
-	Catch {
-		Write-Error -Message "Unable to successfully invoke the NodeJS wrapper (``$Name``): $_" -Category 'InvalidData'
+	End {
+		If ($ShouldProceed) {
+			Remove-Item -LiteralPath $ExchangeFilePath -Force -Confirm:$False -ErrorAction 'Continue'
+		}
 	}
 }
 <#

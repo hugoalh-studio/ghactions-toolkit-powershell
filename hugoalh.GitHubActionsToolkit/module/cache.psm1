@@ -44,29 +44,26 @@ Function Restore-Cache {
 	)
 	Process {
 		[Hashtable]$Argument = @{
-			PrimaryKey = $Key[0]
-			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
+			'primaryKey' = $Key[0]
+			'restoreKeys' = $Key |
+				Select-Object -SkipIndex 0
+			'paths' = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
 				$LiteralPath |
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
 			) : $Path
-			UseAzureSdk = !$NotUseAzureSdk.IsPresent
-			LookUp = $LookUp.IsPresent
-		}
-		[String[]]$RestoreKey = $Key |
-			Select-Object -SkipIndex 0
-		If ($RestoreKey.Count -gt 0) {
-			$Argument.RestoreKey = $RestoreKey
+			'useAzureSdk' = !$NotUseAzureSdk.IsPresent
+			'lookup' = $LookUp.IsPresent
 		}
 		If ($DownloadConcurrency -gt 0) {
-			$Argument.DownloadConcurrency = $DownloadConcurrency
+			$Argument.('downloadConcurrency') = $DownloadConcurrency
 		}
 		If ($SegmentTimeout -gt 0) {
-			$Argument.SegmentTimeout = $SegmentTimeout * 1000
+			$Argument.('segmentTimeout') = $SegmentTimeout * 1000
 		}
 		If ($Timeout -gt 0) {
-			$Argument.Timeout = $Timeout * 1000
+			$Argument.('timeout') = $Timeout * 1000
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -Argument $Argument)?.CacheKey |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -Argument $Argument |
 			Write-Output
 	}
 }
@@ -82,38 +79,38 @@ Key of the cache.
 Paths of the cache.
 .PARAMETER LiteralPath
 Literal paths of the cache.
-.PARAMETER UploadChunkSizes
-Maximum chunk size of the cache, by KB.
+.PARAMETER UploadChunkSize
+Upload chunk size of the cache, by KB.
 .PARAMETER UploadConcurrency
 Number of parallel uploads of the cache.
 .OUTPUTS
-[String] ID of the cache.
+[UInt64] ID of the cache.
 #>
 Function Save-Cache {
 	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_savegithubactionscache')]
-	[OutputType([String])]
+	[OutputType([UInt64])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Name')][String]$Key,
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSize')][UInt32]$UploadChunkSizes,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSizes')][UInt32]$UploadChunkSize,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency
 	)
 	Process {
 		[Hashtable]$Argument = @{
-			Key = $Key
-			Path = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
+			'key' = $Key
+			'paths' = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
 				$LiteralPath |
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
 			) : $Path
 		}
-		If ($UploadChunkSizes -gt 0) {
-			$Argument.UploadChunkSizes = $UploadChunkSizes * 1KB
+		If ($UploadChunkSize -gt 0) {
+			$Argument.('uploadChunkSize') = $UploadChunkSize * 1KB
 		}
 		If ($UploadConcurrency -gt 0) {
-			$Argument.UploadConcurrency = $UploadConcurrency
+			$Argument.('uploadConcurrency') = $UploadConcurrency
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -Argument $Argument)?.CacheId |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'cache/save' -Argument $Argument |
 			Write-Output
 	}
 }

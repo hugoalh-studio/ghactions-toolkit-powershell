@@ -15,6 +15,43 @@ Class GitHubActionsStdOutCommand {
 }
 <#
 .SYNOPSIS
+GitHub Actions - Clear File Command
+.DESCRIPTION
+Clear file command.
+.PARAMETER FileCommand
+File command. (LEGACY: Literal path of the file command.)
+.OUTPUTS
+[Void]
+#>
+Function Clear-FileCommand {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_cleargithubactionsfilecommand')]
+	[OutputType([Void])]
+	Param (
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Command', 'LiteralPath'<# LEGACY #>, 'Path'<# LEGACY #>)][String]$FileCommand
+	)
+	Process {
+		If (<# LEGACY #>[System.IO.Path]::IsPathFullyQualified($FileCommand)) {
+			[String]$FileCommandPath = $FileCommand
+		}
+		Else {
+			Try {
+				[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$($FileCommand.ToUpper())" -ErrorAction 'Stop'
+			}
+			Catch {
+				Write-Error -Message "Unable to clear the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
+				Return
+			}
+			If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
+				Write-Error -Message "Unable to clear the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not contain a valid file path!" -Category 'ResourceUnavailable'
+				Return
+			}
+		}
+		Set-Content -LiteralPath $FileCommandPath -Value '' -Confirm:$False -Encoding 'UTF8NoBOM'
+	}
+}
+Set-Alias -Name 'Remove-FileCommand' -Value 'Clear-FileCommand' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Write File Command
 .DESCRIPTION
 Write file command to communicate with the runner machine.
@@ -41,7 +78,7 @@ Function Write-FileCommand {
 		}
 		Else {
 			Try {
-				[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$([WildcardPattern]::Escape($FileCommand.ToUpper()))" -ErrorAction 'Stop'
+				[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$($FileCommand.ToUpper())" -ErrorAction 'Stop'
 			}
 			Catch {
 				Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
@@ -103,8 +140,10 @@ Function Write-StdOutCommand {
 }
 Set-Alias -Name 'Write-Command' -Value 'Write-StdOutCommand' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
+	'Clear-FileCommand',
 	'Write-FileCommand',
 	'Write-StdOutCommand'
 ) -Alias @(
+	'Remove-FileCommand',
 	'Write-Command'
 )

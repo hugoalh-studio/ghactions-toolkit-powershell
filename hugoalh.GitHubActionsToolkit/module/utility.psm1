@@ -110,13 +110,13 @@ GitHub Actions - Test Environment
 .DESCRIPTION
 Test the current process whether is executing inside the GitHub Actions environment.
 .PARAMETER Artifact
-Also test whether has artifact resources.
+Also test whether have artifact resources.
 .PARAMETER Cache
-Also test whether has cache resources.
+Also test whether have cache resources.
 .PARAMETER OpenIdConnect
-Also test whether has OpenID Connect (OIDC) resources.
+Also test whether have OpenID Connect (OIDC) resources.
 .PARAMETER ToolCache
-Also test whether has tool cache resources.
+Also test whether have tool cache resources.
 .PARAMETER Mandatory
 Whether the requirement is mandatory; If mandatory but not fulfill, will throw an error.
 .PARAMETER MandatoryMessage

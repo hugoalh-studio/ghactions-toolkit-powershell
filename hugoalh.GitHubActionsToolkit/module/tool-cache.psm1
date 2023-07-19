@@ -21,7 +21,7 @@ Literal path of the 7zr application, for long path support (only when parameter 
 
 Most of the `.7z` archives do not have this problem, if `.7z` archive contains very long path, pass the path to 7zr which will gracefully handle long paths, by default 7zdec is used because it is a very small program and is bundled with the GitHub Actions NodeJS toolkit, however it does not support long paths, 7zr is the reduced command line interface, it is smaller than the full command line interface, and it does support long paths, at the time of this writing, it is freely available from the LZMA SDK that is available on the 7-Zip website, be sure to check the current license agreement, if 7zr is bundled with your action, then the path to 7zr can be pass to this function.
 .PARAMETER Flag
-Flag to use for expand (only when parameter `Method` is `Tar` or `Xar`).
+Flags to use for expand (only when parameter `Method` is `Tar` or `Xar`).
 .OUTPUTS
 [String] Absolute path of the expand destination.
 #>
@@ -33,7 +33,7 @@ Function Expand-ToolCacheCompressedFile {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateSet('7z', 'Tar', 'Xar', 'Zip')][String]$Method,
 		[String]$7zrPath,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String]$Flag
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String[]]$Flag
 	)
 	Process {
 		If (!(Test-Path -LiteralPath $File -PathType 'Leaf')) {
@@ -65,18 +65,18 @@ Function Expand-ToolCacheCompressedFile {
 			}
 		}
 		[Hashtable]$Argument = @{
-			File = $File
+			'file' = $File
 		}
 		If ($Destination.Length -gt 0) {
-			$Argument.Destination = $Destination
+			$Argument.('destination') = $Destination
 		}
 		If ($7zrPath.Length -gt 0) {
 			$Argument.('7zrPath') = $7zrPath
 		}
 		If ($Flag.Length -gt 0) {
-			$Argument.Flag = $Flag
+			$Argument.('flags') = $Flag
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -Argument $Argument)?.Path |
+		Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -Argument $Argument |
 			Write-Output
 	}
 }
@@ -96,7 +96,7 @@ Version of the tool, by Semantic Versioning (SemVer); Default to all of the vers
 Architecture of the tool; Default to the architecture of the current machine.
 .OUTPUTS
 [String] Absolute path of a version of a tool.
-[String[]] Absolute paths of all of the versions of a tool.
+[String[]] Absolute path of all of the versions of a tool.
 #>
 Function Find-ToolCache {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_findgithubactionstoolcache')]
@@ -108,17 +108,17 @@ Function Find-ToolCache {
 	)
 	Process {
 		[Hashtable]$Argument = @{
-			Name = $Name
+			'name' = $Name
 		}
 		[Boolean]$IsFindAll = $Version.Length -eq 0
 		If (!$IsFindAll) {
-			$Argument.Version = $Version
+			$Argument.('version') = $Version
 		}
 		If ($Architecture.Length -gt 0) {
-			$Argument.Architecture = $Architecture
+			$Argument.('architecture') = $Architecture
 		}
-		$ResultRaw = Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -Argument $Argument
-		Write-Output -InputObject ($IsFindAll ? ($ResultRaw)?.Paths : ($ResultRaw)?.Path)
+		Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -Argument $Argument |
+			Write-Output
 	}
 }
 <#
@@ -133,7 +133,7 @@ Path for the tool destination.
 .PARAMETER Authorization
 Authorization of the URI request.
 .PARAMETER Header
-Header of the URI request.
+Headers of the URI request.
 .OUTPUTS
 [String] Absolute path of the downloaded tool.
 #>
@@ -148,18 +148,18 @@ Function Invoke-ToolCacheToolDownloader {
 	)
 	Process {
 		[Hashtable]$Argument = @{
-			Uri = $Uri.ToString()
+			'url' = $Uri.OriginalString()
 		}
 		If ($Destination.Length -gt 0) {
-			$Argument.Destination = $Destination
+			$Argument.('destination') = $Destination
 		}
 		If ($Authorization.Length -gt 0) {
-			$Argument.Authorization = $Authorization
+			$Argument.('authorization') = $Authorization
 		}
 		If ($Header.Count -gt 0) {
-			$Argument.Header = $Header
+			$Argument.('headers') = $Header
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -Argument $Argument)?.Path |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -Argument $Argument |
 			Write-Output
 	}
 }
@@ -190,14 +190,14 @@ Function Register-ToolCacheDirectory {
 	)
 	Process {
 		[Hashtable]$Argument = @{
-			Source = $Source
-			Name = $Name
-			Version = $Version.ToString()
+			'source' = $Source
+			'name' = $Name
+			'version' = $Version.ToString()
 		}
 		If ($Architecture.Length -gt 0) {
-			$Argument.Architecture = $Architecture
+			$Argument.('architecture') = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -Argument $Argument)?.Path |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-directory' -Argument $Argument |
 			Write-Output
 	}
 }
@@ -231,15 +231,15 @@ Function Register-ToolCacheFile {
 	)
 	Process {
 		[Hashtable]$Argument = @{
-			Source = $Source
-			Target = $Target
-			Name = $Name
-			Version = $Version.ToString()
+			'source' = $Source
+			'target' = $Target
+			'name' = $Name
+			'version' = $Version.ToString()
 		}
 		If ($Architecture.Length -gt 0) {
-			$Argument.Architecture = $Architecture
+			$Argument.('architecture') = $Architecture
 		}
-		(Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -Argument $Argument)?.Path |
+		Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/cache-file' -Argument $Argument |
 			Write-Output
 	}
 }

@@ -1,5 +1,5 @@
 #Requires -PSEdition Core -Version 7.2
-[String[]]$ModulesNames = @(
+[String[]]$ModulesName = @(
 	'artifact',
 	'cache',
 	'command-base',
@@ -16,14 +16,14 @@
 	'utility'
 )
 Import-Module -Name (
-	$ModulesNames |
+	$ModulesName |
 		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'module' -AdditionalChildPath "$_.psm1" }
 ) -Scope 'Local'
-[PSCustomObject[]]$PackageCommands = Get-Command -Module $ModulesNames -ListImported
-[String[]]$PackageCommandsFunctions = $PackageCommands |
+[PSCustomObject[]]$PackageCommands = Get-Command -Module $ModulesName -ListImported
+[String[]]$PackageFunctions = $PackageCommands |
 	Where-Object -FilterScript { $_.CommandType -ieq 'Function' } |
 	Select-Object -ExpandProperty 'Name'
-[String[]]$PackageCommandsAliases = $PackageCommands |
+[String[]]$PackageAliases = $PackageCommands |
 	Where-Object -FilterScript { $_.CommandType -ieq 'Alias' } |
 	Select-Object -ExpandProperty 'Name'
-Export-ModuleMember -Function $PackageCommandsFunctions -Alias $PackageCommandsAliases
+Export-ModuleMember -Function $PackageFunctions -Alias $PackageAliases

@@ -1,5 +1,12 @@
 #Requires -PSEdition Core -Version 7.2
-Class GitHubActionsStepSummary {# Unstable, not in use yet.
+Import-Module -Name (
+	@(
+		'command-base'
+	) |
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
+) -Prefix 'GitHubActions' -Scope 'Local'
+<# Unstable, not in use yet.
+Class GitHubActionsStepSummary {
 	Static [Hashtable[]]EscapeMarkdownCharactersList() {
 		Return @(
 			@{ Pattern = '\\'; To = '\\' },
@@ -45,6 +52,7 @@ Class GitHubActionsStepSummary {# Unstable, not in use yet.
 		Return $Result
 	}
 }
+#>
 <#
 .SYNOPSIS
 GitHub Actions - Add Step Summary (Raw)
@@ -244,25 +252,40 @@ Function Add-StepSummarySuperscriptText {
 Set-Alias -Name 'Add-StepSummarySuperscript' -Value 'Add-StepSummarySuperscriptText' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Clear Step Summary
+.DESCRIPTION
+Clear the step summary.
+.OUTPUTS
+[Void]
+#>
+Function Clear-StepSummary {
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_cleargithubactionsstepsummary')]
+	[OutputType([Void])]
+	Param ()
+	Clear-GitHubActionsFileCommand -FileCommand 'GITHUB_STEP_SUMMARY'
+}
+Set-Alias -Name 'Remove-StepSummary' -Value 'Clear-StepSummary' -Option 'ReadOnly' -Scope 'Local'
+<#
+.SYNOPSIS
 GitHub Actions - Get Step Summary
 .DESCRIPTION
 Get the step summary.
 .PARAMETER Raw
 Whether to ignore newline characters and output the entire contents of a file in one string with the newlines preserved; By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
-.PARAMETER Sizes
-Whether to get the sizes of the step summary instead of the contents of the step summary.
+.PARAMETER Size
+Whether to get the size of the step summary instead of the contents of the step summary.
 .OUTPUTS
 [String] Step summary with the entire contents in one string.
 [String[]] Step summary with the entire contents in multiple strings separated by newline characters.
-[UInt32] Sizes of the step summary.
+[UInt32] Size of the step summary.
 #>
 Function Get-StepSummary {
 	[CmdletBinding(DefaultParameterSetName = 'Content', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsstepsummary')]
 	[OutputType(([String], [String[]]), ParameterSetName = 'Content')]
-	[OutputType([UInt32], ParameterSetName = 'Sizes')]
+	[OutputType([UInt32], ParameterSetName = 'Size')]
 	Param (
 		[Parameter(ParameterSetName = 'Content')][Switch]$Raw,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Sizes')][Alias('Size')][Switch]$Sizes
+		[Parameter(Mandatory = $True, ParameterSetName = 'Size')][Alias('Sizes')][Switch]$Size
 	)
 	If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
 		Write-Error -Message 'Unable to get the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
@@ -270,35 +293,15 @@ Function Get-StepSummary {
 	}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'Content' {
-			(Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:($Raw.IsPresent) -Encoding 'UTF8NoBOM' -ErrorAction 'Continue') ?? '' |
+			Get-Content -LiteralPath $Env:GITHUB_STEP_SUMMARY -Raw:($Raw.IsPresent) -Encoding 'UTF8NoBOM' |
 				Write-Output
 		}
-		'Sizes' {
-			(
-				Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -ErrorAction 'Continue' |
-					Select-Object -ExpandProperty 'Length' -ErrorAction 'Continue'
-			) ?? 0 |
+		'Size' {
+			Get-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY |
+				Select-Object -ExpandProperty 'Length' |
 				Write-Output
 		}
 	}
-}
-<#
-.SYNOPSIS
-GitHub Actions - Remove Step Summary
-.DESCRIPTION
-Remove the step summary.
-.OUTPUTS
-[Void]
-#>
-Function Remove-StepSummary {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_removegithubactionsstepsummary')]
-	[OutputType([Void])]
-	Param ()
-	If (![System.IO.Path]::IsPathFullyQualified($Env:GITHUB_STEP_SUMMARY)) {
-		Write-Error -Message 'Unable to remove the GitHub Actions step summary: Environment path `GITHUB_STEP_SUMMARY` is not defined or not contain a valid file path!' -Category 'ResourceUnavailable'
-		Return
-	}
-	Remove-Item -LiteralPath $Env:GITHUB_STEP_SUMMARY -Confirm:$False -ErrorAction 'Continue'
 }
 <#
 .SYNOPSIS
@@ -352,13 +355,14 @@ Export-ModuleMember -Function @(
 	'Add-StepSummaryLink',
 	'Add-StepSummarySubscriptText'
 	'Add-StepSummarySuperscriptText'
+	'Clear-StepSummary',
 	'Get-StepSummary',
-	'Remove-StepSummary',
 	'Set-StepSummary'
 ) -Alias @(
 	'Add-StepSummaryHyperlink',
 	'Add-StepSummaryPicture',
 	'Add-StepSummaryRaw',
 	'Add-StepSummarySubscript',
-	'Add-StepSummarySuperscript'
+	'Add-StepSummarySuperscript',
+	'Remove-StepSummary'
 )

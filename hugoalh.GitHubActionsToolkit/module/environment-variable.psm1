@@ -38,26 +38,25 @@ Function Add-PATH {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)
 	Process {
-		ForEach ($Item In (
-			$Path |
-				Select-Object -Unique
-		)) {
-			If (!$NoValidator.IsPresent -and !([System.IO.Path]::IsPathRooted($Item) -and (Test-Path -Path $Item -PathType 'Container' -IsValid))) {
-				Write-Error -Message "``$Item`` is not a valid PATH!" -Category 'SyntaxError'
-				Continue
-			}
-			If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Current) -ieq [GitHubActionsEnvironmentVariableScopes]::Current) {
-				Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$Item" -Confirm:$False -NoNewLine
-			}
-			If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
-				If ([System.IO.Path]::IsPathFullyQualified($Env:GITHUB_PATH)) {
-					Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Item -Confirm:$False -Encoding 'UTF8NoBOM'
+		$Path |
+			Select-Object -Unique |
+			ForEach-Object -Process {
+				If (!$NoValidator.IsPresent -and !([System.IO.Path]::IsPathRooted($_) -and (Test-Path -Path $_ -PathType 'Container' -IsValid))) {
+					Write-Error -Message "``$_`` is not a valid PATH!" -Category 'SyntaxError'
+					Continue
 				}
-				Else {
-					Write-Error -Message 'Unable to write the GitHub Actions path: Environment path `GITHUB_PATH` is not defined!' -Category 'ResourceUnavailable'
+				If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Current) -ieq [GitHubActionsEnvironmentVariableScopes]::Current) {
+					Add-Content -LiteralPath $Env:PATH -Value "$([System.IO.Path]::PathSeparator)$_" -Confirm:$False -NoNewLine
+				}
+				If (($Scope -band [GitHubActionsEnvironmentVariableScopes]::Subsequent) -ieq [GitHubActionsEnvironmentVariableScopes]::Subsequent) {
+					If ([System.IO.Path]::IsPathFullyQualified($Env:GITHUB_PATH)) {
+						Add-Content -LiteralPath $Env:GITHUB_PATH -Value $_ -Confirm:$False -Encoding 'UTF8NoBOM'
+					}
+					Else {
+						Write-Error -Message 'Unable to write the GitHub Actions path: Environment path `GITHUB_PATH` is not defined!' -Category 'ResourceUnavailable'
+					}
 				}
 			}
-		}
 	}
 }
 <#
