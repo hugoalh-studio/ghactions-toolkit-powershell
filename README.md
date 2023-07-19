@@ -99,3 +99,4 @@ Set-GitHubActionsOutput -Name 'foo' -Value 'bar'
 ```ps1
 Write-GitHubActionNotice -Message 'Hello, world!'
 ```
+![Result of `Write-GitHubActionNotice -Message 'Hello, world!'`](./_asset/example_notice.png "Result of `Write-GitHubActionNotice -Message 'Hello, world!'`")
