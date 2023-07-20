@@ -5,11 +5,11 @@ import { dirname as pathDirname, join as pathJoin } from "node:path";
 import { fileURLToPath } from "node:url";
 import ncc from "@vercel/ncc";
 const root = pathDirname(fileURLToPath(import.meta.url));
-const packageFileName = "package.json"
+const packageFileName = "package.json";
 const scriptEntryPointFileName = "main.js";
 const inputDirectoryPath = pathJoin(root, "temp");
 const inputFilePath = pathJoin(inputDirectoryPath, scriptEntryPointFileName);
-const outputDirectoryPath = pathJoin(root, "hugoalh.GitHubActionsToolkit", "module", "nodejs-wrapper");
+const outputDirectoryPath = pathJoin(root, "hugoalh.GitHubActionsToolkit", "nodejs-wrapper");
 const outputFilePath = pathJoin(outputDirectoryPath, scriptEntryPointFileName);
 async function getDirectoryItem(directoryPath, relativeBasePath) {
 	if (typeof relativeBasePath === "undefined") {
@@ -46,7 +46,7 @@ let { code } = await ncc(inputFilePath, {
 	cache: false,
 	debugLog: false,
 	license: "",
-	minify: true,
+	minify: false,
 	quiet: false,
 	sourceMap: false,
 	sourceMapRegister: false,

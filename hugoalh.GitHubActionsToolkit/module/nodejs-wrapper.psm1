@@ -1,6 +1,6 @@
 #Requires -PSEdition Core -Version 7.2
 [SemVer]$NodeJsVersionMinimum = [SemVer]::Parse('14.15.0')
-[String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath 'nodejs-wrapper'
+[String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath '..\nodejs-wrapper'
 [String]$WrapperPackageFilePath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
 [String]$WrapperScriptFilePath = Join-Path -Path $WrapperRoot -ChildPath 'main.js'
 [Boolean]$EnvironmentTested = $False
