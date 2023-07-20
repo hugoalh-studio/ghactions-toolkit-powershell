@@ -189,3 +189,4 @@ switch (input.wrapperName) {
 		await resolveError(`\`${input.wrapperName}\` is not a valid NodeJS wrapper name! Most likely a mistake made by the contributors, please report this issue.`);
 		break;
 }
+await exchangeFileHandle.close();
