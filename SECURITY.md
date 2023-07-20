@@ -13,6 +13,7 @@
 
 | **Versions** | **Status** | **Target - GitHub Actions Runner** | **Target - PowerShell** | **Target - NodeJS (Wrapper API)** | **Target - NPM (Wrapper API)** |
 |:-:|:-:|:-:|:-:|:-:|:-:|
+| v1.7.X | ✔️ | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
 | v1.6.X | L | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
 | v1.5.X | ✔️ | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
 | v1.4.X | ✔️ | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 | *N/A* |
