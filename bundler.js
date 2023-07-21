@@ -3,7 +3,6 @@ import { existsSync as fsExistsSync } from "node:fs";
 import { mkdir as fsMkdir, readdir as fsReaddir, readFile as fsReadFile, rm as fsRm, writeFile as fsWriteFile } from "node:fs/promises";
 import { dirname as pathDirname, join as pathJoin } from "node:path";
 import { fileURLToPath } from "node:url";
-import ncc from "@vercel/ncc";
 const root = pathDirname(fileURLToPath(import.meta.url));
 const packageFileName = "package.json";
 const scriptEntryPointFileName = "main.js";
@@ -41,22 +40,9 @@ if (fsExistsSync(outputDirectoryPath)) {
 
 /* Create bundle. */
 console.log(execSync(`"${pathJoin(root, "node_modules", ".bin", process.platform === "win32" ? "tsc.cmd" : "tsc")}" -p "${pathJoin(root, "tsconfig.json")}"`).toString("utf8"));
-let { code } = await ncc(inputFilePath, {
-	assetBuilds: false,
-	cache: false,
-	debugLog: false,
-	license: "",
-	minify: false,
-	quiet: false,
-	sourceMap: false,
-	sourceMapRegister: false,
-	target: "es2020",
-	v8cache: false,
-	watch: false
-});
-await fsWriteFile(outputFilePath, code, { encoding: "utf8" });
 let packageMeta = JSON.parse(await fsReadFile(pathJoin(root, packageFileName), { encoding: "utf8" }));
 delete packageMeta.scripts;
 delete packageMeta.dependencies;
 delete packageMeta.devDependencies;
 await fsWriteFile(pathJoin(outputDirectoryPath, packageFileName), `${JSON.stringify(packageMeta, undefined, "\t")}\n`, { encoding: "utf8" });
+console.log(execSync(`"${pathJoin(root, "node_modules", ".bin", process.platform === "win32" ? "webpack.cmd" : "webpack")}"`).toString("utf8"));
