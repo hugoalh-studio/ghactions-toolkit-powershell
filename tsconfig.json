@@ -10,8 +10,8 @@
 		"forceConsistentCasingInFileNames": true,
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
-		"outDir": "./temp",
-		"target": "ES2022"
+		"outDir": "./hugoalh.GitHubActionsToolkit/nodejs-wrapper",
+		"target": "ES2020"
 	},
 	"include": [
 		"./nodejs-wrapper-source/**/*.ts"
