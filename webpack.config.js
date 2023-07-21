@@ -12,13 +12,19 @@ const outputDirectoryPath = pathJoin(root, "hugoalh.GitHubActionsToolkit", "node
 const outputFilePath = pathJoin(outputDirectoryPath, scriptEntryPointFileName);
 export default {
 	entry: inputFilePath,
+	experiments: {
+		outputModule: true
+	},
 	mode: "none",
 	optimization: {
 		usedExports: true
 	},
 	output: {
-		path: outputDirectoryPath,
-		filename: scriptEntryPointFileName
+		filename: scriptEntryPointFileName,
+		library: {
+			type: "module"
+		},
+		path: outputDirectoryPath
 	},
 	target: "node14.15"
 };

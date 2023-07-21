@@ -44,5 +44,6 @@ let packageMeta = JSON.parse(await fsReadFile(pathJoin(root, packageFileName), {
 delete packageMeta.scripts;
 delete packageMeta.dependencies;
 delete packageMeta.devDependencies;
+await fsWriteFile(pathJoin(inputDirectoryPath, packageFileName), `${JSON.stringify(packageMeta)}\n`, { encoding: "utf8" });
 await fsWriteFile(pathJoin(outputDirectoryPath, packageFileName), `${JSON.stringify(packageMeta, undefined, "\t")}\n`, { encoding: "utf8" });
 console.log(execSync(`"${pathJoin(root, "node_modules", ".bin", process.platform === "win32" ? "webpack.cmd" : "webpack")}"`).toString("utf8"));
