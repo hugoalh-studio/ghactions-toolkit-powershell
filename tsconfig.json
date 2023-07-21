@@ -10,7 +10,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
-		"outDir": "./hugoalh.GitHubActionsToolkit/nodejs-wrapper",
+		"outDir": "./temp",
 		"target": "ES2020"
 	},
 	"include": [

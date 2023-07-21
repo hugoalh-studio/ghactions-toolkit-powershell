@@ -10,68 +10,8 @@ defaults:
 jobs:
   main:
     name: "Main"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Checkout Repository"
-        uses: "actions/checkout@v3.5.3"
-      - name: "Setup NodeJS"
-        uses: "actions/setup-node@v3.7.0"
-        with:
-          node-version: "14"
-          check-latest: true
-          registry-url: "https://registry.npmjs.org/"
-      - name: "Setup PowerShell Toolkit"
-        uses: "hugoalh-studio/setup-powershell-toolkit-ghaction@v1.4.0"
-        with:
-          version: "^1.6.0"
-      - name: "Get NodeJS Wrapper Directory"
-        id: "nodejs-wrapper-directory"
-        run: |
-          Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'
-          [String]$NodeJSWrapperRoot = Join-Path -Path $Env:GITHUB_WORKSPACE -ChildPath 'hugoalh.GitHubActionsToolkit\nodejs-wrapper'
-          Set-GitHubActionsOutput -Name 'path' -Value $NodeJSWrapperRoot
-      - name: "Bundle NodeJS Wrapper Dependencies"
-        run: |
-          npm install --package-lock=false
-        working-directory: "${{steps.nodejs-wrapper-directory.outputs.path}}"
-      - name: "Test Publish"
-        run: |
-          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey 'GUID' -WhatIf -Verbose
-      - name: "Publish"
-        run: |
-          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
-  main-fallback:
-    name: "Main (Fallback)"
-    needs:
-      - "main"
-    if: "${{needs.main.result == 'failure'}}"
-    runs-on: "windows-latest"
-    steps:
-      - name: "Checkout Repository"
-        uses: "actions/checkout@v3.5.3"
-      - name: "Setup NodeJS"
-        uses: "actions/setup-node@v3.7.0"
-        with:
-          node-version: "14"
-          check-latest: true
-          registry-url: "https://registry.npmjs.org/"
-      - name: "Setup PowerShell Toolkit"
-        uses: "hugoalh-studio/setup-powershell-toolkit-ghaction@v1.4.0"
-        with:
-          version: "^1.6.0"
-      - name: "Get NodeJS Wrapper Directory"
-        id: "nodejs-wrapper-directory"
-        run: |
-          Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'
-          [String]$NodeJSWrapperRoot = Join-Path -Path $Env:GITHUB_WORKSPACE -ChildPath 'hugoalh.GitHubActionsToolkit\nodejs-wrapper'
-          Set-GitHubActionsOutput -Name 'path' -Value $NodeJSWrapperRoot
-      - name: "Bundle NodeJS Wrapper Dependencies"
-        run: |
-          npm install --package-lock=false
-        working-directory: "${{steps.nodejs-wrapper-directory.outputs.path}}"
-      - name: "Test Publish"
-        run: |
-          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey 'GUID' -WhatIf -Verbose
-      - name: "Publish"
-        run: |
-          Publish-Module -Path '.\hugoalh.GitHubActionsToolkit\' -NugetAPIKey '${{secrets.POWERSHELLGALLERY_TOKEN}}' -Verbose
+    uses: "hugoalh/hugoalh/.github/workflows/publish-powershell-module-psg.yml@main"
+    with:
+      path: ".\\hugoalh.GitHubActionsToolkit\\"
+    secrets:
+      POWERSHELLGALLERY_TOKEN: "${{secrets.POWERSHELLGALLERY_TOKEN}}"
