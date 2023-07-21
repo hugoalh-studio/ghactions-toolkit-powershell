@@ -5,7 +5,7 @@ import { dirname as pathDirname, join as pathJoin } from "node:path";
 import { fileURLToPath } from "node:url";
 import ncc from "@vercel/ncc";
 const root = pathDirname(fileURLToPath(import.meta.url));
-const packageFileName = "package.json"
+const packageFileName = "package.json";
 const scriptEntryPointFileName = "main.js";
 const inputDirectoryPath = pathJoin(root, "temp");
 const inputFilePath = pathJoin(inputDirectoryPath, scriptEntryPointFileName);
