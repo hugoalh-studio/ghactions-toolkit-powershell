@@ -45,8 +45,10 @@ Function Restore-Cache {
 	Process {
 		[Hashtable]$Argument = @{
 			'primaryKey' = $Key[0]
-			'restoreKeys' = $Key |
-				Select-Object -SkipIndex 0
+			'restoreKeys' = (
+				$Key |
+					Select-Object -SkipIndex 0
+			) ?? @()
 			'paths' = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
 				$LiteralPath |
 					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
