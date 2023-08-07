@@ -5,7 +5,7 @@ specifiers:
   '@actions/cache': ^3.2.1
   '@actions/core': ^1.10.0
   '@actions/tool-cache': ^2.0.1
-  '@types/node': ^20.4.5
+  '@types/node': ^20.4.8
   '@typescript-eslint/eslint-plugin': ^6.2.1
   '@typescript-eslint/parser': ^6.2.1
   '@vercel/ncc': ^0.36.1
@@ -20,7 +20,7 @@ dependencies:
   '@actions/tool-cache': 2.0.1
 
 devDependencies:
-  '@types/node': 20.4.5
+  '@types/node': 20.4.8
   '@typescript-eslint/eslint-plugin': 6.2.1_j6xx3z2bnxhrxzjhzeomjwp6aa
   '@typescript-eslint/parser': 6.2.1_7haavtekmro7ptbnqmctjaodju
   '@vercel/ncc': 0.36.1
@@ -39,7 +39,7 @@ packages:
     resolution: {integrity: sha512-Vv4y0EW0ptEkU+Pjs5RGS/0EryTvI6s79LjSV9Gg/h+O3H/ddpjhuX/Bi/HZE4pbNPyjGtQjbdFWphkZhmgabA==}
     dependencies:
       '@actions/core': 1.10.0
-      '@actions/http-client': 2.1.0
+      '@actions/http-client': 2.1.1
       tmp: 0.2.1
       tmp-promise: 3.0.3
     dev: false
@@ -50,7 +50,7 @@ packages:
       '@actions/core': 1.10.0
       '@actions/exec': 1.1.1
       '@actions/glob': 0.1.2
-      '@actions/http-client': 2.1.0
+      '@actions/http-client': 2.1.1
       '@actions/io': 1.1.3
       '@azure/abort-controller': 1.1.0
       '@azure/ms-rest-js': 2.7.0
@@ -64,7 +64,7 @@ packages:
   /@actions/core/1.10.0:
     resolution: {integrity: sha512-2aZDDa3zrrZbP5ZYg159sNoLRb61nQ7awl5pSvIq5Qpj81vwDzdMRKzkWJGJuwVvWpvZKx7vspJALyvaaIQyug==}
     dependencies:
-      '@actions/http-client': 2.1.0
+      '@actions/http-client': 2.1.1
       uuid: 8.3.2
     dev: false
 
@@ -81,8 +81,8 @@ packages:
       minimatch: 3.1.2
     dev: false
 
-  /@actions/http-client/2.1.0:
-    resolution: {integrity: sha512-BonhODnXr3amchh4qkmjPMUO8mFi/zLaaCeCAJZqch8iQqyDnVIkySjB38VHAC8IJ+bnlgfOqlhpyCUZHlQsqw==}
+  /@actions/http-client/2.1.1:
+    resolution: {integrity: sha512-qhrkRMB40bbbLo7gF+0vu+X+UawOvQQqNAA/5Unx774RS8poaOhThDOG6BGmxvAnxhQnDp2BG/ZUm65xZILTpw==}
     dependencies:
       tunnel: 0.0.6
     dev: false
@@ -96,7 +96,7 @@ packages:
     dependencies:
       '@actions/core': 1.10.0
       '@actions/exec': 1.1.1
-      '@actions/http-client': 2.1.0
+      '@actions/http-client': 2.1.1
       '@actions/io': 1.1.3
       semver: 6.3.1
       uuid: 3.4.0
@@ -109,11 +109,12 @@ packages:
       tslib: 2.6.1
     dev: false
 
-  /@azure/core-auth/1.4.0:
-    resolution: {integrity: sha512-HFrcTgmuSuukRf/EdPmqBrc5l6Q5Uu+2TbuhaKbgaCpP2TfAeiNaQPAadxO+CYBRHGUzIDteMAjFspFLDLnKVQ==}
-    engines: {node: '>=12.0.0'}
+  /@azure/core-auth/1.5.0:
+    resolution: {integrity: sha512-udzoBuYG1VBoHVohDTrvKjyzel34zt77Bhp7dQntVGGD0ehVq48owENbBG8fIgkHRNUBQH5k1r0hpoMu5L8+kw==}
+    engines: {node: '>=14.0.0'}
     dependencies:
       '@azure/abort-controller': 1.1.0
+      '@azure/core-util': 1.4.0
       tslib: 2.6.1
     dev: false
 
@@ -122,9 +123,9 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       '@azure/abort-controller': 1.1.0
-      '@azure/core-auth': 1.4.0
+      '@azure/core-auth': 1.5.0
       '@azure/core-tracing': 1.0.0-preview.13
-      '@azure/core-util': 1.3.2
+      '@azure/core-util': 1.4.0
       '@azure/logger': 1.0.4
       '@types/node-fetch': 2.6.4
       '@types/tunnel': 0.0.3
@@ -144,7 +145,7 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       '@azure/abort-controller': 1.1.0
-      '@azure/core-util': 1.3.2
+      '@azure/core-util': 1.4.0
       '@azure/logger': 1.0.4
       tslib: 2.6.1
     dev: false
@@ -164,8 +165,8 @@ packages:
       tslib: 2.6.1
     dev: false
 
-  /@azure/core-util/1.3.2:
-    resolution: {integrity: sha512-2bECOUh88RvL1pMZTcc6OzfobBeWDBf5oBbhjIhT1MV9otMVWCzpOJkkiKtrnO88y5GGBelgY8At73KGAdbkeQ==}
+  /@azure/core-util/1.4.0:
+    resolution: {integrity: sha512-eGAyJpm3skVQoLiRqm/xPa+SXi/NPDdSHMxbRAz2lSprd+Zs+qrpQGQQ2VQ3Nttu+nSZR4XoYQC71LbEI7jsig==}
     engines: {node: '>=14.0.0'}
     dependencies:
       '@azure/abort-controller': 1.1.0
@@ -182,7 +183,7 @@ packages:
   /@azure/ms-rest-js/2.7.0:
     resolution: {integrity: sha512-ngbzWbqF+NmztDOpLBVDxYM+XLcUj7nKhxGbSU9WtIsXfRB//cf2ZbAG5HkOrhU9/wd/ORRB6lM/d69RKVjiyA==}
     dependencies:
-      '@azure/core-auth': 1.4.0
+      '@azure/core-auth': 1.5.0
       abort-controller: 3.0.0
       form-data: 2.5.1
       node-fetch: 2.6.12
@@ -300,12 +301,12 @@ packages:
   /@types/node-fetch/2.6.4:
     resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
     dependencies:
-      '@types/node': 20.4.5
+      '@types/node': 20.4.8
       form-data: 3.0.1
     dev: false
 
-  /@types/node/20.4.5:
-    resolution: {integrity: sha512-rt40Nk13II9JwQBdeYqmbn2Q6IVTA5uPhvSO+JVqdXw/6/4glI6oR9ezty/A9Hg5u7JH4OmYmuQ+XvjKm0Datg==}
+  /@types/node/20.4.8:
+    resolution: {integrity: sha512-0mHckf6D2DiIAzh8fM8f3HQCvMKDpK94YQ0DSVkfWTG9BZleYIWudw9cJxX8oCk9bM+vAkDyujDV6dmKHbvQpg==}
 
   /@types/semver/7.5.0:
     resolution: {integrity: sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==}
@@ -314,7 +315,7 @@ packages:
   /@types/tunnel/0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
     dependencies:
-      '@types/node': 20.4.5
+      '@types/node': 20.4.8
     dev: false
 
   /@typescript-eslint/eslint-plugin/6.2.1_j6xx3z2bnxhrxzjhzeomjwp6aa:
