@@ -104,7 +104,7 @@ Function Add-StepSummaryHeader {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidateRange(1, 6)][Byte]$Level,
-		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` must be in single line string!')][Alias('Title', 'Value')][String]$Header
+		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Header` is not a single line string!')][Alias('Title', 'Value')][String]$Header
 	)
 	Add-StepSummary -Value "$('#' * $Level) $Header"
 }

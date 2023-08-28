@@ -33,7 +33,7 @@ Function Add-PATH {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_addgithubactionspath')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` must be in single line string!')][Alias('Paths')][String[]]$Path,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Path` is not a single line string!')][Alias('Paths')][String[]]$Path,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoValidate', 'SkipValidate', 'SkipValidator')][Switch]$NoValidator,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
 	)

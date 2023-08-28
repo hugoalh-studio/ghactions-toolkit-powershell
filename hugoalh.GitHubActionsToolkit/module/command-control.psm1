@@ -74,7 +74,7 @@ Function Disable-StdOutCommandProcess {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disablegithubactionsstdoutcommandprocess')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateScript({ Test-StdOutCommandToken -InputObject $_ }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
+		[Parameter(Position = 0)][ValidateScript({ Test-StdOutCommandToken -InputObject $_ }, ErrorMessage = 'Parameter `EndToken` is not a single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	If ($EndToken.Length -eq 0) {
 		Do {
@@ -150,7 +150,7 @@ Function Enable-StdOutCommandProcess {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enablegithubactionsstdoutcommandprocess')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Test-StdOutCommandToken -InputObject $_ }, ErrorMessage = 'Parameter `EndToken` must be in single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
+		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Test-StdOutCommandToken -InputObject $_ }, ErrorMessage = 'Parameter `EndToken` is not a single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	Write-GitHubActionsStdOutCommand -StdOutCommand $EndToken
 }
