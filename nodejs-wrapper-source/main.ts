@@ -11,7 +11,7 @@ async function exchangeFileWrite(data: Record<string, unknown>): Promise<void> {
 	return exchangeFileHandle.writeFile(JSON.stringify(data), { encoding: "utf8" });
 }
 function resolveError(reason: string | Error | RangeError | ReferenceError | SyntaxError | TypeError): Promise<void> {
-	let output: Record<string, unknown> = {
+	const output: Record<string, unknown> = {
 		isSuccess: false
 	};
 	if (typeof reason === "string") {
@@ -42,7 +42,7 @@ switch (input.wrapperName) {
 		break;
 	case "artifact/download":
 		try {
-			let result: GitHubActionsArtifactDownloadResponse = await ghactionsArtifact().downloadArtifact(input.name, input.destination, { createArtifactFolder: input.createSubfolder });
+			const result: GitHubActionsArtifactDownloadResponse = await ghactionsArtifact().downloadArtifact(input.name, input.destination, { createArtifactFolder: input.createSubfolder });
 			await resolveResult({
 				name: result.artifactName,
 				path: result.downloadPath
@@ -53,7 +53,7 @@ switch (input.wrapperName) {
 		break;
 	case "artifact/download-all":
 		try {
-			let result: GitHubActionsArtifactDownloadResponse[] = await ghactionsArtifact().downloadAllArtifacts(input.destination);
+			const result: GitHubActionsArtifactDownloadResponse[] = await ghactionsArtifact().downloadAllArtifacts(input.destination);
 			await resolveResult(result.map((value: GitHubActionsArtifactDownloadResponse) => {
 				return {
 					name: value.artifactName,
@@ -66,7 +66,7 @@ switch (input.wrapperName) {
 		break;
 	case "artifact/upload":
 		try {
-			let result: GitHubActionsArtifactUploadResponse = await ghactionsArtifact().uploadArtifact(input.name, input.items, input.rootDirectory, {
+			const result: GitHubActionsArtifactUploadResponse = await ghactionsArtifact().uploadArtifact(input.name, input.items, input.rootDirectory, {
 				continueOnError: input.continueOnError,
 				retentionDays: input.retentionDays
 			});
@@ -82,7 +82,7 @@ switch (input.wrapperName) {
 		break;
 	case "cache/restore":
 		try {
-			let result: string | undefined = await ghactionsCacheRestoreCache(input.paths, input.primaryKey, input.restoreKeys, {
+			const result: string | undefined = await ghactionsCacheRestoreCache(input.paths, input.primaryKey, input.restoreKeys, {
 				downloadConcurrency: input.downloadConcurrency,
 				lookupOnly: input.lookup,
 				segmentTimeoutInMs: input.segmentTimeout,
@@ -96,7 +96,7 @@ switch (input.wrapperName) {
 		break;
 	case "cache/save":
 		try {
-			let result: number = await ghactionsCacheSaveCache(input.paths, input.key, {
+			const result: number = await ghactionsCacheSaveCache(input.paths, input.key, {
 				uploadChunkSize: input.uploadChunkSize,
 				uploadConcurrency: input.uploadConcurrency
 			});
@@ -107,7 +107,7 @@ switch (input.wrapperName) {
 		break;
 	case "open-id-connect/get-token":
 		try {
-			let result: string = await ghactionsGetOpenIDConnectToken(input.audience);
+			const result: string = await ghactionsGetOpenIDConnectToken(input.audience);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -115,7 +115,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/cache-directory":
 		try {
-			let result: string = await ghactionsToolCacheCacheDirectory(input.source, input.name, input.version, input.architecture);
+			const result: string = await ghactionsToolCacheCacheDirectory(input.source, input.name, input.version, input.architecture);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -123,7 +123,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/cache-file":
 		try {
-			let result: string = await ghactionsToolCacheCacheFile(input.source, input.target, input.name, input.version, input.architecture);
+			const result: string = await ghactionsToolCacheCacheFile(input.source, input.target, input.name, input.version, input.architecture);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -131,7 +131,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/download-tool":
 		try {
-			let result: string = await ghactionsToolCacheDownloadTool(input.url, input.destination, input.authorization, input.headers);
+			const result: string = await ghactionsToolCacheDownloadTool(input.url, input.destination, input.authorization, input.headers);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -139,7 +139,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/extract-7z":
 		try {
-			let result: string = await ghactionsToolCacheExtract7z(input.file, input.destination, input["7zrPath"]);
+			const result: string = await ghactionsToolCacheExtract7z(input.file, input.destination, input["7zrPath"]);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -147,7 +147,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/extract-tar":
 		try {
-			let result: string = await ghactionsToolCacheExtractTar(input.file, input.destination, input.flags);
+			const result: string = await ghactionsToolCacheExtractTar(input.file, input.destination, input.flags);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -155,7 +155,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/extract-xar":
 		try {
-			let result: string = await ghactionsToolCacheExtractXar(input.file, input.destination, input.flags);
+			const result: string = await ghactionsToolCacheExtractXar(input.file, input.destination, input.flags);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -163,7 +163,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/extract-zip":
 		try {
-			let result: string = await ghactionsToolCacheExtractZip(input.file, input.destination);
+			const result: string = await ghactionsToolCacheExtractZip(input.file, input.destination);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -171,7 +171,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/find":
 		try {
-			let result: string = ghactionsToolCacheFind(input.name, input.version, input.architecture);
+			const result: string = ghactionsToolCacheFind(input.name, input.version, input.architecture);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
@@ -179,7 +179,7 @@ switch (input.wrapperName) {
 		break;
 	case "tool-cache/find-all-versions":
 		try {
-			let result: string[] = ghactionsToolCacheFindAllVersions(input.name, input.architecture);
+			const result: string[] = ghactionsToolCacheFindAllVersions(input.name, input.architecture);
 			await resolveResult(result);
 		} catch (error) {
 			await resolveError(error);
