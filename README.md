@@ -1,6 +1,7 @@
 # GitHub Actions Toolkit (PowerShell)
 
 [⚖️ MIT](./LICENSE.md)
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/hugoalh-studio/ghactions-toolkit-powershell?label=Grade&logo=codefactor&logoColor=ffffff&style=flat-square "CodeFactor Grade")](https://www.codefactor.io/repository/github/hugoalh-studio/ghactions-toolkit-powershell)
 
 |  | **Heat** | **Release - Latest** | **Release - Pre** |
 |:-:|:-:|:-:|:-:|
