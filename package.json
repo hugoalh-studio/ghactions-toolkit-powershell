@@ -28,7 +28,7 @@
 		"build": "node bundler.js"
 	},
 	"dependencies": {
-		"@actions/artifact": "^1.1.1",
+		"@actions/artifact": "^1.1.2",
 		"@actions/cache": "^3.2.2",
 		"@actions/core": "^1.10.0",
 		"@actions/tool-cache": "^2.0.1"
