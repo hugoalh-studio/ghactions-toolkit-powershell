@@ -10,51 +10,26 @@
 
 A PowerShell module to provide a better and easier way for GitHub Actions to communicate with the runner machine, and the toolkit for developing GitHub Actions in PowerShell.
 
-> **🔗 Other Edition:**
->
-> - Go
->   - [actions-go/toolkit](https://github.com/actions-go/toolkit)
->   - [haya14busa/go-actions-toolkit](https://github.com/haya14busa/go-actions-toolkit)
-> - NodeJS
->   - [actions/toolkit](https://github.com/actions/toolkit) *\[Official\]*
->     - [@actions/artifact](https://www.npmjs.com/package/@actions/artifact)
->     - [@actions/cache](https://www.npmjs.com/package/@actions/cache)
->     - [@actions/core](https://www.npmjs.com/package/@actions/core)
->     - [@actions/exec](https://www.npmjs.com/package/@actions/exec)
->     - [@actions/github](https://www.npmjs.com/package/@actions/github)
->     - [@actions/glob](https://www.npmjs.com/package/@actions/glob)
->     - [@actions/http-client](https://www.npmjs.com/package/@actions/http-client)
->     - [@actions/io](https://www.npmjs.com/package/@actions/io)
->     - [@actions/tool-cache](https://www.npmjs.com/package/@actions/tool-cache)
->   - JasonEtco/actions-toolkit ([GitHub](https://github.com/JasonEtco/actions-toolkit))([NPM](https://www.npmjs.com/package/actions-toolkit))
-> - Python
->   - [boschglobal/action.toolkit](https://github.com/boschglobal/action.toolkit)
+## 📥 Install
 
-## 📓 Documentation (Excerpt)
+### PowerShell
 
-For the full documentation, please visit the [GitHub Repository Wiki](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki).
-
-### Getting Started
-
-- GitHub Actions Runner >= v2.303.0
-  - PowerShell >= v7.2.0
+- **Target Version:** >= v7.2.0, &:
+  - GitHub Actions Runner >= v2.303.0
   - NodeJS >= v14.15.0 (only for NodeJS wrapper API)
+- **Domain/Registry:**
+  - **[PowerShell Gallery](https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit):**
+    ```ps1
+    Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
+    ```
 
-```ps1
-Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
-```
+## 🧩 API (Excerpt)
 
-```ps1
-Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scope 'Local'
-```
+> **ℹ️ Notice:** Documentation is included inside the script file, can view it via:
+>
+> - [GitHub Repository Wiki](https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki)
 
-### API
-
-> | **Legend** | **Description** |
-> |:-:|:--|
-> | 🔘 | **NodeJS Wrapper:** This dependents and requires NodeJS to invoke. |
-
-#### Function
+### Function
 
 - `Add-GitHubActionsPATH`
 - `Add-GitHubActionsProblemMatcher`
@@ -71,23 +46,23 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Enable-GitHubActionsStdOutCommandProcess`
 - `Enter-GitHubActionsLogGroup`
 - `Exit-GitHubActionsLogGroup`
-- `Expand-GitHubActionsToolCacheCompressedFile` 🔘
-- `Export-GitHubActionsArtifact` 🔘
-- `Find-GitHubActionsToolCache` 🔘
+- `Expand-GitHubActionsToolCacheCompressedFile`
+- `Export-GitHubActionsArtifact`
+- `Find-GitHubActionsToolCache`
 - `Get-GitHubActionsDebugStatus`
 - `Get-GitHubActionsInput`
-- `Get-GitHubActionsOpenIdConnectToken` 🔘
+- `Get-GitHubActionsOpenIdConnectToken`
 - `Get-GitHubActionsState`
 - `Get-GitHubActionsStepSummary`
 - `Get-GitHubActionsWebhookEventPayload`
 - `Get-GitHubActionsWorkflowRunUri`
-- `Import-GitHubActionsArtifact` 🔘
-- `Invoke-GitHubActionsToolCacheToolDownloader` 🔘
-- `Register-GitHubActionsToolCacheDirectory` 🔘
-- `Register-GitHubActionsToolCacheFile` 🔘
+- `Import-GitHubActionsArtifact`
+- `Invoke-GitHubActionsToolCacheToolDownloader`
+- `Register-GitHubActionsToolCacheDirectory`
+- `Register-GitHubActionsToolCacheFile`
 - `Remove-GitHubActionsProblemMatcher`
-- `Restore-GitHubActionsCache` 🔘
-- `Save-GitHubActionsCache` 🔘
+- `Restore-GitHubActionsCache`
+- `Save-GitHubActionsCache`
 - `Set-GitHubActionsEnvironmentVariable`
 - `Set-GitHubActionsOutput`
 - `Set-GitHubActionsState`
@@ -102,11 +77,32 @@ Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Prefix 'GitHubActions' -Scop
 - `Write-GitHubActionsRaw`
 - `Write-GitHubActionsWarning`
 
-### Example
+## ✍️ Example
 
 - ```ps1
+  Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'
+
   Set-GitHubActionsOutput -Name 'foo' -Value 'bar'
-  ```
-- ```ps1
+
   Write-GitHubActionNotice -Message 'Hello, world!'
   ```
+
+## 🔗 Other Edition
+
+- Go
+  - [actions-go/toolkit](https://github.com/actions-go/toolkit)
+  - [haya14busa/go-actions-toolkit](https://github.com/haya14busa/go-actions-toolkit)
+- NodeJS
+  - [actions/toolkit](https://github.com/actions/toolkit) *\[Official\]*
+    - [@actions/artifact](https://www.npmjs.com/package/@actions/artifact)
+    - [@actions/cache](https://www.npmjs.com/package/@actions/cache)
+    - [@actions/core](https://www.npmjs.com/package/@actions/core)
+    - [@actions/exec](https://www.npmjs.com/package/@actions/exec)
+    - [@actions/github](https://www.npmjs.com/package/@actions/github)
+    - [@actions/glob](https://www.npmjs.com/package/@actions/glob)
+    - [@actions/http-client](https://www.npmjs.com/package/@actions/http-client)
+    - [@actions/io](https://www.npmjs.com/package/@actions/io)
+    - [@actions/tool-cache](https://www.npmjs.com/package/@actions/tool-cache)
+  - JasonEtco/actions-toolkit ([GitHub](https://github.com/JasonEtco/actions-toolkit))([NPM](https://www.npmjs.com/package/actions-toolkit))
+- Python
+  - [boschglobal/action.toolkit](https://github.com/boschglobal/action.toolkit)
