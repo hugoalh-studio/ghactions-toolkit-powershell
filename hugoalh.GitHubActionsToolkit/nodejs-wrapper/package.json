@@ -1,6 +1,6 @@
 {
 	"name": "@hugoalh/ghactions-toolkit-powershell-nodejs-wrapper",
-	"version": "1.7.2",
+	"version": "1.8.0",
 	"description": "A PowerShell module to provide a better and easier way for GitHub Actions to communicate with the runner machine, and the toolkit for developing GitHub Actions in PowerShell.",
 	"keywords": [
 		"gh-actions",
@@ -25,7 +25,7 @@
 		"url": "git+https://github.com/hugoalh-studio/ghactions-toolkit-powershell.git"
 	},
 	"engines": {
-		"node": ">=14.15.0"
+		"node": ">=16.13.0"
 	},
 	"private": true
 }

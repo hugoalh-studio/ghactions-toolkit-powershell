@@ -134,12 +134,8 @@ Function Test-Environment {
 		[Alias('Oidc')][Switch]$OpenIdConnect,
 		[Switch]$ToolCache,
 		[Alias('Require', 'Required')][Switch]$Mandatory,
-		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!',
-		[Switch]$StepSummary# Deprecated.
+		[Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'This process requires to invoke inside the GitHub Actions environment!'
 	)
-	If ($PSBoundParameters.ContainsKey('StepSummary')) {
-		Write-Warning -Message 'Parameter `StepSummary` is deprecated and will remove in the future version!'
-	}
 	[Hashtable[]]$Items = @(
 		@{ NeedTest = $True; Name = 'CI'; ExpectValue = 'true' },
 		@{ NeedTest = $True; Name = 'GITHUB_ACTION'; },
@@ -152,9 +148,9 @@ Function Test-Environment {
 		@{ NeedTest = $True; Name = 'GITHUB_EVENT_PATH'; },
 		@{ NeedTest = $True; Name = 'GITHUB_GRAPHQL_URL'; },
 		@{ NeedTest = $True; Name = 'GITHUB_JOB'; },
+		@{ NeedTest = $True; Name = 'GITHUB_OUTPUT'; },
 		@{ NeedTest = $True; Name = 'GITHUB_PATH'; },
 		@{ NeedTest = $True; Name = 'GITHUB_REF_NAME'; },
-		@{ NeedTest = $True; Name = 'GITHUB_REF_PROTECTED'; },
 		@{ NeedTest = $True; Name = 'GITHUB_REF_TYPE'; },
 		@{ NeedTest = $True; Name = 'GITHUB_REPOSITORY'; },
 		@{ NeedTest = $True; Name = 'GITHUB_REPOSITORY_ID'; },

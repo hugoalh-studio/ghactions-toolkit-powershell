@@ -19,7 +19,7 @@ GitHub Actions - Clear File Command
 .DESCRIPTION
 Clear file command.
 .PARAMETER FileCommand
-File command. (LEGACY: Literal path of the file command.)
+File command.
 .OUTPUTS
 [Void]
 #>
@@ -27,24 +27,19 @@ Function Clear-FileCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_cleargithubactionsfilecommand')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Command', 'LiteralPath'<# LEGACY #>, 'Path'<# LEGACY #>)][String]$FileCommand
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Command')][String]$FileCommand
 	)
 	Process {
-		If (<# LEGACY #>[System.IO.Path]::IsPathFullyQualified($FileCommand)) {
-			[String]$FileCommandPath = $FileCommand
+		Try {
+			[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$($FileCommand.ToUpper())" -ErrorAction 'Stop'
 		}
-		Else {
-			Try {
-				[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$($FileCommand.ToUpper())" -ErrorAction 'Stop'
-			}
-			Catch {
-				Write-Error -Message "Unable to clear the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
-				Return
-			}
-			If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
-				Write-Error -Message "Unable to clear the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not contain a valid file path!" -Category 'ResourceUnavailable'
-				Return
-			}
+		Catch {
+			Write-Error -Message "Unable to clear the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
+			Return
+		}
+		If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
+			Write-Error -Message "Unable to clear the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not contain a valid file path!" -Category 'ResourceUnavailable'
+			Return
 		}
 		Set-Content -LiteralPath $FileCommandPath -Value '' -Confirm:$False -Encoding 'UTF8NoBOM'
 	}
@@ -68,26 +63,21 @@ Function Write-FileCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsfilecommand')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Command', 'LiteralPath'<# LEGACY #>, 'Path'<# LEGACY #>)][String]$FileCommand,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Command')][String]$FileCommand,
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][String]$Name,
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value
 	)
 	Process {
-		If (<# LEGACY #>[System.IO.Path]::IsPathFullyQualified($FileCommand)) {
-			[String]$FileCommandPath = $FileCommand
+		Try {
+			[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$($FileCommand.ToUpper())" -ErrorAction 'Stop'
 		}
-		Else {
-			Try {
-				[String]$FileCommandPath = Get-Content -LiteralPath "Env:\$($FileCommand.ToUpper())" -ErrorAction 'Stop'
-			}
-			Catch {
-				Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
-				Return
-			}
-			If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
-				Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not contain a valid file path!" -Category 'ResourceUnavailable'
-				Return
-			}
+		Catch {
+			Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not defined!" -Category 'ResourceUnavailable'
+			Return
+		}
+		If (![System.IO.Path]::IsPathFullyQualified($FileCommandPath)) {
+			Write-Error -Message "Unable to write the GitHub Actions file command: Environment path ``$($FileCommand.ToUpper())`` is not contain a valid file path!" -Category 'ResourceUnavailable'
+			Return
 		}
 		If ($Value -imatch '^.*$') {
 			Add-Content -LiteralPath $FileCommandPath -Value "$Name=$Value" -Confirm:$False -Encoding 'UTF8NoBOM'

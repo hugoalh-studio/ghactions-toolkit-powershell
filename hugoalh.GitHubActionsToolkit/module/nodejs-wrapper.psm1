@@ -94,12 +94,8 @@ Function Test-NodeJsEnvironment {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_testgithubactionsnodejsenvironment')]
 	[OutputType([Boolean])]
 	Param (
-		[Alias('Redo')][Switch]$Retest,
-		[Alias('Reinstall', 'ReinstallDependency', 'ReinstallPackage', 'ReinstallPackages')][Switch]$ReinstallDependencies# Deprecated.
+		[Alias('Redo')][Switch]$Retest
 	)
-	If ($PSBoundParameters.ContainsKey('ReinstallDependencies')) {
-		Write-Warning -Message 'Parameter `ReinstallDependencies` is deprecated and will remove in the future version!'
-	}
 	If ($EnvironmentTested -and !$Retest.IsPresent) {
 		Write-Verbose -Message 'Previously tested the NodeJS environment; Return the previous result.'
 		Write-Output -InputObject $EnvironmentResult

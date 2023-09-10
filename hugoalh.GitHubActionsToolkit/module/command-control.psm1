@@ -44,21 +44,7 @@ Function Disable-StdOutCommandEcho {
 	Write-GitHubActionsStdOutCommand -StdOutCommand 'echo' -Value 'off'
 }
 Set-Alias -Name 'Disable-CommandEcho' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandEchoing' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-CommandsEcho' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-CommandsEchoing' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-EchoCommand' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-EchoCommands' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-EchoingCommand' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-EchoingCommands' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Stop-CommandEcho' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandEchoing' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-CommandsEcho' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-CommandsEchoing' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-EchoCommand' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-EchoCommands' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-EchoingCommand' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-EchoingCommands' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Stop-StdOutCommandEcho' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
@@ -87,21 +73,7 @@ Function Disable-StdOutCommandProcess {
 	Write-Output -InputObject $EndToken
 }
 Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Disable-CommandProcessing' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-CommandsProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-CommandsProcessing' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-ProcessCommand' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-ProcessCommands' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-ProcessingCommand' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Disable-ProcessingCommands' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Stop-CommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Stop-CommandProcessing' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-CommandsProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-CommandsProcessing' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-ProcessCommand' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-ProcessCommands' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-ProcessingCommand' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Stop-ProcessingCommands' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Stop-StdOutCommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Suspend-CommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Suspend-StdOutCommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
@@ -120,21 +92,7 @@ Function Enable-StdOutCommandEcho {
 	Write-GitHubActionsStdOutCommand -StdOutCommand 'echo' -Value 'on'
 }
 Set-Alias -Name 'Enable-CommandEcho' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandEchoing' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-CommandsEcho' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-CommandsEchoing' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-EchoCommand' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-EchoCommands' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-EchoingCommand' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-EchoingCommands' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Start-CommandEcho' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandEchoing' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-CommandsEcho' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-CommandsEchoing' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-EchoCommand' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-EchoCommands' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-EchoingCommand' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-EchoingCommands' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Start-StdOutCommandEcho' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
@@ -155,23 +113,9 @@ Function Enable-StdOutCommandProcess {
 	Write-GitHubActionsStdOutCommand -StdOutCommand $EndToken
 }
 Set-Alias -Name 'Enable-CommandProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Enable-CommandProcessing' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-CommandsProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-CommandsProcessing' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-ProcessCommand' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-ProcessCommands' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-ProcessingCommand' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Enable-ProcessingCommands' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Resume-CommandProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Resume-StdOutCommandProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Start-CommandProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Start-CommandProcessing' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-CommandsProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-CommandsProcessing' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-ProcessCommand' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-ProcessCommands' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-ProcessingCommand' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Start-ProcessingCommands' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 Set-Alias -Name 'Start-StdOutCommandProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
@@ -201,73 +145,17 @@ Export-ModuleMember -Function @(
 	'Enable-StdOutCommandProcess'
 ) -Alias @(
 	'Disable-CommandEcho',
-	'Disable-CommandEchoing',
 	'Disable-CommandProcess',
-	'Disable-CommandProcessing',
-	'Disable-CommandsEcho',
-	'Disable-CommandsEchoing',
-	'Disable-CommandsProcess',
-	'Disable-CommandsProcessing',
-	'Disable-EchoCommand',
-	'Disable-EchoCommands',
-	'Disable-EchoingCommand',
-	'Disable-EchoingCommands',
-	'Disable-ProcessCommand',
-	'Disable-ProcessCommands',
-	'Disable-ProcessingCommand',
-	'Disable-ProcessingCommands',
 	'Enable-CommandEcho',
-	'Enable-CommandEchoing',
 	'Enable-CommandProcess',
-	'Enable-CommandProcessing',
-	'Enable-CommandsEcho',
-	'Enable-CommandsEchoing',
-	'Enable-CommandsProcess',
-	'Enable-CommandsProcessing',
-	'Enable-EchoCommand',
-	'Enable-EchoCommands',
-	'Enable-EchoingCommand',
-	'Enable-EchoingCommands',
-	'Enable-ProcessCommand',
-	'Enable-ProcessCommands',
-	'Enable-ProcessingCommand',
-	'Enable-ProcessingCommands',
 	'Resume-CommandProcess',
 	'Resume-StdOutCommandProcess',
 	'Start-CommandEcho',
-	'Start-CommandEchoing',
 	'Start-CommandProcess',
-	'Start-CommandProcessing',
-	'Start-CommandsEcho',
-	'Start-CommandsEchoing',
-	'Start-CommandsProcess',
-	'Start-CommandsProcessing',
-	'Start-EchoCommand',
-	'Start-EchoCommands',
-	'Start-EchoingCommand',
-	'Start-EchoingCommands',
-	'Start-ProcessCommand',
-	'Start-ProcessCommands',
-	'Start-ProcessingCommand',
-	'Start-ProcessingCommands',
 	'Start-StdOutCommandEcho',
 	'Start-StdOutCommandProcess',
 	'Stop-CommandEcho',
-	'Stop-CommandEchoing',
 	'Stop-CommandProcess',
-	'Stop-CommandProcessing',
-	'Stop-CommandsEcho',
-	'Stop-CommandsEchoing',
-	'Stop-CommandsProcess',
-	'Stop-CommandsProcessing',
-	'Stop-EchoCommand',
-	'Stop-EchoCommands',
-	'Stop-EchoingCommand',
-	'Stop-EchoingCommands',
-	'Stop-ProcessCommand',
-	'Stop-ProcessCommands',
-	'Stop-ProcessingCommand',
-	'Stop-ProcessingCommands',
 	'Stop-StdOutCommandEcho',
 	'Stop-StdOutCommandProcess',
 	'Suspend-CommandProcess',

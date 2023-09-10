@@ -19,13 +19,9 @@ Function Get-OpenIdConnectToken {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsopenidconnecttoken')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Audience,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NodeJs', 'NodeJsWrapper', 'UseNodeJs')][Switch]$UseNodeJsWrapper# Deprecated.
+		[Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Audience
 	)
 	Process {
-		If ($PSBoundParameters.ContainsKey('UseNodeJsWrapper')) {
-			Write-Warning -Message 'Parameter `UseNodeJsWrapper` is deprecated and will remove in the future version!'
-		}
 		[Hashtable]$Argument = @{}
 		If ($Audience.Length -gt 0) {
 			$Argument.('audience') = $Audience

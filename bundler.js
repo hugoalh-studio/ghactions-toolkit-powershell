@@ -50,7 +50,7 @@ let { code } = await ncc(inputFilePath, {
 	quiet: false,
 	sourceMap: false,
 	sourceMapRegister: false,
-	target: "es2020",
+	target: "es2022",
 	v8cache: false,
 	watch: false
 });
