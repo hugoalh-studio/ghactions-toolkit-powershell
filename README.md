@@ -10,7 +10,7 @@
 
 A PowerShell module to provide a better and easier way for GitHub Actions to communicate with the runner machine, and the toolkit for developing GitHub Actions in PowerShell.
 
-## 📥 Install
+## 🔰 Begin
 
 ### PowerShell
 
@@ -18,9 +18,12 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
   - GitHub Actions Runner >= v2.308.0
   - NodeJS >= v16.13.0 (only for NodeJS wrapper API)
 - **Domain/Registry:**
-  - **[PowerShell Gallery](https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit):**
+  - [PowerShell Gallery](https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit)
     ```ps1
     Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
+    ```
+    ```ps1
+    Import-Module -Name 'hugoalh.GitHubActionsToolkit' -Scope 'Local'
     ```
 
 ## 🧩 API (Excerpt)
