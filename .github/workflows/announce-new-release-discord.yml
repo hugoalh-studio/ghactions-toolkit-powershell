@@ -7,13 +7,32 @@ on:
 jobs:
   main:
     name: "Main"
-    uses: "hugoalh/hugoalh/.github/workflows/announce-new-release-discord.yml@main"
+    uses: "hugoalh/hugoalh/.github/workflows/reusable-announce-new-release-discord.yml@main"
     with:
-      name: "GitHub Actions Toolkit (PowerShell)"
-      color: "#0072C6"
-      thumbnail: "https://i.imgur.com/OhKCMwk.png"
-      releases: |
-        **- GitHub (& Changelog):** ${{github.event.release.html_url}}
-        **- PowerShell Gallery:** https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit
+      payload: |
+        embeds:
+          - title: "GitHub Actions Toolkit (PowerShell)"
+            description: |
+              > ${{github.event.repository.description}}
+
+              Version ${{github.event.release.name}} (${{github.event.release.tag_name}}) just released!
+            timestamp: "${{github.event.release.published_at}}"
+            color: "#0072C6"
+            thumbnail:
+              url: "https://i.imgur.com/OhKCMwk.png"
+            author:
+              name: "${{github.event.release.author.login}}"
+              url: "${{github.event.release.author.html_url}}"
+              icon_url: "${{github.event.release.author.avatar_url}}"
+            fields:
+              - name: "GitHub - Release & Changelog"
+                value: "${{github.event.release.html_url}}"
+                inline: false
+              - name: "GitHub - Repository"
+                value: "${{github.event.repository.html_url}}"
+                inline: false
+              - name: "PowerShell Gallery"
+                value: "https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit"
+                inline: false
     secrets:
       DISCORD_WEBHOOK: "${{secrets.DISCORD_HXHS_PROJECTNEWRELEASEANNOUNCER_WEBHOOK}}"
