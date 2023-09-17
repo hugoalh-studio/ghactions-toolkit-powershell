@@ -3,7 +3,7 @@
 	RootModule = 'hugoalh.GitHubActionsToolkit.psm1'
 
 	# Version number of this module.
-	ModuleVersion = '2.0.0'
+	ModuleVersion = '1.8.0'
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -218,7 +218,7 @@
 			ReleaseNotes = '(Please visit https://github.com/hugoalh-studio/ghactions-toolkit-powershell/releases.)'
 
 			# Prerelease string of this module
-			Prerelease = 'beta1'
+			# Prerelease = ''
 
 			# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 			RequireLicenseAcceptance = $False
