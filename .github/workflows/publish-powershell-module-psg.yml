@@ -8,6 +8,14 @@ on:
 defaults:
   run:
     shell: "pwsh"
+permissions:
+  actions: "write"
+  checks: "write"
+  contents: "write"
+  deployments: "write"
+  id-token: "write"
+  security-events: "write"
+  statuses: "write"
 jobs:
   main:
     name: "Main"
