@@ -2,22 +2,21 @@
 [String[]]$ModulesName = @(
 	'artifact',
 	'cache',
-	'command-base',
-	'command-control',
+	'command-file',
+	'command-stdout',
 	'environment-variable',
 	'log',
 	'markup',
-	'nodejs-wrapper',
 	'open-id-connect',
 	'parameter',
 	'problem-matcher',
-	'step-summary',
+	'summary',
 	'tool-cache',
 	'utility'
 )
 Import-Module -Name (
 	$ModulesName |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'module' -AdditionalChildPath @("$_.psm1") }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "module\$_.psm1" }
 ) -Scope 'Local'
 [PSCustomObject[]]$PackageCommands = Get-Command -Module $ModulesName -ListImported
 [String[]]$PackageFunctions = $PackageCommands |

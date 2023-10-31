@@ -1,9 +1,6 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name (
-	@(
-		'nodejs-wrapper'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'internal\nodejs-wrapper.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS

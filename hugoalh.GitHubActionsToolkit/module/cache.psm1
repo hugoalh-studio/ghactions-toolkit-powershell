@@ -1,69 +1,64 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name (
-	@(
-		'nodejs-wrapper'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'internal\nodejs-wrapper.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Restore Cache
 .DESCRIPTION
-Restore cache that shared the data from the past jobs in the same workflow.
+Restore cache that shared from the past jobs.
+.PARAMETER Path
+Paths of the cache, support Glob.
 .PARAMETER Key
 Keys of the cache.
-.PARAMETER Path
-Paths of the cache.
-.PARAMETER LiteralPath
-Literal paths of the cache.
-.PARAMETER NotUseAzureSdk
-Whether to not use Azure Blob SDK to download the cache that stored on the Azure Blob Storage, this maybe affect the reliability and performance.
+.PARAMETER ConcurrencyBlobDownload
+Whether to use GitHub Actions NodeJS toolkit HttpClient with concurrency for Azure Blob Storage.
+.PARAMETER LookUp
+Weather to not restore the cache, and only check if a matching cache entry exists and return the cache key if it does.
+.PARAMETER SegmentTimeout
+Maximum time for each segment download request of the cache, by milliseconds; This allows the segment download to get aborted and hence allow the job to proceed with a cache miss.
 .PARAMETER DownloadConcurrency
 Number of parallel downloads of the cache (only for Azure SDK).
 .PARAMETER Timeout
-Maximum time for each download request of the cache, by seconds (only for Azure SDK).
-.PARAMETER SegmentTimeout
-Maximum time for each segment download request of the cache, by minutes; This allows the segment download to get aborted and hence allow the job to proceed with a cache miss.
-.PARAMETER LookUp
-Weather to skip downloading the cache entry, and only check if a matching cache entry exists and return the cache key if it does.
+Maximum time for each download request of the cache, by milliseconds (only for Azure SDK).
+.PARAMETER NoAzureSdk
+Whether to not use Azure Blob SDK to download the cache that stored on the Azure Blob Storage, this maybe affect the reliability and performance.
 .OUTPUTS
 [String] The key of the cache hit.
 #>
 Function Restore-Cache {
-	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_restoregithubactionscache')]
+	[CmdletBinding(DefaultParameterSetName = 'AzureSdk', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_restoregithubactionscache')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Keys', 'Name', 'Names')][String[]]$Key,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
-		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('NoAzureSdk')][Switch]$NotUseAzureSdk,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$DownloadConcurrency,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 7200)][UInt16]$Timeout,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(5, 7200)][UInt16]$SegmentTimeout,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$LookUp
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Paths')][String[]]$Path,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Keys', 'Name', 'Names')][String[]]$Key,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$ConcurrencyBlobDownload,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$LookUp,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][UInt32]$SegmentTimeout,
+		[Parameter(ParameterSetName = 'AzureSdk', ValueFromPipelineByPropertyName = $True)][Alias('Concurrency')][Byte]$DownloadConcurrency,
+		[Parameter(ParameterSetName = 'AzureSdk', ValueFromPipelineByPropertyName = $True)][UInt32]$Timeout,
+		[Parameter(Mandatory = $True, ParameterSetName = 'NoAzureSdk',ValueFromPipelineByPropertyName = $True)][Switch]$NoAzureSdk
 	)
 	Process {
 		[Hashtable]$Argument = @{
+			'paths' = $Path
 			'primaryKey' = $Key[0]
-			'restoreKeys' = (
+			'restoreKeys' = @(
 				$Key |
-					Select-Object -SkipIndex 0
-			) ?? @()
-			'paths' = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
-				$LiteralPath |
-					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
-			) : $Path
-			'useAzureSdk' = !$NotUseAzureSdk.IsPresent
+					Select-Object -SkipIndex @(0)
+			)
+			'concurrencyBlobDownload' = $ConcurrencyBlobDownload.IsPresent
 			'lookup' = $LookUp.IsPresent
-		}
-		If ($DownloadConcurrency -gt 0) {
-			$Argument.('downloadConcurrency') = $DownloadConcurrency
+			'useAzureSdk' = $PSCmdlet.ParameterSetName -ieq 'AzureSdk'
 		}
 		If ($SegmentTimeout -gt 0) {
-			$Argument.('segmentTimeout') = $SegmentTimeout * 1000
+			$Argument.('segmentTimeout') = $SegmentTimeout
 		}
-		If ($Timeout -gt 0) {
-			$Argument.('timeout') = $Timeout * 1000
+		If ($PSCmdlet.ParameterSetName -ieq 'AzureSdk' -and $DownloadConcurrency -gt 0) {
+			$Argument.('downloadConcurrency') = $DownloadConcurrency
+		}
+		If ($PSCmdlet.ParameterSetName -ieq 'AzureSdk' -and $Timeout -gt 0) {
+			$Argument.('timeout') = $Timeout
 		}
 		Invoke-GitHubActionsNodeJsWrapper -Name 'cache/restore' -Argument $Argument |
 			Write-Output
@@ -74,40 +69,34 @@ Set-Alias -Name 'Import-Cache' -Value 'Restore-Cache' -Option 'ReadOnly' -Scope 
 .SYNOPSIS
 GitHub Actions - Save cache
 .DESCRIPTION
-Save cache to persist the data and/or share with the future jobs in the same workflow.
+Save cache to share with the future jobs.
+.PARAMETER Path
+Paths of the cache, support Glob.
 .PARAMETER Key
 Key of the cache.
-.PARAMETER Path
-Paths of the cache.
-.PARAMETER LiteralPath
-Literal paths of the cache.
 .PARAMETER UploadChunkSize
-Upload chunk size of the cache, by KB.
+Maximum chunk size for upload the cache, by byte.
 .PARAMETER UploadConcurrency
 Number of parallel uploads of the cache.
 .OUTPUTS
 [UInt64] ID of the cache.
 #>
 Function Save-Cache {
-	[CmdletBinding(DefaultParameterSetName = 'Path', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_savegithubactionscache')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_savegithubactionscache')]
 	[OutputType([UInt64])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('Name')][String]$Key,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][Alias('File', 'Files', 'Paths')][String[]]$Path,
-		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 1MB)][Alias('ChunkSize', 'ChunkSizes', 'UploadChunkSizes')][UInt32]$UploadChunkSize,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(1, 16)][Alias('Concurrency')][Byte]$UploadConcurrency
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Paths')][String[]]$Path,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Name')][String]$Key,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ChunkSize')][UInt32]$UploadChunkSize,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Concurrency')][Byte]$UploadConcurrency
 	)
 	Process {
 		[Hashtable]$Argument = @{
+			'paths' = $Path
 			'key' = $Key
-			'paths' = ($PSCmdlet.ParameterSetName -ieq 'LiteralPath') ? (
-				$LiteralPath |
-					ForEach-Object -Process { [WildcardPattern]::Escape($_) }
-			) : $Path
 		}
 		If ($UploadChunkSize -gt 0) {
-			$Argument.('uploadChunkSize') = $UploadChunkSize * 1KB
+			$Argument.('uploadChunkSize') = $UploadChunkSize
 		}
 		If ($UploadConcurrency -gt 0) {
 			$Argument.('uploadConcurrency') = $UploadConcurrency

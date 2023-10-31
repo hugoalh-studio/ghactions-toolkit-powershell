@@ -1,9 +1,6 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name (
-	@(
-		'nodejs-wrapper'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'internal\nodejs-wrapper.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
@@ -29,15 +26,15 @@ Function Expand-ToolCacheCompressedFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_expandgithubactionstoolcachecompressedfile')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Source')][String]$File,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Source')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Target')][String]$Destination,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateSet('7z', 'Tar', 'Xar', 'Zip')][String]$Method,
 		[String]$7zrPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Flags')][String[]]$Flag
 	)
 	Process {
 		If (!(Test-Path -LiteralPath $File -PathType 'Leaf')) {
-			Write-Error -Message "``$File`` is not a valid file path!" -Category 'SyntaxError'
+			Write-Error -Message "``$File`` is not a valid and exist file path!" -Category 'ResourceUnavailable'
 			Return
 		}
 		If ($Method.Length -eq 0) {
@@ -73,7 +70,7 @@ Function Expand-ToolCacheCompressedFile {
 		If ($7zrPath.Length -gt 0) {
 			$Argument.('7zrPath') = $7zrPath
 		}
-		If ($Flag.Length -gt 0) {
+		If ($Flag.Count -gt 0) {
 			$Argument.('flags') = $Flag
 		}
 		Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/extract-$($Method.ToLower())" -Argument $Argument |
@@ -81,8 +78,6 @@ Function Expand-ToolCacheCompressedFile {
 	}
 }
 Set-Alias -Name 'Expand-ToolCacheArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'
-Set-Alias -Name 'Expand-ToolCacheCompressedArchive' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
-Set-Alias -Name 'Expand-ToolCacheFile' -Value 'Expand-ToolCacheCompressedFile' -Option 'ReadOnly' -Scope 'Local'# Deprecated.
 <#
 .SYNOPSIS
 GitHub Actions - Find Tool Cache
@@ -99,26 +94,30 @@ Architecture of the tool; Default to the architecture of the current machine.
 [String[]] Absolute path of all of the versions of a tool.
 #>
 Function Find-ToolCache {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_findgithubactionstoolcache')]
-	[OutputType(([String], [String[]]))]
+	[CmdletBinding(DefaultParameterSetName = 'All', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_findgithubactionstoolcache')]
+	[OutputType([String], ParameterSetName = 'Single')]
+	[OutputType([String[]], ParameterSetName = 'All')]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][String]$Version,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', ValueFromPipelineByPropertyName = $True)][SemVer]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Process {
 		[Hashtable]$Argument = @{
 			'name' = $Name
 		}
-		[Boolean]$IsFindAll = $Version.Length -eq 0
-		If (!$IsFindAll) {
-			$Argument.('version') = $Version
-		}
 		If ($Architecture.Length -gt 0) {
 			$Argument.('architecture') = $Architecture
 		}
-		Invoke-GitHubActionsNodeJsWrapper -Name "tool-cache/find$($IsFindAll ? '-all-versions' : '')" -Argument $Argument |
-			Write-Output
+		If ($PSCmdlet.ParameterSetName -ieq 'All') {
+			Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/find-all-versions' -Argument $Argument |
+				Write-Output -NoEnumerate
+		}
+		Else {
+			$Argument.('version') = $Version.ToString()
+			Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/find' -Argument $Argument |
+				Write-Output
+		}
 	}
 }
 <#
@@ -132,7 +131,7 @@ URI of the tool.
 Path for the tool destination.
 .PARAMETER Authorization
 Authorization of the URI request.
-.PARAMETER Header
+.PARAMETER Headers
 Headers of the URI request.
 .OUTPUTS
 [String] Absolute path of the downloaded tool.
@@ -141,10 +140,10 @@ Function Invoke-ToolCacheToolDownloader {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_invokegithubactionstoolcachetooldownloader')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ ($Null -ine $_.AbsoluteUri) -and ($_.Scheme -imatch '^https?$') }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Source', 'Url')][Uri]$Uri,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Target')][String]$Destination,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ $Null -ine $_.AbsoluteUri -and $_.Scheme -imatch '^https?$' }, ErrorMessage = '`{0}` is not a valid URI!')][Alias('Source', 'Url')][Uri]$Uri,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Target')][String]$Destination,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Auth')][String]$Authorization,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Headers')][Hashtable]$Header = @{}
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Hashtable]$Headers = @{}
 	)
 	Process {
 		[Hashtable]$Argument = @{
@@ -156,8 +155,8 @@ Function Invoke-ToolCacheToolDownloader {
 		If ($Authorization.Length -gt 0) {
 			$Argument.('authorization') = $Authorization
 		}
-		If ($Header.Count -gt 0) {
-			$Argument.('headers') = $Header
+		If ($Headers.Count -gt 0) {
+			$Argument.('headers') = $Headers
 		}
 		Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/download-tool' -Argument $Argument |
 			Write-Output
@@ -183,9 +182,9 @@ Function Register-ToolCacheDirectory {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_registergithubactionstoolcachedirectory')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceDirectory')][String]$Source,
-		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][SemVer]$Version,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('SourceDirectory')][String]$Source,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][SemVer]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Process {
@@ -223,10 +222,10 @@ Function Register-ToolCacheFile {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_registergithubactionstoolcachefile')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][Alias('SourceFile')][String]$Source,
-		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][Alias('TargetFile')][String]$Target,
-		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][Alias('ToolName')][String]$Name,
-		[Parameter(Mandatory = $True, Position = 3, ValueFromPipelineByPropertyName = $True)][Alias('V', 'Ver')][SemVer]$Version,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('SourceFile')][String]$Source,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('TargetFile')][String]$Target,
+		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('ToolName')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 3, ValueFromPipelineByPropertyName = $True)][SemVer]$Version,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Arch')][String]$Architecture
 	)
 	Process {
@@ -250,7 +249,5 @@ Export-ModuleMember -Function @(
 	'Register-ToolCacheDirectory',
 	'Register-ToolCacheFile'
 ) -Alias @(
-	'Expand-ToolCacheArchive',
-	'Expand-ToolCacheCompressedArchive',
-	'Expand-ToolCacheFile'
+	'Expand-ToolCacheArchive'
 )

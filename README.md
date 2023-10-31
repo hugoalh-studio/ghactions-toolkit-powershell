@@ -15,7 +15,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 ### PowerShell
 
 - **Target Version:** >= v7.2.0, &:
-  - GitHub Actions Runner >= v2.308.0
+  - GitHub Actions Runner >= v2.310.0
   - NodeJS >= v16.13.0 *\[Optional, for NodeJS based wrapper API\]*
 - **Domain/Registry:**
   - [PowerShell Gallery](https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit)
@@ -37,12 +37,12 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 - `Add-GitHubActionsPATH`
 - `Add-GitHubActionsProblemMatcher`
 - `Add-GitHubActionsSecretMask`
-- `Add-GitHubActionsStepSummary`
-- `Add-GitHubActionsStepSummaryHeader`
-- `Add-GitHubActionsStepSummaryImage`
-- `Add-GitHubActionsStepSummaryLink`
-- `Add-GitHubActionsStepSummarySubscriptText`
-- `Add-GitHubActionsStepSummarySuperscriptText`
+- `Add-GitHubActionsSummary`
+- `Add-GitHubActionsSummaryHeader`
+- `Add-GitHubActionsSummaryImage`
+- `Add-GitHubActionsSummaryLink`
+- `Add-GitHubActionsSummarySubscriptText`
+- `Add-GitHubActionsSummarySuperscriptText`
 - `Disable-GitHubActionsStdOutCommandEcho`
 - `Disable-GitHubActionsStdOutCommandProcess`
 - `Enable-GitHubActionsStdOutCommandEcho`
@@ -56,7 +56,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 - `Get-GitHubActionsInput`
 - `Get-GitHubActionsOpenIdConnectToken`
 - `Get-GitHubActionsState`
-- `Get-GitHubActionsStepSummary`
+- `Get-GitHubActionsSummary`
 - `Get-GitHubActionsWebhookEventPayload`
 - `Get-GitHubActionsWorkflowRunUri`
 - `Import-GitHubActionsArtifact`
@@ -69,15 +69,12 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 - `Set-GitHubActionsEnvironmentVariable`
 - `Set-GitHubActionsOutput`
 - `Set-GitHubActionsState`
-- `Set-GitHubActionsStepSummary`
+- `Set-GitHubActionsSummary`
 - `Test-GitHubActionsEnvironment`
-- `Test-GitHubActionsNodeJsEnvironment`
-- `Write-GitHubActionsAnnotation`
 - `Write-GitHubActionsDebug`
 - `Write-GitHubActionsError`
 - `Write-GitHubActionsFail`
 - `Write-GitHubActionsNotice`
-- `Write-GitHubActionsRaw`
 - `Write-GitHubActionsWarning`
 
 ## ✍️ Example

@@ -1,22 +1,13 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name (
-	@(
-		'test-parameter-input-object'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath 'internal' -AdditionalChildPath @("$_.psm1") }
-) -Scope 'Local'
-Import-Module -Name (
-	@(
-		'command-base',
-		'log'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'command-file.psm1'),
+	(Join-Path -Path $PSScriptRoot -ChildPath 'log.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Clear Output
 .DESCRIPTION
-Clear output.
+Clear output that set in the current step.
 .OUTPUTS
 [Void]
 #>
@@ -31,7 +22,7 @@ Set-Alias -Name 'Remove-Output' -Value 'Clear-Output' -Option 'ReadOnly' -Scope 
 .SYNOPSIS
 GitHub Actions - Clear State
 .DESCRIPTION
-Clear state.
+Clear state that set in the current step.
 .OUTPUTS
 [Void]
 #>
@@ -53,14 +44,10 @@ Name of the input.
 Whether the input is mandatory; If mandatory but not exist, will throw an error.
 .PARAMETER MandatoryMessage
 Message when the input is mandatory but not exist.
-.PARAMETER NamePrefix
-Name of the inputs start with.
-.PARAMETER NameSuffix
-Name of the inputs end with.
+.PARAMETER NameFilterScript
+Filter script block of the name of the inputs.
 .PARAMETER All
 Whether to get all of the inputs.
-.PARAMETER EmptyStringAsNull
-Whether to assume empty string value of the input(s) as `$Null`.
 .PARAMETER Trim
 Whether to trim the value of the input(s).
 .OUTPUTS
@@ -70,54 +57,52 @@ Whether to trim the value of the input(s).
 Function Get-Input {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsinput')]
 	[OutputType([String], ParameterSetName = 'One')]
-	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
+	[OutputType([Hashtable], ParameterSetName = ('All', 'Filter'))]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'One', Position = 0)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name!')][Alias('Key')][String]$Name,
 		[Parameter(ParameterSetName = 'One')][Alias('Require', 'Required')][Switch]$Mandatory,
 		[Parameter(ParameterSetName = 'One')][Alias('RequiredMessage', 'RequireMessage')][String]$MandatoryMessage = 'Input `{0}` is not defined!',
 		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions input name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
-		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Filter')][Alias('Filter', 'KeyFilter', 'KeyFilterScript', 'NameFilter')][ScriptBlock]$NameFilterScript,
 		[Switch]$Trim
 	)
-	[Hashtable]$OutputObject = @{}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'All' {
+			[Hashtable]$Result = @{}
 			ForEach ($Item In (Get-ChildItem -Path 'Env:\INPUT_*')) {
-				$OutputObject.($Item.Name -ireplace '^INPUT_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$Result.($Item.Name -ireplace '^INPUT_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
+			$Result |
+				Write-Output
+			Return
+		}
+		'Filter' {
+			[Hashtable]$Result = @{}
+			ForEach ($Item In (
+				Get-ChildItem -Path 'Env:\INPUT_*' |
+					Where-Object -FilterScript $NameFilterScript
+			)) {
+				$Result.($Item.Name -ireplace '^INPUT_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+			}
+			$Result |
+				Write-Output
+			Return
 		}
 		'One' {
-			$InputValueRaw = Get-Content -LiteralPath "Env:\INPUT_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-			[String]$InputValue = $Trim.IsPresent ? ($InputValueRaw)?.Trim() : $InputValueRaw
-			If (
-				$Null -ieq $InputValueRaw -or
-				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($InputValue))
-			) {
+			$InputValueRaw = [System.Environment]::GetEnvironmentVariable("INPUT_$($Name.ToUpper())")
+			[AllowEmptyString()][AllowNull()][String]$InputValue = $Trim.IsPresent ? ($InputValueRaw)?.Trim() : $InputValueRaw
+			If ([String]::IsNullOrEmpty($InputValue)) {
 				If ($Mandatory.IsPresent) {
 					Write-GitHubActionsFail -Message ($MandatoryMessage -f $Name)
 					Throw
 				}
 				Return
 			}
-			Write-Output -InputObject $InputValue
+			$InputValue |
+				Write-Output
 			Return
 		}
-		'Prefix' {
-			[RegEx]$InputNameReplaceRegEx = "^INPUT_$([RegEx]::Escape($NamePrefix))"
-			ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_$($NamePrefix.ToUpper())*")) {
-				$OutputObject.($Item.Name -ireplace $InputNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
-			}
-		}
-		'Suffix' {
-			[RegEx]$InputNameReplaceRegEx = "^INPUT_|$([RegEx]::Escape($NameSuffix))$"
-			ForEach ($Item In (Get-ChildItem -Path "Env:\INPUT_*$($NameSuffix.ToUpper())")) {
-				$OutputObject.($Item.Name -ireplace $InputNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
-			}
-		}
 	}
-	Write-Output -InputObject $OutputObject
 }
 <#
 .SYNOPSIS
@@ -126,14 +111,10 @@ GitHub Actions - Get State
 Get state.
 .PARAMETER Name
 Name of the state.
-.PARAMETER NamePrefix
-Name of the states start with.
-.PARAMETER NameSuffix
-Name of the states end with.
+.PARAMETER NameFilterScript
+Filter script block of the name of the states.
 .PARAMETER All
 Whether to get all of the states.
-.PARAMETER EmptyStringAsNull
-Whether to assume empty string value of the state(s) as `$Null`.
 .PARAMETER Trim
 Whether to trim the value of the state(s).
 .OUTPUTS
@@ -143,48 +124,42 @@ Whether to trim the value of the state(s).
 Function Get-State {
 	[CmdletBinding(DefaultParameterSetName = 'One', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsstate')]
 	[OutputType([String], ParameterSetName = 'One')]
-	[OutputType([Hashtable], ParameterSetName = ('All', 'Prefix', 'Suffix'))]
+	[OutputType([Hashtable], ParameterSetName = ('All', 'Filter'))]
 	Param (
 		[Parameter(Mandatory = $True, ParameterSetName = 'One', Position = 0)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
 		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Prefix')][ValidatePattern('^[\da-z][\da-z_-]*$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name prefix!')][Alias('KeyPrefix', 'KeyStartWith', 'NameStartWith', 'Prefix', 'PrefixKey', 'PrefixName', 'StartWith', 'StartWithKey', 'StartWithName')][String]$NamePrefix,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Suffix')][ValidatePattern('^[\da-z_-]*[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name suffix!')][Alias('EndWith', 'EndWithKey', 'EndWithName', 'KeyEndWith', 'KeySuffix', 'NameEndWith', 'Suffix', 'SuffixKey', 'SuffixName')][String]$NameSuffix,
-		[Alias('AssumeEmptyStringAsNull')][Switch]$EmptyStringAsNull,
+		[Parameter(Mandatory = $True, ParameterSetName = 'Filter')][Alias('Filter', 'KeyFilter', 'KeyFilterScript', 'NameFilter')][ScriptBlock]$NameFilterScript,
 		[Switch]$Trim
 	)
-	[Hashtable]$OutputObject = @{}
 	Switch ($PSCmdlet.ParameterSetName) {
 		'All' {
+			[Hashtable]$Result = @{}
 			ForEach ($Item In (Get-ChildItem -Path 'Env:\STATE_*')) {
-				$OutputObject.($Item.Name -ireplace '^STATE_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+				$Result.($Item.Name -ireplace '^STATE_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
-		}
-		'One' {
-			$StateValueRaw = Get-Content -LiteralPath "Env:\STATE_$($Name.ToUpper())" -ErrorAction 'SilentlyContinue'
-			[String]$StateValue = $Trim.IsPresent ? ($StateValueRaw)?.Trim() : $StateValueRaw
-			If (
-				$Null -ieq $StateValueRaw -or
-				($EmptyStringAsNull.IsPresent -and [String]::IsNullOrEmpty($StateValue))
-			) {
-				Return
-			}
-			Write-Output -InputObject $StateValue
+			$Result |
+				Write-Output
 			Return
 		}
-		'Prefix' {
-			[RegEx]$StateNameReplaceRegEx = "^STATE_$([RegEx]::Escape($NamePrefix))"
-			ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_$($NamePrefix.ToUpper())*")) {
-				$OutputObject.($Item.Name -ireplace $StateNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
+		'Filter' {
+			[Hashtable]$Result = @{}
+			ForEach ($Item In (
+				Get-ChildItem -Path 'Env:\STATE_*' |
+					Where-Object -FilterScript $NameFilterScript
+			)) {
+				$Result.($Item.Name -ireplace '^STATE_', '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
 			}
+			$Result |
+				Write-Output
+			Return
 		}
-		'Suffix' {
-			[RegEx]$StateNameReplaceRegEx = "^STATE_|$([RegEx]::Escape($NameSuffix))$"
-			ForEach ($Item In (Get-ChildItem -Path "Env:\STATE_*$($NameSuffix.ToUpper())")) {
-				$OutputObject.($Item.Name -ireplace $StateNameReplaceRegEx, '') = $Trim.IsPresent ? ($Item.Value)?.Trim() : $Item.Value
-			}
+		'One' {
+			$StateValueRaw = [System.Environment]::GetEnvironmentVariable("STATE_$($Name.ToUpper())")
+			$Trim.IsPresent ? ($StateValueRaw)?.Trim() : $StateValueRaw |
+				Write-Output
+			Return
 		}
 	}
-	Write-Output -InputObject $OutputObject
 }
 Set-Alias -Name 'Restore-State' -Value 'Get-State' -Option 'ReadOnly' -Scope 'Local'
 <#
@@ -192,38 +167,25 @@ Set-Alias -Name 'Restore-State' -Value 'Get-State' -Option 'ReadOnly' -Scope 'Lo
 GitHub Actions - Set Output
 .DESCRIPTION
 Set output.
-.PARAMETER InputObject
-Outputs.
 .PARAMETER Name
 Name of the output.
 .PARAMETER Value
 Value of the output.
+.PARAMETER Optimize
+Whether to have an optimize operation by replace exist command instead of add command directly.
 .OUTPUTS
 [Void]
 #>
 Function Set-Output {
-	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsoutput')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsoutput')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-ParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions output name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$Optimize
 	)
 	Process {
-		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
-			If (
-				$InputObject -is [Hashtable] -or
-				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
-			) {
-				$InputObject.GetEnumerator() |
-					Set-Output
-				Return
-			}
-			$InputObject |
-				Set-Output
-			Return
-		}
-		Write-GitHubActionsFileCommand -FileCommand 'GITHUB_OUTPUT' -Name $Name -Value $Value
+		Write-GitHubActionsFileCommand -FileCommand 'GITHUB_OUTPUT' -Name $Name -Value $Value -Optimize:($Optimize.IsPresent)
 	}
 }
 <#
@@ -231,38 +193,25 @@ Function Set-Output {
 GitHub Actions - Set State
 .DESCRIPTION
 Set state.
-.PARAMETER InputObject
-States.
 .PARAMETER Name
 Name of the state.
 .PARAMETER Value
 Value of the state.
+.PARAMETER Optimize
+Whether to have an optimize operation by replace exist command instead of add command directly.
 .OUTPUTS
 [Void]
 #>
 Function Set-State {
-	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsstate')]
+	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_setgithubactionsstate')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Multiple', Position = 0, ValueFromPipeline = $True)][ValidateScript({ Test-ParameterInputObject -InputObject $_ })][Alias('Input', 'Object')]$InputObject,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions state name!')][Alias('Key')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$Optimize
 	)
 	Process {
-		If ($PSCmdlet.ParameterSetName -ieq 'Multiple') {
-			If (
-				$InputObject -is [Hashtable] -or
-				$InputObject -is [System.Collections.Specialized.OrderedDictionary]
-			) {
-				$InputObject.GetEnumerator() |
-					Set-State
-				Return
-			}
-			$InputObject |
-				Set-State
-			Return
-		}
-		Write-GitHubActionsFileCommand -FileCommand 'GITHUB_STATE' -Name $Name -Value $Value
+		Write-GitHubActionsFileCommand -FileCommand 'GITHUB_STATE' -Name $Name -Value $Value -Optimize:($Optimize.IsPresent)
 	}
 }
 Set-Alias -Name 'Save-State' -Value 'Set-State' -Option 'ReadOnly' -Scope 'Local'

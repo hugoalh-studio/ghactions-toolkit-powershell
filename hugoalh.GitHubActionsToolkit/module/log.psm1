@@ -1,28 +1,15 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name (
-	@(
-		'command-base',
-		'command-control'
-	) |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "$_.psm1" }
+Import-Module -Name @(
+	(Join-Path -Path $PSScriptRoot -ChildPath 'command-stdout.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
-Enum GitHubActionsAnnotationType {
-	Notice = 0
-	N = 0
-	Note = 0
-	Warning = 1
-	W = 1
-	Warn = 1
-	Error = 2
-	E = 2
-}
+[UInt64]$AnnotationMessageLengthMaximum = 4096
 <#
 .SYNOPSIS
 GitHub Actions - Enter Log Group
 .DESCRIPTION
-Create an expandable group in the log; Anything write to the log are inside this expandable group in the log.
+Create a foldable group in the log; Anything write to the log are inside this foldable group in the log.
 .PARAMETER Title
-Title of the log group.
+Title of the foldable group.
 .OUTPUTS
 [Void]
 #>
@@ -30,7 +17,7 @@ Function Enter-LogGroup {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_entergithubactionsloggroup')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Parameter `Title` is not a single line string!')][Alias('Header', 'Summary')][String]$Title
+		[Parameter(Position = 0)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Header', 'Label', 'Summary')][String]$Title
 	)
 	Write-GitHubActionsStdOutCommand -StdOutCommand 'group' -Value $Title
 }
@@ -39,7 +26,7 @@ Set-Alias -Name 'Enter-Group' -Value 'Enter-LogGroup' -Option 'ReadOnly' -Scope 
 .SYNOPSIS
 GitHub Actions - Exit Log Group
 .DESCRIPTION
-End an expandable group in the log.
+End an foldable group in the log.
 .OUTPUTS
 [Void]
 #>
@@ -52,7 +39,7 @@ Function Exit-LogGroup {
 Set-Alias -Name 'Exit-Group' -Value 'Exit-LogGroup' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
-GitHub Actions - Write Annotation
+GitHub Actions - Internal - Write Annotation
 .DESCRIPTION
 Print an annotation message to the log.
 .PARAMETER Type
@@ -71,6 +58,8 @@ Line end of the issue file of the annotation.
 Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the annotation.
+.PARAMETER Summary
+Summary of the message when it is too large to display.
 .OUTPUTS
 [Void]
 #>
@@ -78,50 +67,43 @@ Function Write-Annotation {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsannotation')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][GitHubActionsAnnotationType]$Type,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateSet('error', 'notice', 'warning')][String]$Type,
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` is not a single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineEnd')][UInt32]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` is not a single line string!')][Alias('Header')][String]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Header')][String]$Title,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary
 	)
 	Process {
-		Switch ($Type.GetHashCode()) {
-			([GitHubActionsAnnotationType]::Notice).GetHashCode() {
-				[String]$TypeRaw = 'notice'
-				Break
-			}
-			([GitHubActionsAnnotationType]::Warning).GetHashCode() {
-				[String]$TypeRaw = 'warning'
-				Break
-			}
-			([GitHubActionsAnnotationType]::Error).GetHashCode() {
-				[String]$TypeRaw = 'error'
-				Break
-			}
-		}
-		[Hashtable]$Property = @{}
+		[Hashtable]$Parameter = @{}
 		If ($File.Length -gt 0) {
-			$Property.('file') = $File
+			$Parameter.('file') = $File
 		}
 		If ($Line -gt 0) {
-			$Property.('line') = $Line
+			$Parameter.('line') = $Line
 		}
 		If ($Column -gt 0) {
-			$Property.('col') = $Column
+			$Parameter.('col') = $Column
 		}
 		If ($EndLine -gt 0) {
-			$Property.('endLine') = $EndLine
+			$Parameter.('endLine') = $EndLine
 		}
 		If ($EndColumn -gt 0) {
-			$Property.('endColumn') = $EndColumn
+			$Parameter.('endColumn') = $EndColumn
 		}
 		If ($Title.Length -gt 0) {
-			$Property.('title') = $Title
+			$Parameter.('title') = $Title
 		}
-		Write-GitHubActionsStdOutCommand -StdOutCommand $TypeRaw -Parameter $Property -Value $Message
+		If ($Message.Length -gt $AnnotationMessageLengthMaximum -and $Summary.Length -gt 0) {
+			Write-Host -Object $Message
+			Write-GitHubActionsStdOutCommand -StdOutCommand $Type -Parameter $Parameter -Value $Summary
+		}
+		Else {
+			Write-GitHubActionsStdOutCommand -StdOutCommand $Type -Parameter $Parameter -Value $Message
+		}
 	}
 }
 <#
@@ -131,8 +113,8 @@ GitHub Actions - Write Debug
 Print a debug message to the log.
 .PARAMETER Message
 Message that need to log at debug level.
-.PARAMETER SkipEmptyLine
-Whether to skip empty line.
+.PARAMETER SkipEmptyMessage
+Whether to skip empty message.
 .PARAMETER PassThru
 Return the message. By default, this function does not generate any output.
 .OUTPUTS
@@ -140,22 +122,24 @@ Return the message. By default, this function does not generate any output.
 [Void] By default, this function does not generate any output.
 #>
 Function Write-Debug {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsdebug')]
-	[OutputType(([String], [Void]))]
+	[CmdletBinding(DefaultParameterSetName = 'Void', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsdebug')]
+	[OutputType([String], ParameterSetName = 'PassThru')]
+	[OutputType([Void], ParameterSetName = 'Void')]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Content')][String]$Message,
-		[Alias('NoEmptyLine')][Switch]$SkipEmptyLine,
-		[Switch]$PassThru
+		[Alias('SkipEmpty')][Switch]$SkipEmptyMessage,
+		[Parameter(Mandatory = $True, ParameterSetName = 'PassThru')][Switch]$PassThru
 	)
 	Process {
 		If (
-			!$SkipEmptyLine.IsPresent -or
-			($SkipEmptyLine.IsPresent -and $Message.Length -gt 0)
+			!$SkipEmptyMessage.IsPresent -or
+			($SkipEmptyMessage.IsPresent -and $Message.Length -gt 0)
 		) {
 			Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Message
 		}
-		If ($PassThru.IsPresent) {
-			Write-Output -InputObject $Message
+		If ($PSCmdlet.ParameterSetName -ieq 'PassThru') {
+			$Message |
+				Write-Output
 		}
 	}
 }
@@ -178,6 +162,8 @@ Line end of the issue file of the annotation.
 Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the error message.
+.PARAMETER Summary
+Summary of the message when it is too large to display.
 .OUTPUTS
 [Void]
 #>
@@ -186,15 +172,16 @@ Function Write-Error {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` is not a single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineEnd')][UInt32]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` is not a single line string!')][Alias('Header')][String]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Header')][String]$Title,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary
 	)
 	Process {
-		Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+		Write-Annotation -Type 'error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	}
 }
 <#
@@ -216,8 +203,10 @@ Line end of the issue file of the annotation.
 Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the error message.
+.PARAMETER Summary
+Summary of the message when it is too large to display.
 .PARAMETER Finally
-A script that invoke before end the process, use to free any resources that are no longer needed.
+A script block to invoke before end the process, use to free any resources that are no longer needed.
 .PARAMETER ExitCode
 Exit code of the process.
 .OUTPUTS
@@ -228,16 +217,17 @@ Function Write-Fail {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Content')][String]$Message,
-		[AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` is not a single line string!')][Alias('Path')][String]$File,
+		[AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
 		[Alias('LineEnd')][UInt32]$EndLine,
 		[Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
-		[AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` is not a single line string!')][Alias('Header')][String]$Title,
+		[AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Header')][String]$Title,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary,
 		[ScriptBlock]$Finally = {},
-		[ValidateRange(1, [Byte]::MaxValue)][Byte]$ExitCode = 1
+		[Int16]$ExitCode = 1
 	)
-	Write-Annotation -Type 'Error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+	Write-Annotation -Type 'error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	Invoke-Command -ScriptBlock $Finally -ErrorAction 'Continue'
 	Exit $ExitCode
 	Exit 1# Fallback exit for safety.
@@ -261,6 +251,8 @@ Line end of the issue file of the annotation.
 Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the notice message.
+.PARAMETER Summary
+Summary of the message when it is too large to display.
 .OUTPUTS
 [Void]
 #>
@@ -269,68 +261,19 @@ Function Write-Notice {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` is not a single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineEnd')][UInt32]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` is not a single line string!')][Alias('Header')][String]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Header')][String]$Title,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary
 	)
 	Process {
-		Write-Annotation -Type 'Notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+		Write-Annotation -Type 'notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	}
 }
 Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Local'
-<#
-.SYNOPSIS
-GitHub Actions - Write Raw
-.DESCRIPTION
-Print anything to the log without accidentally execute any stdout command.
-.PARAMETER InputObject
-Item that need to log.
-.PARAMETER GroupTitle
-Title of the log group; This creates an expandable group in the log, and anything are inside this expandable group in the log.
-.PARAMETER WriteIf
-Log item based on specify condition.
-.PARAMETER PassThru
-Return the item. By default, this function does not generate any output.
-.OUTPUTS
-[Unknown] When use the parameter `PassThru`, this function return the item.
-[Void] By default, this function does not generate any output.
-#>
-Function Write-Raw {
-	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsraw')]
-	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyCollection()][AllowEmptyString()][AllowNull()][Alias('Content', 'Input', 'Message', 'Object')]$InputObject,
-		[Alias('GroupHeader', 'Header', 'Title')][String]$GroupTitle,
-		[Boolean]$WriteIf = $True,
-		[Switch]$PassThru
-	)
-	Begin {
-		If ($WriteIf) {
-			If ($GroupTitle.Length -gt 0) {
-				Enter-LogGroup -Title $GroupTitle
-			}
-			[String]$EndToken = Disable-GitHubActionsStdOutCommandProcess
-		}
-	}
-	Process {
-		If ($WriteIf) {
-			Write-Host -Object $InputObject
-		}
-		If ($PassThru.IsPresent) {
-			Write-Output -InputObject $InputObject
-		}
-	}
-	End {
-		If ($WriteIf) {
-			Enable-GitHubActionsStdOutCommandProcess -EndToken $EndToken
-			If ($GroupTitle.Length -gt 0) {
-				Exit-LogGroup
-			}
-		}
-	}
-}
 <#
 .SYNOPSIS
 GitHub Actions - Write Warning
@@ -350,6 +293,8 @@ Line end of the issue file of the annotation.
 Column end of the issue file of the annotation.
 .PARAMETER Title
 Title of the warning message.
+.PARAMETER Summary
+Summary of the message when it is too large to display.
 .OUTPUTS
 [Void]
 #>
@@ -358,27 +303,26 @@ Function Write-Warning {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `File` is not a single line string!')][Alias('Path')][String]$File,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineEnd')][UInt32]$EndLine,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('ColEnd', 'ColumnEnd', 'EndCol')][UInt32]$EndColumn,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Parameter `Title` is not a single line string!')][Alias('Header')][String]$Title
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Header')][String]$Title,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary
 	)
 	Process {
-		Write-Annotation -Type 'Warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title
+		Write-Annotation -Type 'warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	}
 }
 Set-Alias -Name 'Write-Warn' -Value 'Write-Warning' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
 	'Enter-LogGroup',
 	'Exit-LogGroup',
-	'Write-Annotation',
 	'Write-Debug',
 	'Write-Error',
 	'Write-Fail',
 	'Write-Notice',
-	'Write-Raw',
 	'Write-Warning'
 ) -Alias @(
 	'Enter-Group',
