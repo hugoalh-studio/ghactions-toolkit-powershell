@@ -109,7 +109,8 @@ Function Get-WebhookEventPayload {
 			Throw 'File is not exist!'
 		}
 		Get-Content -LiteralPath $Env:GITHUB_EVENT_PATH -Raw -Encoding 'UTF8NoBOM' |
-			ConvertFrom-Json -AsHashtable:($PSCmdlet.ParameterSetName -ieq 'Hashtable') -Depth 100
+			ConvertFrom-Json -AsHashtable:($PSCmdlet.ParameterSetName -ieq 'Hashtable') -Depth 100 |
+			Write-Output
 	}
 	Catch {
 		Write-Error -Message "Unable to get the GitHub Actions webhook event payload: $_" -Category 'ResourceUnavailable'
