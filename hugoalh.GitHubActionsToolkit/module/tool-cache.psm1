@@ -111,7 +111,7 @@ Function Find-ToolCache {
 		}
 		If ($PSCmdlet.ParameterSetName -ieq 'All') {
 			Invoke-GitHubActionsNodeJsWrapper -Name 'tool-cache/find-all-versions' -Argument $Argument |
-				Write-Output -NoEnumerate
+				Write-Output
 		}
 		Else {
 			$Argument.('version') = $Version.ToString()

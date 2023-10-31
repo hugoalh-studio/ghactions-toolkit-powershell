@@ -95,7 +95,7 @@ Function Invoke-NodeJsWrapper {
 				Throw $Result.Reason
 			}
 			$Result.Result |
-				Write-Output -NoEnumerate
+				Write-Output
 		}
 		Catch {
 			Write-Error -Message "Unable to successfully invoke the NodeJS wrapper ``$Name``: $_" -Category 'InvalidData'

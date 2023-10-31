@@ -8,8 +8,6 @@ Convert from a CSVM-formatted string.
 CSVM string that need to convert from.
 .PARAMETER AsHashtable
 Whether to output as a collection of hashtables instead of a collection of objects.
-.PARAMETER NoEnumerate
-Whether to prevent enumerates the output.
 .OUTPUTS
 [Hashtable[]] Result as hashtables.
 [PSCustomObject[]] Result as objects.
@@ -20,8 +18,7 @@ Function ConvertFrom-CsvM {
 	[OutputType([PSCustomObject[]], ParameterSetName = 'PSCustomObject')]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][AllowNull()][Alias('Input', 'Object')][String]$InputObject,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Hashtable')][Alias('ToHashtable')][Switch]$AsHashtable,
-		[Switch]$NoEnumerate
+		[Parameter(Mandatory = $True, ParameterSetName = 'Hashtable')][Alias('ToHashtable')][Switch]$AsHashtable
 	)
 	Process {
 		$InputObject -isplit '\r?\n' |
@@ -33,7 +30,7 @@ Function ConvertFrom-CsvM {
 				($PSCmdlet.ParameterSetName -ieq 'Hashtable') ? $Result : ([PSCustomObject]$Result) |
 					Write-Output
 			} |
-			Write-Output -NoEnumerate:($NoEnumerate.IsPresent)
+			Write-Output
 	}
 }
 <#
@@ -45,8 +42,6 @@ Convert from a CSVS-formatted string.
 CSVS string that need to convert from.
 .PARAMETER AsHashtable
 Whether to output as a collection of hashtables instead of a collection of objects.
-.PARAMETER NoEnumerate
-Whether to prevent enumerates the output.
 .OUTPUTS
 [Hashtable[]] Result as hashtables.
 [PSCustomObject[]] Result as objects.
@@ -57,15 +52,14 @@ Function ConvertFrom-CsvS {
 	[OutputType([PSCustomObject[]], ParameterSetName = 'PSCustomObject')]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)][AllowEmptyString()][AllowNull()][Alias('Input', 'Object')][String]$InputObject,
-		[Parameter(Mandatory = $True, ParameterSetName = 'Hashtable')][Alias('ToHashtable')][Switch]$AsHashtable,
-		[Switch]$NoEnumerate
+		[Parameter(Mandatory = $True, ParameterSetName = 'Hashtable')][Alias('ToHashtable')][Switch]$AsHashtable
 	)
 	Process {
 		$Null = $InputObject -imatch ';'
 		(ConvertFrom-Csv -InputObject $InputObject -Delimiter ';' -Header @(0..($Matches.Count + 1))).PSObject.Properties.Value |
 			Join-String -Separator "`n" |
 			ConvertFrom-CsvM -AsHashtable:($PSCmdlet.ParameterSetName -ieq 'Hashtable') |
-			Write-Output -NoEnumerate:($NoEnumerate.IsPresent)
+			Write-Output
 	}
 }
 <#

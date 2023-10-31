@@ -119,7 +119,7 @@ Function Import-Artifact {
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
 				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -Argument $Argument |
-					Write-Output -NoEnumerate
+					Write-Output
 			}
 			'Single' {
 				$Argument.('name') = $Name

@@ -130,7 +130,7 @@ Function Get-FileCommand {
 		Throw "``$CurrentLine`` is not a valid file command content!"
 	}
 	$Result |
-		Write-Output -NoEnumerate
+		Write-Output
 }
 <#
 .SYNOPSIS
