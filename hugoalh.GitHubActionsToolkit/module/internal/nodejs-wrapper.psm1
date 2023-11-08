@@ -69,11 +69,11 @@ Function Invoke-NodeJsWrapper {
 		If (!$ShouldProceed) {
 			Return
 		}
+		Do {
+			[String]$ExchangeFilePath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath ([System.IO.Path]::GetRandomFileName())
+		}
+		While (Test-Path -LiteralPath $ExchangeFilePath -PathType 'Leaf')
 		Try {
-			Do {
-				[String]$ExchangeFilePath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath ([System.IO.Path]::GetRandomFileName())
-			}
-			While (Test-Path -LiteralPath $ExchangeFilePath -PathType 'Leaf')
 			@{ '$name' = $Name } + $Argument |
 				ConvertTo-Json -Depth 100 -Compress |
 				Set-Content -LiteralPath $ExchangeFilePath -Confirm:$False -Encoding 'UTF8NoBOM'

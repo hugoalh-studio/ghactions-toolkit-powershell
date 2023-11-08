@@ -6,7 +6,7 @@ Import-Module -Name @(
 .SYNOPSIS
 GitHub Actions - Restore Cache
 .DESCRIPTION
-Restore cache that shared from the past jobs.
+Restore cache that shared from the past jobs and/or workflows.
 .PARAMETER Path
 Paths of the cache, support Glob.
 .PARAMETER Key
@@ -69,7 +69,7 @@ Set-Alias -Name 'Import-Cache' -Value 'Restore-Cache' -Option 'ReadOnly' -Scope 
 .SYNOPSIS
 GitHub Actions - Save cache
 .DESCRIPTION
-Save cache to share with the future jobs.
+Save cache to share with the future jobs and/or workflows.
 .PARAMETER Path
 Paths of the cache, support Glob.
 .PARAMETER Key

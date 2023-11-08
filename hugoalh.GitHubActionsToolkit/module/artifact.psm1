@@ -6,7 +6,7 @@ Import-Module -Name @(
 .SYNOPSIS
 GitHub Actions - Export Artifact
 .DESCRIPTION
-Export artifact to share with all of the subsequent jobs in the same workflow, and/or persist the data.
+Export artifact to share with all of the subsequent jobs in the current workflow run, and/or store it.
 .PARAMETER Name
 Name of the artifact.
 .PARAMETER Path
@@ -88,7 +88,7 @@ Set-Alias -Name 'Save-Artifact' -Value 'Export-Artifact' -Option 'ReadOnly' -Sco
 .SYNOPSIS
 GitHub Actions - Import Artifact
 .DESCRIPTION
-Import artifact that shared from the past jobs in the same workflow.
+Import artifact that shared from the previous jobs in the current workflow run.
 .PARAMETER Name
 Name of the artifact.
 .PARAMETER Destination
@@ -96,7 +96,7 @@ Absolute literal path of the destination of the artifact(s).
 .PARAMETER CreateSubDirectory
 Whether to create a sub-directory with artifact name and put the data into there.
 .PARAMETER All
-Whether to import all of the artifacts that shared from the past jobs in the same workflow; Always create sub-directories.
+Whether to import all of the artifacts that shared from the previous jobs in the current workflow run; Always create sub-directories.
 .OUTPUTS
 [PSCustomObject] Metadata of the imported artifact.
 [PSCustomObject[]] Metadata of the imported artifacts.
