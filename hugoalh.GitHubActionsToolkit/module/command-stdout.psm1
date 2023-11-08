@@ -186,7 +186,7 @@ Function Write-StdOutCommand {
 		[String[]]$ParameterNames = ([PSCustomObject]$Parameter).PSObject.Properties.Name
 		Write-Host -Object "::$StdOutCommand$(($ParameterNames.Count -gt 0) ? " $(
 			$ParameterNames |
-				ForEach-Object -Process { "$_=$(Format-StdOutParameterValue ($Parameter.($_) ?? ''))" } |
+				ForEach-Object -Process { "$_=$(Format-StdOutCommandParameterValue ($Parameter.($_) ?? ''))" } |
 				Join-String -Separator ','
 		)" : '')::$(Format-StdOutCommandValue ($Value ?? ''))"
 	}
