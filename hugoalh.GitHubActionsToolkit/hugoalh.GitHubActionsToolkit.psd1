@@ -131,6 +131,7 @@
 		'Add-SummaryRaw',
 		'Add-SummarySubscript',
 		'Add-SummarySuperscript',
+		'Clear-Env',
 		'Disable-CommandEcho',
 		'Disable-CommandProcess',
 		'Enable-CommandEcho',

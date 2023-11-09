@@ -159,6 +159,7 @@ Export-ModuleMember -Function @(
 	'Clear-PATH',
 	'Set-EnvironmentVariable'
 ) -Alias @(
+	'Clear-Env',
 	'Remove-Env',
 	'Remove-EnvironmentVariable',
 	'Remove-PATH',
