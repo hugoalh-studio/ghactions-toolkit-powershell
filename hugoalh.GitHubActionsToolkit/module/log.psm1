@@ -98,7 +98,14 @@ Function Write-Annotation {
 			$Parameter.('title') = $Title
 		}
 		If ($Message.Length -gt $AnnotationMessageLengthMaximum -and $Summary.Length -gt 0) {
-			Write-Host -Object $Message
+			If ($Message -imatch '^::') {
+				[String]$EndToken = Disable-GitHubActionsStdOutCommandProcess
+				Write-Host -Object $Message
+				Enable-GitHubActionsStdOutCommandProcess -EndToken $EndToken
+			}
+			Else {
+				Write-Host -Object $Message
+			}
 			Write-GitHubActionsStdOutCommand -StdOutCommand $Type -Parameter $Parameter -Value $Summary
 		}
 		Else {
