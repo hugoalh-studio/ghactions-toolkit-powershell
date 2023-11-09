@@ -2,12 +2,12 @@
 
 ## Supported Versions
 
-> | **Legend** | **Description** | **Support** |
-> |:-:|:-:|:-:|
-> | 🟤 | Pending / Pre Release / Unstable | ✔️ |
-> | 🔵 | Current Release | ✔️ |
-> | 🟢 | Long Term Support | ✔️ |
-> | 🔴 | End Of Life | ❌ |
+> | **Support** | **Legend** | **Description** |
+> |:-:|:-:|:--|
+> | ✔️ | 🟤 | Pending / Pre Release / Unstable |
+> | ✔️ | 🔵 | Current Release |
+> | ✔️ | 🟢 | Long Term Support |
+> | ❌ | 🔴 | End of Life |
 
 | **Versions** | **Status** | **🔵 Date** | **🟢 Date** | **🔴 Date** | **Target - GitHub Actions Runner** | **Target - PowerShell** | **Target - NodeJS (Wrapper API)** |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
@@ -17,7 +17,10 @@
 | v1.5.X | 🔴 | 2023-04-28 | 2023-04-28 | 2023-07-14 | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 |
 | v1.4.X | 🔴 | 2023-03-24 | 2023-03-24 | 2023-05-01 | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 |
 
-> **ℹ️ Notice:** Versions which not in the list are also end of life.
+> **ℹ️ Notice:**
+>
+> - The date format is according to ISO 8601 standard.
+> - Versions which not in the list are also end of life.
 
 ## Report Vulnerability
 
