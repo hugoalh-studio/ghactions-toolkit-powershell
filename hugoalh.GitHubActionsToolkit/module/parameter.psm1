@@ -7,7 +7,7 @@ Import-Module -Name @(
 .SYNOPSIS
 GitHub Actions - Clear Output
 .DESCRIPTION
-Clear output that set in the current step.
+Clear the outputs that set in the current step.
 .OUTPUTS
 [Void]
 #>
@@ -22,7 +22,7 @@ Set-Alias -Name 'Remove-Output' -Value 'Clear-Output' -Option 'ReadOnly' -Scope 
 .SYNOPSIS
 GitHub Actions - Clear State
 .DESCRIPTION
-Clear state that set in the current step.
+Clear the states that set in the current step.
 .OUTPUTS
 [Void]
 #>

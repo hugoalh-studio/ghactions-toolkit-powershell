@@ -70,7 +70,7 @@ Function Add-PATH {
 .SYNOPSIS
 GitHub Actions - Clear Environment Variable
 .DESCRIPTION
-Clear environment variable that set in the current step.
+Clear the environment variables that set in the current step.
 .OUTPUTS
 [Void]
 #>
@@ -87,7 +87,7 @@ Set-Alias -Name 'Remove-EnvironmentVariable' -Value 'Clear-EnvironmentVariable' 
 .SYNOPSIS
 GitHub Actions - Clear PATH
 .DESCRIPTION
-Clear PATH that set in the current step.
+Clear the PATHs that set in the current step.
 .OUTPUTS
 [Void]
 #>

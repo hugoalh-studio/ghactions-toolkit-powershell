@@ -40,7 +40,7 @@ Function Add-FileCommand {
 .SYNOPSIS
 GitHub Actions - Clear File Command
 .DESCRIPTION
-Clear file command that set in the current step.
+Clear the file command that set in the current step.
 .PARAMETER FileCommand
 File command.
 .OUTPUTS
