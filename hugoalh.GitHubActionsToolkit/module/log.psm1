@@ -232,7 +232,7 @@ Function Write-Fail {
 		[AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Header')][String]$Title,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary,
 		[ScriptBlock]$Finally = {},
-		[Int16]$ExitCode = 1
+		[ValidateScript({ $_ -ine 0 }, ErrorMessage = 'Value is not a valid non-success exit code!')][Int16]$ExitCode = 1
 	)
 	Write-Annotation -Type 'error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	Invoke-Command -ScriptBlock $Finally -ErrorAction 'Continue'
