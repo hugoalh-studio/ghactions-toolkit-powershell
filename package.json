@@ -1,6 +1,6 @@
 {
 	"name": "@hugoalh/ghactions-toolkit-powershell-nodejs-wrapper",
-	"version": "2.0.0-beta.2",
+	"version": "2.0.0-beta.3",
 	"description": "A PowerShell module to provide a better and easier way for GitHub Actions to communicate with the runner machine, and the toolkit for developing GitHub Actions in PowerShell.",
 	"keywords": [
 		"gh-actions",
@@ -34,11 +34,11 @@
 		"@actions/tool-cache": "^2.0.1"
 	},
 	"devDependencies": {
-		"@types/node": "^20.9.0",
-		"@typescript-eslint/eslint-plugin": "^6.10.0",
-		"@typescript-eslint/parser": "^6.10.0",
+		"@types/node": "^20.9.2",
+		"@typescript-eslint/eslint-plugin": "^6.11.0",
+		"@typescript-eslint/parser": "^6.11.0",
 		"@vercel/ncc": "^0.38.1",
-		"eslint": "^8.53.0",
+		"eslint": "^8.54.0",
 		"eslint-plugin-only-warn": "^1.1.0",
 		"typescript": "^5.2.2"
 	},
