@@ -58,7 +58,7 @@ Function Add-PATH {
 			Try {
 				(Get-Content -LiteralPath $Env:GITHUB_PATH -Encoding 'UTF8NoBOM') + $Path |
 					Select-Object -Unique |
-					Add-Content -LiteralPath $Env:GITHUB_PATH -Confirm:$False -Encoding 'UTF8NoBOM'
+					Set-Content -LiteralPath $Env:GITHUB_PATH -Confirm:$False -Encoding 'UTF8NoBOM'
 			}
 			Catch {
 				Write-Error -Message "Unable to add the GitHub Actions PATH: $_" -Category (($_)?.CategoryInfo.Category ?? 'OperationStopped')
