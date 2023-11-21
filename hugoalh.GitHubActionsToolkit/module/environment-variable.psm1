@@ -15,6 +15,8 @@ Add PATH for the current step and/or all of the subsequent steps in the current 
 Absolute paths.
 .PARAMETER Scope
 Scope of the PATHs.
+.PARAMETER Optimize
+Whether to have an optimize operation by replace exist command instead of add command directly.
 .OUTPUTS
 [Void]
 #>
@@ -23,7 +25,8 @@ Function Add-PATH {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidateScript({ [System.IO.Path]::IsPathFullyQualified($_) }, ErrorMessage = '`{0}` is not a valid absolute path!')][Alias('Paths')][String[]]$Path,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Scopes')][GitHubActionsEnvironmentVariableScopes]$Scope = [GitHubActionsEnvironmentVariableScopes]3,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$Optimize
 	)
 	Begin {
 		[Boolean]$ShouldProceed = $True
@@ -56,10 +59,15 @@ Function Add-PATH {
 		}
 		If (($Scope -band ([GitHubActionsEnvironmentVariableScopes]::Subsequent)) -ieq ([GitHubActionsEnvironmentVariableScopes]::Subsequent)) {
 			Try {
-				(Get-Content -LiteralPath $Env:GITHUB_PATH -Encoding 'UTF8NoBOM') + $Path |
-					Where-Object -FilterScript { $_.Length -gt 0 } |
-					Select-Object -Unique |
-					Set-Content -LiteralPath $Env:GITHUB_PATH -Confirm:$False -Encoding 'UTF8NoBOM'
+				If ($Optimize.IsPresent) {
+					(Get-Content -LiteralPath $Env:GITHUB_PATH -Encoding 'UTF8NoBOM') + $Path |
+						Where-Object -FilterScript { $_.Length -gt 0 } |
+						Select-Object -Unique |
+						Set-Content -LiteralPath $Env:GITHUB_PATH -Confirm:$False -Encoding 'UTF8NoBOM'
+				}
+				Else {
+					Add-Content -LiteralPath $Env:GITHUB_PATH -Value $Path -Confirm:$False -Encoding 'UTF8NoBOM'
+				}
 			}
 			Catch {
 				Write-Error -Message "Unable to add the GitHub Actions PATH: $_" -Category (($_)?.CategoryInfo.Category ?? 'OperationStopped')
