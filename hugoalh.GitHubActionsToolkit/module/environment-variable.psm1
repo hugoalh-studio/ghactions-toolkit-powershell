@@ -57,6 +57,7 @@ Function Add-PATH {
 		If (($Scope -band ([GitHubActionsEnvironmentVariableScopes]::Subsequent)) -ieq ([GitHubActionsEnvironmentVariableScopes]::Subsequent)) {
 			Try {
 				(Get-Content -LiteralPath $Env:GITHUB_PATH -Encoding 'UTF8NoBOM') + $Path |
+					Where-Object -FilterScript { $_.Length -gt 0 } |
 					Select-Object -Unique |
 					Set-Content -LiteralPath $Env:GITHUB_PATH -Confirm:$False -Encoding 'UTF8NoBOM'
 			}
