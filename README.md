@@ -15,7 +15,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 ### PowerShell
 
 - **Target Version:** >= v7.2.0, &:
-  - GitHub Actions Runner >= v2.310.0
+  - GitHub Actions Runner >= v2.311.0
   - NodeJS >= v16.13.0 *\[Optional, for NodeJS based wrapper API\]*
 - **Domain/Registry:**
   - [PowerShell Gallery](https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit)
