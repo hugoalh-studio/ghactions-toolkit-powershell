@@ -1,17 +1,16 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: "Publish PowerShell Module - PowerShell Gallery"
+name: "PowerShell - Publish - Gallery - Module"
 on:
   release:
     types:
       - "published"
   workflow_dispatch:
-defaults:
-  run:
-    shell: "pwsh"
+permissions:
+  contents: "read"
 jobs:
   main:
     name: "Main"
-    uses: "hugoalh/hugoalh/.github/workflows/reusable-publish-powershell-module-psg.yml@main"
+    uses: "hugoalh/hugoalh/.github/workflows/call-powershell-publish-gallery-module-0.yml@main"
     with:
       path: ".\\hugoalh.GitHubActionsToolkit\\"
     secrets:
