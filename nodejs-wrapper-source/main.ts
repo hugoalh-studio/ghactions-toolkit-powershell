@@ -1,6 +1,6 @@
 import { constants as fsConstants } from "node:fs";
 import { open as fsOpen, type FileHandle } from "node:fs/promises";
-import { create as ghactionsArtifact, type DownloadResponse as GitHubActionsArtifactDownloadResponse, type UploadResponse as GitHubActionsArtifactUploadResponse } from "@actions/artifact";
+import { DefaultArtifactClient as GitHubActionsArtifactClient, type ListArtifactsResponse as GitHubActionsArtifactListResponse, type DownloadArtifactResponse as GitHubActionsArtifactDownloadResponse, type UploadArtifactResponse as GitHubActionsArtifactUploadResponse, type GetArtifactResponse as GitHubActionsArtifactGetResponse } from "@actions/artifact";
 import { restoreCache as ghactionsCacheRestoreCache, saveCache as ghactionsCacheSaveCache } from "@actions/cache";
 import { debug as ghactionsDebug, getIDToken as ghactionsGetOpenIDConnectToken } from "@actions/core";
 import { cacheDir as ghactionsToolCacheCacheDirectory, cacheFile as ghactionsToolCacheCacheFile, downloadTool as ghactionsToolCacheDownloadTool, extract7z as ghactionsToolCacheExtract7z, extractTar as ghactionsToolCacheExtractTar, extractXar as ghactionsToolCacheExtractXar, extractZip as ghactionsToolCacheExtractZip, find as ghactionsToolCacheFind, findAllVersions as ghactionsToolCacheFindAllVersions } from "@actions/tool-cache";
@@ -42,40 +42,43 @@ switch (input.$name) {
 		break;
 	case "artifact/download":
 		try {
-			const result: GitHubActionsArtifactDownloadResponse = await ghactionsArtifact().downloadArtifact(input.name, input.destination, { createArtifactFolder: input.createSubDirectory });
+			const result: GitHubActionsArtifactDownloadResponse = await new GitHubActionsArtifactClient().downloadArtifact(input.id, {
+				findBy: input.findBy,
+				path: input.path
+			});
 			await resolveSuccess({
-				name: result.artifactName,
 				path: result.downloadPath
 			});
 		} catch (error) {
 			await resolveFail(error);
 		}
 		break;
-	case "artifact/download-all":
+	case "artifact/get":
 		try {
-			const result: GitHubActionsArtifactDownloadResponse[] = await ghactionsArtifact().downloadAllArtifacts(input.destination);
-			await resolveSuccess(result.map((value: GitHubActionsArtifactDownloadResponse) => {
-				return {
-					name: value.artifactName,
-					path: value.downloadPath
-				};
-			}));
+			const result: GitHubActionsArtifactGetResponse = await new GitHubActionsArtifactClient().getArtifact(input.name, { findBy: input.findBy });
+			await resolveSuccess(result.artifact);
+		} catch (error) {
+			await resolveFail(error);
+		}
+		break;
+	case "artifact/list":
+		try {
+			const result: GitHubActionsArtifactListResponse = await new GitHubActionsArtifactClient().listArtifacts({
+				findBy: input.findBy,
+				latest: true
+			});
+			await resolveSuccess(result.artifacts);
 		} catch (error) {
 			await resolveFail(error);
 		}
 		break;
 	case "artifact/upload":
 		try {
-			const result: GitHubActionsArtifactUploadResponse = await ghactionsArtifact().uploadArtifact(input.name, input.items, input.rootDirectory, {
-				continueOnError: input.continueOnError,
+			const result: GitHubActionsArtifactUploadResponse = await new GitHubActionsArtifactClient().uploadArtifact(input.name, input.items, input.rootDirectory, {
+				compressionLevel: input.compressionLevel,
 				retentionDays: input.retentionDays
 			});
-			await resolveSuccess({
-				name: result.artifactName,
-				items: result.artifactItems,
-				size: result.size,
-				failedItems: result.failedItems
-			});
+			await resolveSuccess(result);
 		} catch (error) {
 			await resolveFail(error);
 		}
