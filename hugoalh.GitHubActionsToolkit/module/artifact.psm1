@@ -15,16 +15,17 @@ Path of the files that need to export as artifact.
 Literal path of the files that need to export as artifact.
 .PARAMETER RootDirectory
 Absolute literal path of the root directory of the files for control files structure.
+.PARAMETER CompressionLevel
+Level of compression for Zlib to be applied to the artifact archive. The value can range from 0 to 9.
+
+- 0: No compression
+- 1: Best speed
+- 6: Default compression (same as GNU Gzip)
+- 9: Best compression
+
+Higher levels will result in better compression, but will take longer to complete. For large files that are not easily compressed, a value of 0 is recommended for significantly faster uploads.
 .PARAMETER RetentionDays
 Retention days of the artifact, override the default value.
-.PARAMETER FailFast
-Whether to stop export artifact if any of file fail to export due to any of error.
-
-By default, the failed files will skip and ignore, and all of the queued files will still export; The partial artifact will have all of the files except the failed files.
-
-When enable, export will stop, include all of the queued files; The partial artifact will have files up until the failure.
-
-A partial artifact will always associate and available at the end, and the size reported will be the amount of storage that the organization or user will charge for this partial artifact.
 .OUTPUTS
 [PSCustomObject] Metadata of the exported artifact.
 #>
@@ -36,8 +37,9 @@ Function Export-Artifact {
 		[Parameter(Mandatory = $True, ParameterSetName = 'Path', Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][SupportsWildcards()][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('File', 'Files', 'Paths')][String[]]$Path,
 		[Parameter(Mandatory = $True, ParameterSetName = 'LiteralPath', ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('LiteralFile', 'LiteralFiles', 'LiteralPaths', 'LP', 'PSPath', 'PSPaths')][String[]]$LiteralPath,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('BaseRoot', 'Root')][String]$RootDirectory = $Env:GITHUB_WORKSPACE,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidateRange(0,9, ErrorMessage = 'Value is not a valid compression level!')][Int16]$CompressionLevel = -1,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('RetentionDay', 'RetentionTime')][UInt16]$RetentionDays,
-		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$FailFast
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$FailFast# Deprecated.
 	)
 	Process {
 		If ($RootDirectory -inotmatch '^.+$') {
@@ -74,7 +76,9 @@ Function Export-Artifact {
 			'name' = $Name
 			'items' = $Items
 			'rootDirectory' = $RootDirectory
-			'continueOnError' = !$FailFast.IsPresent
+		}
+		If ($CompressionLevel -gt -1) {
+			$Argument.('compressionLevel') = $CompressionLevel
 		}
 		If ($RetentionDays -gt 0) {
 			$Argument.('retentionDays') = $RetentionDays
@@ -86,15 +90,55 @@ Function Export-Artifact {
 Set-Alias -Name 'Save-Artifact' -Value 'Export-Artifact' -Option 'ReadOnly' -Scope 'Local'
 <#
 .SYNOPSIS
+GitHub Actions - Get Artifact
+.DESCRIPTION
+Get artifact that shared from the previous jobs in the current workflow run.
+.PARAMETER Name
+Name of the artifact.
+.PARAMETER All
+Whether to get all of the artifacts that shared from the previous jobs in the current workflow run.
+.PARAMETER Latest
+Whether to filter the workflow run's artifacts to the latest by name. In the case of reruns, this can be useful to avoid duplicates.
+.OUTPUTS
+[PSCustomObject] Metadata of the artifact.
+[PSCustomObject[]] Metadata of the artifacts.
+#>
+Function Get-Artifact {
+	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsartifact')]
+	[OutputType([PSCustomObject], ParameterSetName = 'Single')]
+	[OutputType([PSCustomObject[]], ParameterSetName = 'All')]
+	Param (
+		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
+		[Parameter(ParameterSetName = 'All')][Switch]$Latest
+	)
+	Process {
+		[Hashtable]$Argument = @{}
+		Switch ($PSCmdlet.ParameterSetName) {
+			'All' {
+				$Argument.('latest') = $Latest.IsPresent
+				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/list' -Argument $Argument |
+					Write-Output
+			}
+			'Single' {
+				$Argument.('name') = $Name
+				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/get' -Argument $Argument |
+					Write-Output
+			}
+		}
+	}
+}
+<#
+.SYNOPSIS
 GitHub Actions - Import Artifact
 .DESCRIPTION
 Import artifact that shared from the previous jobs in the current workflow run.
+.PARAMETER Id
+ID of the artifact.
 .PARAMETER Name
 Name of the artifact.
 .PARAMETER Destination
 Absolute literal path of the destination of the artifact(s).
-.PARAMETER CreateSubDirectory
-Whether to create a sub-directory with artifact name and put the data into there.
 .PARAMETER All
 Whether to import all of the artifacts that shared from the previous jobs in the current workflow run; Always create sub-directories.
 .OUTPUTS
@@ -102,29 +146,38 @@ Whether to import all of the artifacts that shared from the previous jobs in the
 [PSCustomObject[]] Metadata of the imported artifacts.
 #>
 Function Import-Artifact {
-	[CmdletBinding(DefaultParameterSetName = 'Single', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_importgithubactionsartifact')]
-	[OutputType([PSCustomObject], ParameterSetName = 'Single')]
+	[CmdletBinding(DefaultParameterSetName = 'SingleId', HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_importgithubactionsartifact')]
+	[OutputType([PSCustomObject], ParameterSetName = ('SingleId', 'SingleName'))]
 	[OutputType([PSCustomObject[]], ParameterSetName = 'All')]
 	Param (
-		[Parameter(Mandatory = $True, ParameterSetName = 'Single', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][String]$Name,
+		[Parameter(Mandatory = $True, ParameterSetName = 'SingleId', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][UInt64]$Id,
+		[Parameter(Mandatory = $True, ParameterSetName = 'SingleName', Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][String]$Name,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Dest', 'Path', 'Target')][String]$Destination,
-		[Parameter(ParameterSetName = 'Single', ValueFromPipelineByPropertyName = $True)][Switch]$CreateSubDirectory,
-		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All
+		[Parameter(Mandatory = $True, ParameterSetName = 'All')][Switch]$All,
+		[Parameter(ValueFromPipelineByPropertyName = $True)][Switch]$CreateSubDirectory# Deprecated.
 	)
 	Process {
-		[Hashtable]$Argument = @{}
-		If ($Destination.Length -gt 0) {
-			$Argument.('destination') = $Destination
-		}
 		Switch ($PSCmdlet.ParameterSetName) {
 			'All' {
-				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download-all' -Argument $Argument |
+				Get-Artifact -All -Latest |
+					ForEach-Object -Process {
+						Import-Artifact -Id $_.id -Destination "$Destination/$($_.name)"
+					} |
 					Write-Output
 			}
-			'Single' {
-				$Argument.('name') = $Name
-				$Argument.('createSubDirectory') = $CreateSubDirectory.IsPresent
+			'SingleId' {
+				[Hashtable]$Argument = @{
+					'id' = $Id
+				}
+				If ($Destination.Length -gt 0) {
+					$Argument.('path') = $Destination
+				}
 				Invoke-GitHubActionsNodeJsWrapper -Name 'artifact/download' -Argument $Argument |
+					Write-Output
+			}
+			'SingleName' {
+				[PSCustomObject]$ArtifactMeta = Get-Artifact -Name $Name
+				Import-Artifact -Id $ArtifactMeta.id -Destination $Destination |
 					Write-Output
 			}
 		}
@@ -133,6 +186,7 @@ Function Import-Artifact {
 Set-Alias -Name 'Restore-Artifact' -Value 'Import-Artifact' -Option 'ReadOnly' -Scope 'Local'
 Export-ModuleMember -Function @(
 	'Export-Artifact',
+	'Get-Artifact',
 	'Import-Artifact'
 ) -Alias @(
 	'Restore-Artifact',

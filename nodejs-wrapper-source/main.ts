@@ -65,7 +65,7 @@ switch (input.$name) {
 		try {
 			const result: GitHubActionsArtifactListResponse = await new GitHubActionsArtifactClient().listArtifacts({
 				findBy: input.findBy,
-				latest: true
+				latest: input.latest
 			});
 			await resolveSuccess(result.artifacts);
 		} catch (error) {
