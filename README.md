@@ -52,6 +52,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 - `Expand-GitHubActionsToolCacheCompressedFile`
 - `Export-GitHubActionsArtifact`
 - `Find-GitHubActionsToolCache`
+- `Get-GitHubActionsArtifact`
 - `Get-GitHubActionsDebugStatus`
 - `Get-GitHubActionsInput`
 - `Get-GitHubActionsOpenIdConnectToken`
