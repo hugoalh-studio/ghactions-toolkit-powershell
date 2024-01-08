@@ -34,9 +34,10 @@
 		"@actions/tool-cache": "^2.0.1"
 	},
 	"devDependencies": {
-		"@types/node": "^20.10.5",
-		"@typescript-eslint/eslint-plugin": "^6.16.0",
-		"@typescript-eslint/parser": "^6.16.0",
+		"@stylistic/eslint-plugin": "^1.5.3",
+		"@types/node": "^20.10.7",
+		"@typescript-eslint/eslint-plugin": "^6.18.0",
+		"@typescript-eslint/parser": "^6.18.0",
 		"@vercel/ncc": "^0.38.1",
 		"eslint": "^8.56.0",
 		"eslint-plugin-only-warn": "^1.1.0",
