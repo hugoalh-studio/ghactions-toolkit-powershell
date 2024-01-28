@@ -16,7 +16,7 @@ Import-Module -Name @(
 	'save-state',# Legacy.
 	'set-env',# Legacy.
 	'set-output',# Legacy.
-	'stop-commands'
+	'stop-commands',
 	'warning'
 )
 [String[]]$StdOutCommandTokensUsed = @()
