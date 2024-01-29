@@ -15,11 +15,7 @@
 	},
 	"license": "MIT",
 	"author": "hugoalh",
-	"type": "module",
 	"main": "./main.js",
-	"exports": {
-		"import": "./main.js"
-	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/hugoalh-studio/ghactions-toolkit-powershell.git"
