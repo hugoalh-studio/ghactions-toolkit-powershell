@@ -20,7 +20,7 @@ for (const script of scripts.values()) {
 			cache: false,
 			debugLog: false,
 			license: "",
-			minify: true,
+			minify: false,
 			quiet: false,
 			sourceMap: false,
 			sourceMapRegister: false,

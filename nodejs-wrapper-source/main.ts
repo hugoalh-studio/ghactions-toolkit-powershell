@@ -1,8 +1,8 @@
-import fs from "node:fs";
-import ghactionsArtifact from "@actions/artifact";
-import ghactionsCache from "@actions/cache";
-import ghactionsCore from "@actions/core";
-import ghactionsToolCache from "@actions/tool-cache";
+import * as fs from "node:fs";
+import * as ghactionsArtifact from "@actions/artifact";
+import * as ghactionsCache from "@actions/cache";
+import * as ghactionsCore from "@actions/core";
+import * as ghactionsToolCache from "@actions/tool-cache";
 const exchangeFilePath: string = process.argv[2];
 const input = JSON.parse(fs.readFileSync(exchangeFilePath, { encoding: "utf-8" }));
 function exchangeFileWrite(data: Record<string, unknown>): void {
@@ -41,7 +41,7 @@ function resolveSuccess(result: unknown): void {
 			break;
 		case "artifact/download":
 			try {
-				const result = await ghactionsArtifact.downloadArtifact(input.id, {
+				const result = await new ghactionsArtifact.DefaultArtifactClient().downloadArtifact(input.id, {
 					findBy: input.findBy,
 					path: input.path
 				});
@@ -54,7 +54,7 @@ function resolveSuccess(result: unknown): void {
 			break;
 		case "artifact/get":
 			try {
-				const result = await ghactionsArtifact.getArtifact(input.name, { findBy: input.findBy });
+				const result = await new ghactionsArtifact.DefaultArtifactClient().getArtifact(input.name, { findBy: input.findBy });
 				resolveSuccess(result.artifact);
 			} catch (error) {
 				resolveFail(error);
@@ -62,7 +62,7 @@ function resolveSuccess(result: unknown): void {
 			break;
 		case "artifact/list":
 			try {
-				const result = await ghactionsArtifact.listArtifacts({
+				const result = await new ghactionsArtifact.DefaultArtifactClient().listArtifacts({
 					findBy: input.findBy,
 					latest: input.latest
 				});
@@ -73,7 +73,7 @@ function resolveSuccess(result: unknown): void {
 			break;
 		case "artifact/upload":
 			try {
-				const result = await ghactionsArtifact.uploadArtifact(input.name, input.items, input.rootDirectory, {
+				const result = await new ghactionsArtifact.DefaultArtifactClient().uploadArtifact(input.name, input.items, input.rootDirectory, {
 					compressionLevel: input.compressionLevel,
 					retentionDays: input.retentionDays
 				});
