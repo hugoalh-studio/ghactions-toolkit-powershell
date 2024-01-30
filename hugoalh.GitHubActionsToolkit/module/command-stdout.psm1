@@ -1,7 +1,4 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'internal\token.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
 [String[]]$StdOutCommandsType = @(
 	'add-mask',
 	'add-matcher',
@@ -19,7 +16,6 @@ Import-Module -Name @(
 	'stop-commands',
 	'warning'
 )
-[String[]]$StdOutCommandTokensUsed = @()
 <#
 .SYNOPSIS
 GitHub Actions - Disable StdOut Command Echo
@@ -51,15 +47,11 @@ Function Disable-StdOutCommandProcess {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disablegithubactionsstdoutcommandprocess')]
 	[OutputType([String])]
 	Param (
-		[Parameter(Position = 0)][ValidateScript({ Test-StdOutCommandToken -InputObject $_ }, ErrorMessage = 'Value is not a single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
+		[Parameter(Position = 0)][ValidateScript({ Test-StdOutCommandEndToken -InputObject $_ }, ErrorMessage = 'Value is not a single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	If ($EndToken.Length -eq 0) {
-		Do {
-			$EndToken = New-GitHubActionsRandomToken -NoUpperCase
-		}
-		While ($EndToken -iin $Script:StdOutCommandTokensUsed)
+		$EndToken = (New-Guid).Guid.ToLower() -ireplace '-', ''
 	}
-	$Script:StdOutCommandTokensUsed += $EndToken
 	Write-GitHubActionsStdOutCommand -StdOutCommand 'stop-commands' -Value $EndToken
 	$EndToken |
 		Write-Output
@@ -100,7 +92,7 @@ Function Enable-StdOutCommandProcess {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enablegithubactionsstdoutcommandprocess')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Test-StdOutCommandToken -InputObject $_ }, ErrorMessage = 'Value is not a single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
+		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Test-StdOutCommandEndToken -InputObject $_ }, ErrorMessage = 'Value is not a single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
 	Write-GitHubActionsStdOutCommand -StdOutCommand $EndToken
 }
@@ -145,15 +137,15 @@ Function Format-StdOutCommandParameterValue {
 }
 <#
 .SYNOPSIS
-GitHub Actions - Internal - Test StdOut Command Token
+GitHub Actions - Internal - Test StdOut Command End Token
 .DESCRIPTION
-Test the GitHub Actions stdout command token whether is valid.
+Test whether is a valid GitHub Actions stdout command end token.
 .PARAMETER InputObject
-GitHub Actions stdout command token that need to test.
+GitHub Actions stdout command end token that need to test.
 .OUTPUTS
 [Boolean] Test result.
 #>
-Function Test-StdOutCommandToken {
+Function Test-StdOutCommandEndToken {
 	[OutputType([Boolean])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('EndKey', 'EndValue', 'Input', 'Key', 'Object', 'Token', 'Value')][String]$InputObject

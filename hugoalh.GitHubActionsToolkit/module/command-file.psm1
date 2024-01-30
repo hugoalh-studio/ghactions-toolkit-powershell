@@ -1,7 +1,4 @@
 #Requires -PSEdition Core -Version 7.2
-Import-Module -Name @(
-	(Join-Path -Path $PSScriptRoot -ChildPath 'internal\token.psm1')
-) -Prefix 'GitHubActions' -Scope 'Local'
 <#
 .SYNOPSIS
 GitHub Actions - Internal - Add File Command
@@ -28,7 +25,7 @@ Function Add-FileCommand {
 	}
 	Else {
 		Do {
-			[String]$Token = New-GitHubActionsRandomToken
+			[String]$Token = (New-Guid).Guid.ToLower() -ireplace '-', ''
 			[String]$TokenRegExEscape = [RegEx]::Escape($Token)
 		}
 		While ($Name -imatch $TokenRegExEscape -or $Value -imatch $TokenRegExEscape)
