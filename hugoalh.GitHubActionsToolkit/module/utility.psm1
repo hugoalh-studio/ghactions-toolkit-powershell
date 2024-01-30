@@ -76,8 +76,7 @@ Function Get-DebugStatus {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_getgithubactionsdebugstatus')]
 	[OutputType([Boolean])]
 	Param ()
-	$Env:RUNNER_DEBUG -ieq '1' |
-		Write-Output
+	Write-Output -InputObject ($Env:RUNNER_DEBUG -ieq '1')
 }
 Set-Alias -Name 'Get-IsDebug' -Value 'Get-DebugStatus' -Option 'ReadOnly' -Scope 'Local'
 <#

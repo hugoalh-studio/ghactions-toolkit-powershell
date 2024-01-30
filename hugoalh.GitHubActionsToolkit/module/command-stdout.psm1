@@ -53,8 +53,7 @@ Function Disable-StdOutCommandProcess {
 		$EndToken = (New-Guid).Guid.ToLower() -ireplace '-', ''
 	}
 	Write-GitHubActionsStdOutCommand -StdOutCommand 'stop-commands' -Value $EndToken
-	$EndToken |
-		Write-Output
+	Write-Output -InputObject $EndToken
 }
 Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Stop-CommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
@@ -116,7 +115,7 @@ Function Format-StdOutCommandValue {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][AllowNull()][Alias('Input', 'Object', 'Value')][String]$InputObject
 	)
-	Return (($InputObject ?? '') -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D')
+	Return ($InputObject -ireplace '%', '%25' -ireplace '\n', '%0A' -ireplace '\r', '%0D')
 }
 <#
 .SYNOPSIS
@@ -133,7 +132,7 @@ Function Format-StdOutCommandParameterValue {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][AllowEmptyString()][AllowNull()][Alias('Input', 'Object', 'Value')][String]$InputObject
 	)
-	Return ((Format-StdOutCommandValue ($InputObject ?? '')) -ireplace ',', '%2C' -ireplace ':', '%3A')
+	Return ((Format-StdOutCommandValue -InputObject $InputObject) -ireplace ',', '%2C' -ireplace ':', '%3A')
 }
 <#
 .SYNOPSIS

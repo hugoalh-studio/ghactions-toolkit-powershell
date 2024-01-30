@@ -47,12 +47,11 @@ Function Clear-FileCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_cleargithubactionsfilecommand')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Command', 'Commands', 'FileCommands')][String[]]$FileCommand
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Command', 'Commands', 'FileCommands')][String[]]$FileCommand
 	)
 	ForEach ($FC In $FileCommand) {
 		Try {
-			[String]$FileCommandPath = Resolve-FileCommandPath -FileCommand $FC
-			Set-Content -LiteralPath $FileCommandPath -Value '' -Confirm:$False -Encoding 'UTF8NoBOM'
+			Set-Content -LiteralPath (Resolve-FileCommandPath -FileCommand $FC) -Value '' -Confirm:$False -Encoding 'UTF8NoBOM'
 		}
 		Catch {
 			Write-Error -Message "Unable to clear the GitHub Actions file command: $_" -Category (($_)?.CategoryInfo.Category ?? 'OperationStopped')
@@ -73,7 +72,7 @@ File command path.
 Function Get-FileCommand {
 	[OutputType([PSCustomObject[]])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('CommandPath')][String]$FileCommandPath
+		[Parameter(Mandatory = $True, Position = 0)][Alias('CommandPath')][String]$FileCommandPath
 	)
 	[String[]]$FileCommandRaw = Get-Content -LiteralPath $FileCommandPath -Encoding 'UTF8NoBOM'
 	[PSCustomObject[]]$Result = @()
@@ -144,7 +143,7 @@ Raw.
 Function Remove-FileCommand {
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('CommandPath')][String]$FileCommandPath,
+		[Parameter(Mandatory = $True, Position = 0)][Alias('CommandPath')][String]$FileCommandPath,
 		[Parameter(Mandatory = $True, Position = 1)][String[]]$Raw
 	)
 	[String]$FileCommandRaw = Get-Content -LiteralPath $FileCommandPath -Raw -Encoding 'UTF8NoBOM'
@@ -166,7 +165,7 @@ File command.
 Function Resolve-FileCommandPath {
 	[OutputType([String])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Command')][String]$FileCommand
+		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = '`{0}` is not a valid GitHub Actions file command!')][Alias('Command')][String]$FileCommand
 	)
 	[String]$FileCommandToUpper = $FileCommand.ToUpper()
 	[AllowEmptyString()][AllowNull()][String]$FileCommandPath = [System.Environment]::GetEnvironmentVariable($FileCommandToUpper)
@@ -201,7 +200,7 @@ Function Write-FileCommand {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsfilecommand')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('Command')][String]$FileCommand,
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Command')][String]$FileCommand,
 		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][String]$Name,
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value,
 		[Switch]$Optimize

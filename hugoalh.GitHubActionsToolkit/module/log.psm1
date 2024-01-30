@@ -2,7 +2,7 @@
 Import-Module -Name @(
 	(Join-Path -Path $PSScriptRoot -ChildPath 'command-stdout.psm1')
 ) -Prefix 'GitHubActions' -Scope 'Local'
-[UInt64]$AnnotationMessageLengthMaximum = 4096
+[UInt64]$AnnotationDataLengthMaximum = 4096
 <#
 .SYNOPSIS
 GitHub Actions - Enter Log Group
@@ -44,8 +44,8 @@ GitHub Actions - Internal - Write Annotation
 Print an annotation message to the log.
 .PARAMETER Type
 Type of the annotation.
-.PARAMETER Message
-Message of the annotation.
+.PARAMETER Data
+Data of the annotation.
 .PARAMETER File
 Path of the issue file of the annotation.
 .PARAMETER Line
@@ -68,7 +68,7 @@ Function Write-Annotation {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0, ValueFromPipelineByPropertyName = $True)][ValidateSet('error', 'notice', 'warning')][String]$Type,
-		[Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Data,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
@@ -97,19 +97,19 @@ Function Write-Annotation {
 		If ($Title.Length -gt 0) {
 			$Parameter.('title') = $Title
 		}
-		If ($Message.Length -gt $AnnotationMessageLengthMaximum -and $Summary.Length -gt 0) {
-			If ($Message -imatch '^::') {
+		If ($Data.Length -gt $AnnotationDataLengthMaximum -and $Summary.Length -gt 0) {
+			If ($Data -imatch '^::') {
 				[String]$EndToken = Disable-GitHubActionsStdOutCommandProcess
-				Write-Host -Object $Message
+				Write-Host -Object $Data
 				Enable-GitHubActionsStdOutCommandProcess -EndToken $EndToken
 			}
 			Else {
-				Write-Host -Object $Message
+				Write-Host -Object $Data
 			}
 			Write-GitHubActionsStdOutCommand -StdOutCommand $Type -Parameter $Parameter -Value $Summary
 		}
 		Else {
-			Write-GitHubActionsStdOutCommand -StdOutCommand $Type -Parameter $Parameter -Value $Message
+			Write-GitHubActionsStdOutCommand -StdOutCommand $Type -Parameter $Parameter -Value $Data
 		}
 	}
 }
@@ -133,20 +133,19 @@ Function Write-Debug {
 	[OutputType([String], ParameterSetName = 'PassThru')]
 	[OutputType([Void], ParameterSetName = 'Void')]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Content')][String]$Message,
-		[Alias('SkipEmpty')][Switch]$SkipEmptyMessage,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][Alias('Content', 'Message')][String]$Data,
+		[Alias('SkipEmptyMessage')][Switch]$SkipEmpty,
 		[Parameter(Mandatory = $True, ParameterSetName = 'PassThru')][Switch]$PassThru
 	)
 	Process {
 		If (
-			!$SkipEmptyMessage.IsPresent -or
-			($SkipEmptyMessage.IsPresent -and $Message.Length -gt 0)
+			!$SkipEmpty.IsPresent -or
+			($SkipEmpty.IsPresent -and $Data.Length -gt 0)
 		) {
-			Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Message
+			Write-GitHubActionsStdOutCommand -StdOutCommand 'debug' -Value $Data
 		}
 		If ($PSCmdlet.ParameterSetName -ieq 'PassThru') {
-			$Message |
-				Write-Output
+			Write-Output -InputObject $Data
 		}
 	}
 }
@@ -155,8 +154,8 @@ Function Write-Debug {
 GitHub Actions - Write Error
 .DESCRIPTION
 Print an error message to the log.
-.PARAMETER Message
-Message that need to log at error level.
+.PARAMETER Data
+Data that need to log at error level.
 .PARAMETER File
 Path of the issue file of the annotation.
 .PARAMETER Line
@@ -178,7 +177,7 @@ Function Write-Error {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionserror')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Data,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
@@ -188,7 +187,7 @@ Function Write-Error {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary
 	)
 	Process {
-		Write-Annotation -Type 'error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
+		Write-Annotation -Type 'error' -Data $Data -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	}
 }
 <#
@@ -196,8 +195,8 @@ Function Write-Error {
 GitHub Actions - Write Fail
 .DESCRIPTION
 Print an error message to the log and end the process.
-.PARAMETER Message
-Message that need to log at error level.
+.PARAMETER Data
+Data that need to log at error level.
 .PARAMETER File
 Path of the issue file of the annotation.
 .PARAMETER Line
@@ -223,7 +222,7 @@ Function Write-Fail {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsfail')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][Alias('Content')][String]$Message,
+		[Parameter(Mandatory = $True, Position = 0)][Alias('Content', 'Message')][String]$Data,
 		[AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
@@ -234,7 +233,7 @@ Function Write-Fail {
 		[ScriptBlock]$Finally = {},
 		[ValidateScript({ $_ -ine 0 }, ErrorMessage = 'Value is not a valid non-success exit code!')][Int16]$ExitCode = 1
 	)
-	Write-Annotation -Type 'error' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
+	Write-Annotation -Type 'error' -Data $Data -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	Invoke-Command -ScriptBlock $Finally -ErrorAction 'Continue'
 	Exit $ExitCode
 	Exit 1# Fallback exit for safety.
@@ -244,8 +243,8 @@ Function Write-Fail {
 GitHub Actions - Write Notice
 .DESCRIPTION
 Print a notice message to the log.
-.PARAMETER Message
-Message that need to log at notice level.
+.PARAMETER Data
+Data that need to log at notice level.
 .PARAMETER File
 Path of the issue file of the annotation.
 .PARAMETER Line
@@ -267,7 +266,7 @@ Function Write-Notice {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionsnotice')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Data,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
@@ -277,7 +276,7 @@ Function Write-Notice {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary
 	)
 	Process {
-		Write-Annotation -Type 'notice' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
+		Write-Annotation -Type 'notice' -Data $Data -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	}
 }
 Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Local'
@@ -286,8 +285,8 @@ Set-Alias -Name 'Write-Note' -Value 'Write-Notice' -Option 'ReadOnly' -Scope 'Lo
 GitHub Actions - Write Warning
 .DESCRIPTION
 Print a warning message to the log.
-.PARAMETER Message
-Message that need to log at warning level.
+.PARAMETER Data
+Data that need to log at warning level.
 .PARAMETER File
 Path of the issue file of the annotation.
 .PARAMETER Line
@@ -309,7 +308,7 @@ Function Write-Warning {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_writegithubactionswarning')]
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content')][String]$Message,
+		[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)][Alias('Content', 'Message')][String]$Data,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][ValidatePattern('^.*$', ErrorMessage = 'Value is not a single line string!')][Alias('Path')][String]$File,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('LineStart', 'StartLine')][UInt32]$Line,
 		[Parameter(ValueFromPipelineByPropertyName = $True)][Alias('Col', 'ColStart', 'ColumnStart', 'StartCol', 'StartColumn')][UInt32]$Column,
@@ -319,7 +318,7 @@ Function Write-Warning {
 		[Parameter(ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Summary
 	)
 	Process {
-		Write-Annotation -Type 'warning' -Message $Message -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
+		Write-Annotation -Type 'warning' -Data $Data -File $File -Line $Line -Column $Column -EndLine $EndLine -EndColumn $EndColumn -Title $Title -Summary $Summary
 	}
 }
 Set-Alias -Name 'Write-Warn' -Value 'Write-Warning' -Option 'ReadOnly' -Scope 'Local'
