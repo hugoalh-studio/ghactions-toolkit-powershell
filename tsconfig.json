@@ -8,8 +8,7 @@
 		"emitDeclarationOnly": false,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
+		"module": "CommonJS",
 		"outDir": "./temp",
 		"target": "ES2022"
 	},
