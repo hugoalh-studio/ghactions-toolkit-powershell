@@ -8,11 +8,12 @@
 		"emitDeclarationOnly": false,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
-		"module": "CommonJS",
-		"outDir": "./temp",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"outDir": "./hugoalh.GitHubActionsToolkit/nodejs-wrapper",
 		"target": "ES2022"
 	},
 	"include": [
-		"./nodejs-wrapper-source/**/*.ts"
+		"./nodejs-wrapper-src/**/*.ts"
 	]
 }

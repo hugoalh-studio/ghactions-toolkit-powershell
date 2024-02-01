@@ -16,7 +16,7 @@
 )
 Import-Module -Name (
 	$ModulesName |
-		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "module\$_.psm1" }
+		ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath "lib\$_.psm1" }
 ) -Scope 'Local'
 [PSCustomObject[]]$PackageCommands = Get-Command -Module $ModulesName -ListImported
 [String[]]$PackageFunctions = $PackageCommands |

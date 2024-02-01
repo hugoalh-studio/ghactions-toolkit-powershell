@@ -2,6 +2,7 @@
 <#
 This script is help for copy members to the file `hugoalh.GitHubActionsToolkit.psd1` for best performance, and use for debug.
 #>
+$ErrorActionPreference = 'Stop'
 [String]$PackageName = 'hugoalh.GitHubActionsToolkit'
 Import-Module -Name @(
 	(Join-Path -Path $PSScriptRoot -ChildPath "$PackageName\$PackageName.psm1")
