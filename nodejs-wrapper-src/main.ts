@@ -10,7 +10,7 @@ async function exchangeFileWrite(data: Record<string, unknown>): Promise<void> {
 	await exchangeFileHandle.truncate(0);
 	return exchangeFileHandle.writeFile(JSON.stringify(data), { encoding: "utf8" });
 }
-function resolveFail(reason: string | Error | RangeError | ReferenceError | SyntaxError | TypeError): Promise<void> {
+function resolveFail(reason: string | Error): Promise<void> {
 	const output: Record<string, unknown> = {
 		isSuccess: false
 	};
@@ -33,12 +33,12 @@ function resolveSuccess(result: unknown): Promise<void> {
 }
 switch (input.$name) {
 	case "debug/fail":
-		ghactionsDebug(input?.message ?? "");
+		ghactionsDebug(input?.message ?? "Hello, world!");
 		await resolveFail("This is a fail.");
 		break;
 	case "debug/success":
-		ghactionsDebug(input?.message ?? "");
-		await resolveSuccess("This is a success");
+		ghactionsDebug(input?.message ?? "Hello, world!");
+		await resolveSuccess("This is a success.");
 		break;
 	case "artifact/download":
 		try {
