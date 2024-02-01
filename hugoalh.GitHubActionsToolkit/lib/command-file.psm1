@@ -16,8 +16,8 @@ Value.
 Function Add-FileCommand {
 	[OutputType([Void])]
 	Param (
-		[Parameter(Mandatory = $True, Position = 0)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][Alias('CommandPath')][String]$FileCommandPath,
-		[Parameter(Mandatory = $True, Position = 1)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 0)][Alias('CommandPath')][String]$FileCommandPath,
+		[Parameter(Mandatory = $True, Position = 1)][String]$Name,
 		[Parameter(Mandatory = $True, Position = 2)][AllowEmptyString()][AllowNull()][String]$Value
 	)
 	If ($Value -imatch '^.*$') {
@@ -26,9 +26,11 @@ Function Add-FileCommand {
 	Else {
 		Do {
 			[String]$Token = (New-Guid).Guid.ToLower() -ireplace '-', ''
-			[String]$TokenRegExEscape = [RegEx]::Escape($Token)
 		}
-		While ($Name -imatch $TokenRegExEscape -or $Value -imatch $TokenRegExEscape)
+		While (
+			$Name -imatch $Token -or
+			$Value -imatch $Token
+		)
 		[String]$Content = "$Name<<$Token`n$($Value -ireplace '\r?\n', "`n")`n$Token"
 	}
 	Add-Content -LiteralPath $FileCommandPath -Value $Content -Confirm:$False -Encoding 'UTF8NoBOM'
@@ -103,7 +105,8 @@ Function Get-FileCommand {
 			}
 			$Result += [PSCustomObject]@{
 				Name = $Name
-				Value = $Value
+				Value = $Value |
+					Join-String -Separator "`n"
 				Raw = @($CurrentLine) + $Value + @($Delimiter)
 			}
 			$Index = $IndexOffset
@@ -201,7 +204,7 @@ Function Write-FileCommand {
 	[OutputType([Void])]
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][Alias('Command')][String]$FileCommand,
-		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^.+$', ErrorMessage = 'Value is not a single line string!')][String]$Name,
+		[Parameter(Mandatory = $True, Position = 1, ValueFromPipelineByPropertyName = $True)][ValidatePattern('^(?:[\da-z][\da-z_-]*)?[\da-z]$', ErrorMessage = 'Value is not a valid GitHub Actions file command property name!')][String]$Name,
 		[Parameter(Mandatory = $True, Position = 2, ValueFromPipelineByPropertyName = $True)][AllowEmptyString()][AllowNull()][String]$Value,
 		[Switch]$Optimize
 	)
