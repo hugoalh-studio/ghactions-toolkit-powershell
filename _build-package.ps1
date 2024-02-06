@@ -10,6 +10,9 @@ $ErrorActionPreference = 'Stop'
 [String]$PackageWrapperRoot = Join-Path -Path $PackageRoot -ChildPath 'nodejs-wrapper'
 $OriginalLocation = Get-Location
 Set-Location -LiteralPath $PSScriptRoot
+If (!$SkipNodeJSModules.IsPresent) {
+	npm install
+}
 npm run wrapper-transform
 @(
 	@{
