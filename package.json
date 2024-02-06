@@ -6,8 +6,9 @@
 		"gh-actions",
 		"ghactions",
 		"github-actions",
-		"PSEdition_Core",
-		"toolkit"
+		"powershell",
+		"toolkit",
+		"wrapper"
 	],
 	"homepage": "https://github.com/hugoalh-studio/ghactions-toolkit-powershell#readme",
 	"bugs": {
