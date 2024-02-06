@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://citation-file-format.github.io/1.2.0/schema.json
+cff-version: "1.2.0"
+title: "GitHub Actions Toolkit (PowerShell)"
+message: "If you use this software, please cite it using the metadata from this file."
+type: "software"
+authors:
+  - name: "hugoalh Studio"
+repository-code: "https://github.com/hugoalh-studio/ghactions-toolkit-powershell"
+keywords:
+  - "gh-actions"
+  - "ghactions"
+  - "github-actions"
+  - "powershell"
+  - "toolkit"
+license: "MIT"
