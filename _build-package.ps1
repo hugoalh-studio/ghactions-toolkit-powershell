@@ -20,6 +20,10 @@ npm run wrapper-transform
 		Source = 'LICENSE.md'
 	},
 	@{
+		Destination = 'README.md'
+		Source = 'README.md'
+	},
+	@{
 		Destination = Join-Path -Path 'nodejs-wrapper' -ChildPath 'package-lock.json'
 		Source = 'package-lock.json'
 	},
