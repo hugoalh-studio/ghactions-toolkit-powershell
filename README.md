@@ -1,7 +1,6 @@
 # GitHub Actions Toolkit (PowerShell)
 
 [⚖️ MIT](./LICENSE.md)
-[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/hugoalh-studio/ghactions-toolkit-powershell?label=Grade&logo=codefactor&logoColor=ffffff&style=flat-square "CodeFactor Grade")](https://www.codefactor.io/repository/github/hugoalh-studio/ghactions-toolkit-powershell)
 
 |  | **Release - Latest** | **Release - Pre** |
 |:-:|:-:|:-:|
@@ -17,7 +16,7 @@ A PowerShell module to provide a better and easier way for GitHub Actions to com
 - **Target Version:** >= v7.2.0, &:
   - GitHub Actions Runner >= v2.311.0
   - NodeJS >= v16.13.0 *\[Optional, for NodeJS based wrapper API\]*
-- **Domain/Registry:**
+- **Registry:**
   - [PowerShell Gallery](https://www.powershellgallery.com/packages/hugoalh.GitHubActionsToolkit)
     ```ps1
     Install-Module -Name 'hugoalh.GitHubActionsToolkit' -AcceptLicense
