@@ -28,7 +28,7 @@ Function Disable-StdOutCommandEcho {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_disablegithubactionsstdoutcommandecho')]
 	[OutputType([Void])]
 	Param ()
-	Write-GitHubActionsStdOutCommand -StdOutCommand 'echo' -Value 'off'
+	Write-StdOutCommand -StdOutCommand 'echo' -Value 'off'
 }
 Set-Alias -Name 'Disable-CommandEcho' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Stop-CommandEcho' -Value 'Disable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
@@ -52,7 +52,7 @@ Function Disable-StdOutCommandProcess {
 	If ($EndToken.Length -eq 0) {
 		$EndToken = (New-Guid).Guid.ToLower() -ireplace '-', ''
 	}
-	Write-GitHubActionsStdOutCommand -StdOutCommand 'stop-commands' -Value $EndToken
+	Write-StdOutCommand -StdOutCommand 'stop-commands' -Value $EndToken
 	Write-Output -InputObject $EndToken
 }
 Set-Alias -Name 'Disable-CommandProcess' -Value 'Disable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
@@ -72,7 +72,7 @@ Function Enable-StdOutCommandEcho {
 	[CmdletBinding(HelpUri = 'https://github.com/hugoalh-studio/ghactions-toolkit-powershell/wiki/api_function_enablegithubactionsstdoutcommandecho')]
 	[OutputType([Void])]
 	Param ()
-	Write-GitHubActionsStdOutCommand -StdOutCommand 'echo' -Value 'on'
+	Write-StdOutCommand -StdOutCommand 'echo' -Value 'on'
 }
 Set-Alias -Name 'Enable-CommandEcho' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Start-CommandEcho' -Value 'Enable-StdOutCommandEcho' -Option 'ReadOnly' -Scope 'Local'
@@ -93,7 +93,7 @@ Function Enable-StdOutCommandProcess {
 	Param (
 		[Parameter(Mandatory = $True, Position = 0)][ValidateScript({ Test-StdOutCommandEndToken -InputObject $_ }, ErrorMessage = 'Value is not a single line string, more than or equal to 4 characters, and not match any GitHub Actions commands!')][Alias('EndKey', 'EndValue', 'Key', 'Token', 'Value')][String]$EndToken
 	)
-	Write-GitHubActionsStdOutCommand -StdOutCommand $EndToken
+	Write-StdOutCommand -StdOutCommand $EndToken
 }
 Set-Alias -Name 'Enable-CommandProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
 Set-Alias -Name 'Resume-CommandProcess' -Value 'Enable-StdOutCommandProcess' -Option 'ReadOnly' -Scope 'Local'
