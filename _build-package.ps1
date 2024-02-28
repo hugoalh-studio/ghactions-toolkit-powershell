@@ -24,11 +24,11 @@ npm run wrapper-transform
 		Source = 'README.md'
 	},
 	@{
-		Destination = Join-Path -Path 'nodejs-wrapper' -ChildPath 'package-lock.json'
+		Destination = 'nodejs-wrapper\package-lock.json'
 		Source = 'package-lock.json'
 	},
 	@{
-		Destination = Join-Path -Path 'nodejs-wrapper' -ChildPath 'package.json'
+		Destination = 'nodejs-wrapper\package.json'
 		Source = 'package.json'
 	}
 ) |
@@ -37,6 +37,6 @@ npm run wrapper-transform
 	}
 If (!$SkipNodeJSModules.IsPresent) {
 	Set-Location -LiteralPath $PackageWrapperRoot
-	npm install --ignore-scripts --omit dev
+	npm install --ignore-scripts --omit=dev
 }
 Set-Location -LiteralPath $OriginalLocation
