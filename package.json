@@ -37,8 +37,8 @@
 	"devDependencies": {
 		"@stylistic/eslint-plugin": "^1.6.2",
 		"@types/node": "^20.11.21",
-		"@typescript-eslint/eslint-plugin": "^6.21.0",
-		"@typescript-eslint/parser": "^6.21.0",
+		"@typescript-eslint/eslint-plugin": "^7.1.0",
+		"@typescript-eslint/parser": "^7.1.0",
 		"eslint": "^8.57.0",
 		"eslint-plugin-only-warn": "^1.1.0",
 		"typescript": "^5.3.3"
