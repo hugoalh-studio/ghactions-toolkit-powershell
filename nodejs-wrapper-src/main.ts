@@ -1,16 +1,17 @@
-import { constants as fsConstants } from "node:fs";
-import { open as fsOpen, type FileHandle } from "node:fs/promises";
 import { DefaultArtifactClient as GitHubActionsArtifactClient, type ListArtifactsResponse as GitHubActionsArtifactListResponse, type DownloadArtifactResponse as GitHubActionsArtifactDownloadResponse, type UploadArtifactResponse as GitHubActionsArtifactUploadResponse, type GetArtifactResponse as GitHubActionsArtifactGetResponse } from "@actions/artifact";
 import { restoreCache as ghactionsCacheRestoreCache, saveCache as ghactionsCacheSaveCache } from "@actions/cache";
-import { debug as ghactionsDebug, getIDToken as ghactionsGetOpenIDConnectToken } from "@actions/core";
+import { getIDToken as ghactionsGetOpenIDConnectToken } from "@actions/core";
 import { cacheDir as ghactionsToolCacheCacheDirectory, cacheFile as ghactionsToolCacheCacheFile, downloadTool as ghactionsToolCacheDownloadTool, extract7z as ghactionsToolCacheExtract7z, extractTar as ghactionsToolCacheExtractTar, extractXar as ghactionsToolCacheExtractXar, extractZip as ghactionsToolCacheExtractZip, find as ghactionsToolCacheFind, findAllVersions as ghactionsToolCacheFindAllVersions } from "@actions/tool-cache";
-const exchangeFileHandle: FileHandle = await fsOpen(process.argv[2], fsConstants.O_RDWR | fsConstants.O_NOFOLLOW);
-const input = JSON.parse(await exchangeFileHandle.readFile({ encoding: "utf8" }));
-async function exchangeFileWrite(data: Record<string, unknown>): Promise<void> {
-	await exchangeFileHandle.truncate(0);
-	return exchangeFileHandle.writeFile(JSON.stringify(data), { encoding: "utf8" });
+interface WrapperDataExchangeInput {
+	name: string;
+	parameters: { [key: string]: any; };
+	token: string;
 }
-function resolveFail(reason: string | Error): Promise<void> {
+function convertEncoding(value: string, from: BufferEncoding, to: BufferEncoding): string {
+	return Buffer.from(value, from).toString(to);
+}
+const { name, parameters, token }: WrapperDataExchangeInput = JSON.parse(convertEncoding(process.argv[2], "base64", "utf-8")) as WrapperDataExchangeInput;
+function resolveFail(reason: string | Error): void {
 	const output: Record<string, unknown> = {
 		isSuccess: false
 	};
@@ -23,174 +24,165 @@ function resolveFail(reason: string | Error): Promise<void> {
 		}
 		output.reason = message;
 	}
-	return exchangeFileWrite(output);
+	console.log(JSON.stringify(output));
 }
-function resolveSuccess(result: unknown): Promise<void> {
-	return exchangeFileWrite({
+function resolveSuccess(result: unknown): void {
+	console.log(JSON.stringify({
 		isSuccess: true,
 		result
-	});
+	}));
 }
-switch (input.$name) {
-	case "debug/fail":
-		ghactionsDebug(input?.message ?? "Hello, world!");
-		await resolveFail("This is a fail.");
-		break;
-	case "debug/success":
-		ghactionsDebug(input?.message ?? "Hello, world!");
-		await resolveSuccess("This is a success.");
-		break;
+switch (name) {
 	case "artifact/download":
 		try {
-			const result: GitHubActionsArtifactDownloadResponse = await new GitHubActionsArtifactClient().downloadArtifact(input.id, {
-				findBy: input.findBy,
-				path: input.path
+			const result: GitHubActionsArtifactDownloadResponse = await new GitHubActionsArtifactClient().downloadArtifact(parameters.id, {
+				findBy: parameters.findBy,
+				path: parameters.path
 			});
-			await resolveSuccess({
+			resolveSuccess({
 				path: result.downloadPath
 			});
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "artifact/get":
 		try {
-			const result: GitHubActionsArtifactGetResponse = await new GitHubActionsArtifactClient().getArtifact(input.name, { findBy: input.findBy });
-			await resolveSuccess(result.artifact);
+			const result: GitHubActionsArtifactGetResponse = await new GitHubActionsArtifactClient().getArtifact(parameters.name, { findBy: parameters.findBy });
+			resolveSuccess(result.artifact);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "artifact/list":
 		try {
 			const result: GitHubActionsArtifactListResponse = await new GitHubActionsArtifactClient().listArtifacts({
-				findBy: input.findBy,
-				latest: input.latest
+				findBy: parameters.findBy,
+				latest: parameters.latest
 			});
-			await resolveSuccess(result.artifacts);
+			resolveSuccess(result.artifacts);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "artifact/upload":
 		try {
-			const result: GitHubActionsArtifactUploadResponse = await new GitHubActionsArtifactClient().uploadArtifact(input.name, input.items, input.rootDirectory, {
-				compressionLevel: input.compressionLevel,
-				retentionDays: input.retentionDays
+			const result: GitHubActionsArtifactUploadResponse = await new GitHubActionsArtifactClient().uploadArtifact(parameters.name, parameters.items, parameters.rootDirectory, {
+				compressionLevel: parameters.compressionLevel,
+				retentionDays: parameters.retentionDays
 			});
-			await resolveSuccess(result);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "cache/restore":
 		try {
-			const result: string | undefined = await ghactionsCacheRestoreCache(input.paths, input.primaryKey, input.restoreKeys, {
-				concurrentBlobDownloads: input.concurrencyBlobDownload,
-				downloadConcurrency: input.downloadConcurrency,
-				lookupOnly: input.lookup,
-				segmentTimeoutInMs: input.segmentTimeout,
-				timeoutInMs: input.timeout,
-				useAzureSdk: input.useAzureSdk
+			const result: string | undefined = await ghactionsCacheRestoreCache(parameters.paths, parameters.primaryKey, parameters.restoreKeys, {
+				concurrentBlobDownloads: parameters.concurrencyBlobDownload,
+				downloadConcurrency: parameters.downloadConcurrency,
+				lookupOnly: parameters.lookup,
+				segmentTimeoutInMs: parameters.segmentTimeout,
+				timeoutInMs: parameters.timeout,
+				useAzureSdk: parameters.useAzureSdk
 			});
-			await resolveSuccess(result ?? null);
+			resolveSuccess(result ?? null);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "cache/save":
 		try {
-			const result: number = await ghactionsCacheSaveCache(input.paths, input.key, {
-				uploadChunkSize: input.uploadChunkSize,
-				uploadConcurrency: input.uploadConcurrency
+			const result: number = await ghactionsCacheSaveCache(parameters.paths, parameters.key, {
+				uploadChunkSize: parameters.uploadChunkSize,
+				uploadConcurrency: parameters.uploadConcurrency
 			});
-			await resolveSuccess(result);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "open-id-connect/get-token":
 		try {
-			const result: string = await ghactionsGetOpenIDConnectToken(input.audience);
-			await resolveSuccess(result);
+			const result: string = await ghactionsGetOpenIDConnectToken(parameters.audience);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/cache-directory":
 		try {
-			const result: string = await ghactionsToolCacheCacheDirectory(input.source, input.name, input.version, input.architecture);
-			await resolveSuccess(result);
+			const result: string = await ghactionsToolCacheCacheDirectory(parameters.source, parameters.name, parameters.version, parameters.architecture);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/cache-file":
 		try {
-			const result: string = await ghactionsToolCacheCacheFile(input.source, input.target, input.name, input.version, input.architecture);
-			await resolveSuccess(result);
+			const result: string = await ghactionsToolCacheCacheFile(parameters.source, parameters.target, parameters.name, parameters.version, parameters.architecture);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/download-tool":
 		try {
-			const result: string = await ghactionsToolCacheDownloadTool(input.url, input.destination, input.authorization, input.headers);
-			await resolveSuccess(result);
+			const result: string = await ghactionsToolCacheDownloadTool(parameters.url, parameters.destination, parameters.authorization, parameters.headers);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/extract-7z":
 		try {
-			const result: string = await ghactionsToolCacheExtract7z(input.file, input.destination, input["7zrPath"]);
-			await resolveSuccess(result);
+			const result: string = await ghactionsToolCacheExtract7z(parameters.file, parameters.destination, parameters["7zrPath"]);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/extract-tar":
 		try {
-			const result: string = await ghactionsToolCacheExtractTar(input.file, input.destination, input.flags);
-			await resolveSuccess(result);
+			const result: string = await ghactionsToolCacheExtractTar(parameters.file, parameters.destination, parameters.flags);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/extract-xar":
 		try {
-			const result: string = await ghactionsToolCacheExtractXar(input.file, input.destination, input.flags);
-			await resolveSuccess(result);
+			const result: string = await ghactionsToolCacheExtractXar(parameters.file, parameters.destination, parameters.flags);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/extract-zip":
 		try {
-			const result: string = await ghactionsToolCacheExtractZip(input.file, input.destination);
-			await resolveSuccess(result);
+			const result: string = await ghactionsToolCacheExtractZip(parameters.file, parameters.destination);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/find":
 		try {
-			const result: string = ghactionsToolCacheFind(input.name, input.version, input.architecture);
-			await resolveSuccess(result);
+			const result: string = ghactionsToolCacheFind(parameters.name, parameters.version, parameters.architecture);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	case "tool-cache/find-all-versions":
 		try {
-			const result: string[] = ghactionsToolCacheFindAllVersions(input.name, input.architecture);
-			await resolveSuccess(result);
+			const result: string[] = ghactionsToolCacheFindAllVersions(parameters.name, parameters.architecture);
+			resolveSuccess(result);
 		} catch (error) {
-			await resolveFail(error);
+			resolveFail(error);
 		}
 		break;
 	default:
-		await resolveFail(`\`${input.wrapperName}\` is not a valid NodeJS wrapper name! Most likely a mistake made by the contributors, please report this issue.`);
+		resolveFail(`\`${name}\` is not a valid NodeJS wrapper name! Most likely a mistake made by the contributors, please report this issue.`);
 		break;
 }
-await exchangeFileHandle.close();

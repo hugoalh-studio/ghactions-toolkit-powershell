@@ -15,7 +15,7 @@
 | v2.X.X | 🟢 | 2023-12-04 | 2023-12-27 | *Unknown* | >= v2.311.0 | >= v7.2.0 | >= v16.13.0 |
 | v1.7.X | 🔴 | 2023-07-24 | 2023-07-24 | 2024-01-01 | >= v2.303.0 | >= v7.2.0 | >= v14.15.0 |
 
-> **ℹ️ Notice:**
+> **ℹ️ Note**
 >
 > - The date format is according to ISO 8601 standard.
 > - Values in italic format are subject to change.

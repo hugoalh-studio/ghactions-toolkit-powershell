@@ -1,11 +1,9 @@
 #Requires -PSEdition Core -Version 7.2
-[SemVer]$RequireVersionMinimum = [SemVer]::Parse('16.13.0')
+[SemVer]$NodeJsVersionMinimum = [SemVer]::Parse('16.13.0')
 [String]$WrapperRoot = Join-Path -Path $PSScriptRoot -ChildPath '..\nodejs-wrapper'
 [String]$WrapperPackageMetaFilePath = Join-Path -Path $WrapperRoot -ChildPath 'package.json'
 [String]$WrapperScriptFilePath = Join-Path -Path $WrapperRoot -ChildPath 'main.js'
 <#
-.SYNOPSIS
-GitHub Actions - Internal - Invoke NodeJS Wrapper
 .DESCRIPTION
 Invoke NodeJS wrapper.
 .PARAMETER Name
@@ -27,50 +25,37 @@ Function Invoke-NodeJsWrapper {
 		[Parameter(Mandatory = $True, Position = 1)][Alias('Arguments')][Hashtable]$Argument
 	)
 	Try {
-		$CommandMeta = Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'SilentlyContinue'
-		If ($Null -ieq $CommandMeta) {
-			Throw 'NodeJS is not exist, or not accessible and usable!'
+		If ($Null -eq (Get-Command -Name 'node' -CommandType 'Application' -ErrorAction 'SilentlyContinue')) {
+			Throw 'NodeJS is not exist, accessible, or usable!'
 		}
 		Try {
-			[PSCustomObject]$VersionsTable = node --no-deprecation --no-warnings '--eval=console.log(JSON.stringify(process.versions));' *>&1 |
-				Join-String -Separator "`n" |
-				ConvertFrom-Json -Depth 100
-			[SemVer]$CurrentVersion = [SemVer]::Parse($VersionsTable.node)
+			[SemVer]$NodeJsVersionCurrent = [SemVer]::Parse((
+				node --no-deprecation --no-warnings '--eval=console.log(process.versions.node);' *>&1 |
+					Join-String -Separator "`n"
+			))
 		}
 		Catch {
-			Throw 'NodeJS versions table is not parsable!'
+			Throw 'unable to get NodeJS version!'
 		}
-		If ($RequireVersionMinimum -gt $CurrentVersion) {
-			Throw 'NodeJS is not fulfill the requirement!'
+		If ($NodeJsVersionMinimum -gt $NodeJsVersionCurrent) {
+			Throw "NodeJS version is not fulfill the requirement! Current: $($NodeJsVersionCurrent.ToString()); Expect: >=$($NodeJsVersionMinimum.ToString())"
 		}
-		ForEach ($FilePath In @($WrapperPackageMetaFilePath, $WrapperScriptFilePath)) {
-			If (!(Test-Path -LiteralPath $FilePath -PathType 'Leaf')) {
-				Throw "wrapper resource `"$FilePath`" is missing!"
-			}
+		If (!(Test-Path -LiteralPath $WrapperPackageMetaFilePath -PathType 'Leaf')) {
+			Throw "NodeJS wrapper package meta file ($WrapperPackageMetaFilePath) is missing!"
 		}
-		If ([String]::IsNullOrEmpty($Env:RUNNER_TEMP)) {
-			Throw 'environment variable `RUNNER_TEMP` is not defined!'
-		}
-		If (![System.IO.Path]::IsPathFullyQualified($Env:RUNNER_TEMP)) {
-			Throw "``$Env:RUNNER_TEMP`` (environment variable ``RUNNER_TEMP``) is not a valid absolute path!"
-		}
-		If (!(Test-Path -LiteralPath $Env:RUNNER_TEMP -PathType 'Container')) {
-			Throw "path ``$Env:RUNNER_TEMP`` is not initialized!"
+		If (!(Test-Path -LiteralPath $WrapperScriptFilePath -PathType 'Leaf')) {
+			Throw "NodeJS wrapper script file ($WrapperScriptFilePath) is missing!"
 		}
 	}
 	Catch {
 		Write-Error -Message "This function depends and requires to invoke with the compatible NodeJS environment, but $_" -Category 'ResourceUnavailable'
 		Return
 	}
-	Do {
-		[String]$ExchangeFilePath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath ([System.IO.Path]::GetRandomFileName())
-	}
-	While (Test-Path -LiteralPath $ExchangeFilePath -PathType 'Leaf')
+	[String]$ArgumentStringify = $Argument |
+		ConvertTo-Json -Depth 100 -Compress
+	[String]$Token = (New-Guid).Guid.ToLower() -ireplace '-', ''
 	Try {
-		@{ '$name' = $Name } + $Argument |
-			ConvertTo-Json -Depth 100 -Compress |
-			Set-Content -LiteralPath $ExchangeFilePath -Confirm:$False -Encoding 'UTF8NoBOM'
-		[String]$StdOut = node --no-deprecation --no-warnings $WrapperScriptFilePath $ExchangeFilePath *>&1 |
+		[String]$StdOut = node --no-deprecation --no-warnings $WrapperScriptFilePath $Name $ArgumentStringify $Token *>&1 |
 			Where-Object -FilterScript {
 				If ($_ -imatch '^::.+?::.*$') {
 					Write-Host -Object $_
@@ -82,21 +67,18 @@ Function Invoke-NodeJsWrapper {
 		If ($LASTEXITCODE -ne 0) {
 			Throw "[Exit Code $LASTEXITCODE] $StdOut"
 		}
-		[PSCustomObject]$Result = Get-Content -LiteralPath $ExchangeFilePath -Raw -Encoding 'UTF8NoBOM' |
+		If ($StdOut -inotmatch "(?<=$($Token)\r?\n)(?:.|\r?\n)*?(?=\r?\n$($Token))") {
+			Throw 'No data return.'
+		}
+		[PSCustomObject]$Result = $Matches[0] |
 			ConvertFrom-Json -Depth 100
 		If (!$Result.IsSuccess) {
 			Throw $Result.Reason
 		}
-		$Result.Result |
-			Write-Output
+		Write-Output -InputObject $Result.Result
 	}
 	Catch {
 		Write-Error -Message "Unable to successfully invoke the NodeJS wrapper ``$Name``: $_" -Category 'InvalidData'
-	}
-	Finally {
-		If (Test-Path -LiteralPath $ExchangeFilePath -PathType 'Leaf') {
-			Remove-Item -LiteralPath $ExchangeFilePath -Force -Confirm:$False -ErrorAction 'Continue'
-		}
 	}
 }
 Export-ModuleMember -Function @(
