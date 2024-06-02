@@ -35,13 +35,13 @@
 		"@actions/tool-cache": "^2.0.1"
 	},
 	"devDependencies": {
-		"@stylistic/eslint-plugin": "^1.6.2",
-		"@types/node": "^20.11.21",
-		"@typescript-eslint/eslint-plugin": "^7.1.0",
-		"@typescript-eslint/parser": "^7.1.0",
-		"eslint": "^8.57.0",
+		"@stylistic/eslint-plugin": "^2.1.0",
+		"@types/node": "^20.13.0",
+		"@typescript-eslint/eslint-plugin": "^7.11.0",
+		"@typescript-eslint/parser": "^7.11.0",
+		"eslint": "^9.4.0",
 		"eslint-plugin-only-warn": "^1.1.0",
-		"typescript": "^5.3.3"
+		"typescript": "^5.4.5"
 	},
 	"engines": {
 		"node": ">=16.13.0"
